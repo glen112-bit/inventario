@@ -1,20 +1,16 @@
-import react, { useEffect, useState } from 'react'
-import axios from 'axios'
-import Dashboard from './components/Dashboard'
+import Sidebar from './components/Sidebar' // 1. Asegúrate de que la importación apunte al archivo correcto
+import DashboardLayout from './components/DashboardLayout'
 
-function Home (){
-  const [data, setData] = useState([])
+export default function Home() {
+  return (
+    <div className="flex min-h-screen bg-neutral-950 text-white">
+      {/* 2. RENDERIZAR EL SIDEBAR AQUÍ */}
+      <Sidebar />
 
-  useEffect(()=> {
-    axios .get('http://localhost:5173/api/dashboard/stats')
-      .then(res => {
-        // console.log(res.data)
-        setData(res.data.stats)
-      })
-    .catch(err => console.log(err))
-  },[])
-  return(
-    <Dashboard data={data}/> 
-  )  
+      {/* 3. CONTENEDOR DEL DASHBOARD (Con un margen izquierdo de w-72 para no pisarse con el Sidebar) */}
+      <main className="flex-1 pl-72 p-8">
+        <DashboardLayout />
+      </main>
+    </div>
+  )
 }
-export default Home
