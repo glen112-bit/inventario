@@ -1,74 +1,90 @@
-import {
-  Calendar,
-  Boxes,
-  Wrench,
-  DollarSign,
-} from 'lucide-react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
-const cards = [
-  {
-    title: 'Locações Ativas',
-    value: 24,
-    icon: Calendar,
-  },
-  {
-    title: 'Total no Inventário',
-    value: 320,
-    icon: Boxes,
-  },
-  {
-    title: 'Em Manutenção',
-    value: 8,
-    icon: Wrench,
-  },
-  {
-    title: 'Faturamento',
-    value: '$12.400',
-    icon: DollarSign,
-  },
-]
+import Grid from '@mui/material/Grid'
+
+import Inventory2Icon from '@mui/icons-material/Inventory2'
+import HandshakeIcon from '@mui/icons-material/Handshake'
+import BuildIcon from '@mui/icons-material/Build'
+import PeopleIcon from '@mui/icons-material/People'
+
+import KpiCard from '../../components/KpiCard'
 
 export default function DashboardPage() {
+
+  const [stats, setStats] = useState({
+  totalEquipos: 0,
+  equiposDisponibles: 0,
+  mantenimientosPendientes: 0,
+  usuarios: 0
+  })
+
+  useEffect(() => {
+    loadStats()
+  }, [])
+
+  const loadStats = async () => {
+
+    try {
+
+      const res = await axios.get(
+        'http://localhost:3001/api/dashboard/stats'
+      )
+
+      setStats(res.data)
+console.log(res.data)
+    } catch (err) {
+
+      console.error(err)
+
+    }
+  }
+
   return (
-    <div>
-      <div className="mb-12">
-        <h1 className="text-6xl font-black tracking-tight">
-          Painel de Controle
-        </h1>
 
-        <p className="mt-4 text-lg text-gray-400">
-          Visão geral das operações em tempo real.
-        </p>
-      </div>
+    <>
+      <h1>Dashboard</h1>
 
-      <div className="grid grid-cols-4 gap-6">
-        {cards.map((card) => {
-          const Icon = card.icon
+      <Grid container spacing={3} mt={1}>
 
-          return (
-            <div
-              key={card.title}
-              className="rounded-3xl border border-white/10 bg-[#101726] p-6 transition-all duration-300 hover:translate-y-[-4px] hover:border-cyan-400/20"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400">
-                    {card.title}
-                  </p>
+        <Grid item xs={12} md={3}>
+          <KpiCard
+            title="Equipos"
+            value={stats.totalEquipos || 0}
+            icon={<Inventory2Icon />}
+            color="#3b82f6"
+          />
+        </Grid>
 
-                  <h2 className="mt-4 text-5xl font-black">
-                    {card.value}
-                  </h2>
-                </div>
+        <Grid item xs={12} md={3}>
+          <KpiCard
+            title="Disponibles"
+            value={stats.equiposDisponibles || 0}
+            icon={<HandshakeIcon />}
+            color="#10b981"
+          />
+        </Grid>
 
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-300">
-                  <Icon size={28} />
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
+        <Grid item xs={12} md={3}>
+          <KpiCard
+            title="Mantenimiento"
+            value={stats.mantenimientosPendientes || 0}
+            icon={<BuildIcon />}
+            color="#f59e0b"
+          />
+        </Grid>
+
+        <Grid item xs={12} md={3}>
+          <KpiCard
+            title="Usuarios"
+            value={stats.usuarios || 0}
+            icon={<PeopleIcon />}
+            color="#8b5cf6"
+          />
+        </Grid>
+
+      </Grid>
+    </>
   )
+
 }

@@ -6,7 +6,7 @@ import DashboardLayout from './components/DashboardLayout'
 
 import DashboardPage from './pages/DashboardPage'
 import InventarioPage from './pages/InventarioPage'
-import AlugeisPage from './pages/AlugeisPage'
+import AlugueisPage from './pages/AlugueisPage'
 import ClientesPage from './pages/ClientesPage'
 import UsuariosPage from './pages/UsuariosPage'
 import ManutencaoPage from './pages/ManutencaoPage'
@@ -29,7 +29,7 @@ function App() {
           */}
           <Route path="/" element={<DashboardPage />} />
           <Route path="/inventario" element={<InventarioPage />} />
-          <Route path="/alugeis" element={<AlugeisPage />} />
+          <Route path="/alugueis" element={<AlugueisPage />} />
           <Route path="/clientes" element={<ClientesPage />} />
           <Route path="/usuarios" element={<UsuariosPage />} />
           <Route path="/manutencao" element={<ManutencaoPage />} />

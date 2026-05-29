@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 
+import alugueisRoutes from './routes/alugueis.routes.js';
 import equiposRoutes from './routes/equipos.routes.js';
 import usuariosRoutes from './routes/usuarios.routes.js'
 import clientesRoutes from './routes/clientes.routes.js'
@@ -12,6 +13,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use('/api', alugueisRoutes);
 app.use('/api', equiposRoutes);
 app.use('/api', usuariosRoutes)
 app.use('/api', clientesRoutes)

@@ -1,70 +1,184 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 
+import {
+Box,
+Paper,
+Typography,
+Button,
+Chip,
+Avatar
+} from '@mui/material'
+
+import { DataGrid } from '@mui/x-data-grid'
+import type { GridColDef } from '@mui/x-data-grid'
+
+import AddIcon from '@mui/icons-material/Add'
+import PersonIcon from '@mui/icons-material/Person'
+
 type Usuario = {
-  id: number
-  nome: string
-  email: string
-  cargo: string
-  tipo_usuario: string
+id:number
+nome:string
+email:string
+cargo:string
+tipo_usuario:string
+telefone:string
+activo:number
+created_at:string
 }
 
-export default function UsuariosPage() {
+export default function UsuariosPage(){
 
-  const [usuarios, setUsuarios] = useState<Usuario[]>([])
+const [usuarios,setUsuarios]=useState<Usuario[]>([])
 
-  useEffect(() => {
+useEffect(()=>{
 
-    const obtenerUsuarios = async () => {
+const obtenerUsuarios=async()=>{
 
-      try {
+try{
 
-        const response = await axios.get(
-          'http://localhost:3001/api/usuarios'
-        )
+const response=await axios.get(
+'http://localhost:3001/api/usuarios'
+)
 
-        setUsuarios(response.data)
-console.log(usuarios)
-      } catch (error) {
+setUsuarios(response.data)
 
-        console.error(error)
-      }
-    }
+}catch(error){
 
-    obtenerUsuarios()
+console.error(error)
 
-  }, [])
+}
 
-  return (
-    <div className="p-6">
+}
 
-      <h1 className="text-3xl font-bold mb-6">
-        Usuarios
-      </h1>
+obtenerUsuarios()
 
-      <div className="space-y-4">
+},[])
 
-        {usuarios.map((usuario) => (
+const columns:GridColDef[]=[
 
-          <div
-            key={usuario.id}
-            className="bg-white p-4 rounded-xl border"
-          >
+{
+field:'nome',
+headerName:'Usuario',
+flex:1,
+renderCell:(params)=>(
+<Box
+display="flex"
+alignItems="center"
+gap={2}
+>
+<Avatar>
+<PersonIcon/>
+</Avatar>
+{params.value}
+</Box>
+)
+},
 
-            <h2 className="font-semibold">
-              {usuario.nome}
-            </h2>
+{
+field:'email',
+headerName:'Email',
+flex:1.5
+},
 
-            <p>{usuario.email}</p>
+{
+field:'cargo',
+headerName:'Cargo',
+flex:1
+},
 
-            <p>{usuario.cargo}</p>
+{
+field:'tipo_usuario',
+headerName:'Tipo',
+flex:1,
+renderCell:(params)=>{
 
-          </div>
+const color=
+params.value==='admin'
+? 'error'
+: params.value==='subadmin'
+? 'warning'
+: 'primary'
 
-        ))}
+return(
+<Chip
+label={params.value}
+color={color}
+/>
+)
 
-      </div>
+}
+},
 
-    </div>
-  )
+{
+field:'activo',
+headerName:'Estado',
+flex:1,
+renderCell:(params)=>(
+<Chip
+label={params.value ? 'Activo':'Inactivo'}
+color={params.value ? 'success':'default'}
+/>
+)
+}
+]
+
+return(
+
+<Box>
+
+<Box
+display="flex"
+justifyContent="space-between"
+alignItems="center"
+mb={4}
+>
+
+<Box>
+
+<Typography
+variant="h4"
+fontWeight={700}
+>
+Usuarios
+</Typography>
+
+<Typography
+color="text.secondary"
+>
+Administración de usuarios del sistema
+</Typography>
+
+</Box>
+
+<Button
+variant="contained"
+startIcon={<AddIcon />}
+>
+Nuevo Usuario
+</Button>
+
+</Box>
+
+<Paper
+sx={{
+height:650,
+borderRadius:4,
+overflow:'hidden'
+}}
+>
+
+<DataGrid
+rows={usuarios}
+columns={columns}
+pageSizeOptions={[10,25,50]}
+disableRowSelectionOnClick
+/>
+
+</Paper>
+
+</Box>
+
+)
+
 }

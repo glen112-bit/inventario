@@ -6,6 +6,6 @@ import {
 
 const router = express.Router()
 
-router.get('/equipos', getEquipos)
+router.get('/inventario', getEquipos)
 
 export default router

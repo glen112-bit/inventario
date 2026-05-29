@@ -7,16 +7,10 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001', // Tu puerto del backend
+        target: 'http://localhost:3001',
         changeOrigin: true,
-        secure: false,
-        ws: true,
+        secure: false
       }
     }
-  },
-  // Si tenías una sección "optimizeDeps" apuntando a rollupOptions, 
-  // cámbiala a "rolldownOptions" o elimínala si no la usas explícitamente:
-  optimizeDeps: {
-    // rolldownOptions: { ... }
   }
 })

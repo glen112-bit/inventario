@@ -22,9 +22,9 @@ const items = [
     path: '/inventario',
   },
   {
-    label: 'Alquileres',
+    label: 'Alugueis',
     icon: ClipboardList,
-    path: '/alquileres',
+    path: '/alugueis',
   },
   {
     label: 'Clientes',
@@ -32,9 +32,14 @@ const items = [
     path: '/clientes',
   },
   {
+    label: 'Usuarios',
+    icon: Users,
+    path: '/usuarios',
+  },
+  {
     label: 'Mantenimiento',
     icon: Wrench,
-    path: '/mantenimiento',
+    path: '/manutencao',
   },
   {
     label: 'Analytics',
@@ -42,76 +47,159 @@ const items = [
     path: '/analytics',
   },
   {
-    label: 'Configuraciones',
+    label: 'Config',
     icon: Settings,
-    path: '/configuracion',
+    path: '/config',
   },
 ]
 
 export default function Sidebar() {
-  return (
-    <aside className="fixed left-0 top-0 flex h-screen w-[290px] flex-col border-r border-white/10 bg-[#0B1020] px-6 py-8">
-      <div className="mb-14">
-        <h1 className="text-4xl font-black tracking-tight">
-          AudioERP
-        </h1>
 
-        <p className="mt-2 text-sm text-gray-400">
-          Enterprise Management
-        </p>
+  return (
+
+    <aside
+      className="
+        fixed left-0 top-0
+        flex h-screen w-[260px] flex-col
+        border-r border-white/5
+        bg-[#111827]
+      "
+    >
+
+      {/* LOGO */}
+
+      <div
+        className="
+          flex h-20 items-center
+          border-b border-white/5
+          px-8
+        "
+      >
+
+        <div>
+
+          <h1
+            className="
+              text-xl font-bold
+              tracking-tight
+              text-white
+            "
+          >
+            AudioERP
+          </h1>
+
+          <p
+            className="
+              text-xs text-slate-400
+            "
+          >
+            Rental Management
+          </p>
+
+        </div>
+
       </div>
 
-      <nav className="space-y-3">
+      {/* NAV */}
+
+      <nav
+        className="
+          flex-1 space-y-1
+          p-4
+        "
+      >
+
         {items.map((item) => {
+
           const Icon = item.icon
 
           return (
+
             <NavLink
               key={item.label}
               to={item.path}
+
               className={({ isActive }) => `
-                flex items-center gap-4
-                rounded-2xl
-                px-5 py-4
-                transition-all duration-300
+
+                flex items-center gap-3
+
+                rounded-xl
+
+                px-4 py-3
+
+                text-sm font-medium
+
+                transition-all duration-200
+
                 ${
                   isActive
                     ? `
-                      bg-gradient-to-r
-                      from-cyan-500/20
-                      to-blue-500/10
-                      text-cyan-300
-                      border border-cyan-400/20
+                      bg-blue-500/10
+                      text-blue-400
                     `
                     : `
-                      text-gray-400
+                      text-slate-400
+
                       hover:bg-white/5
                       hover:text-white
                     `
                 }
+
               `}
             >
-              <Icon size={22} />
 
-              <span className="text-[15px] font-medium">
-                {item.label}
-              </span>
+              <Icon size={18} />
+
+              {item.label}
+
             </NavLink>
+
           )
+
         })}
+
       </nav>
 
-      <div className="mt-auto">
-        <div className="rounded-3xl border border-cyan-400/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 p-5">
-          <p className="text-sm text-cyan-300">
-            Sistema Online
+      {/* FOOTER */}
+
+      <div
+        className="
+          border-t border-white/5
+          p-4
+        "
+      >
+
+        <div
+          className="
+            rounded-xl
+            bg-[#1f2937]
+            p-4
+          "
+        >
+
+          <p
+            className="
+              text-xs text-slate-400
+            "
+          >
+            Sistema online
           </p>
 
-          <h3 className="mt-3 text-lg font-bold">
-            Todos los servicios funcionando
+          <h3
+            className="
+              mt-1 text-sm
+              font-semibold text-white
+            "
+          >
+            Todos os serviços ativos
           </h3>
+
         </div>
+
       </div>
+
     </aside>
+
   )
+
 }

@@ -1,147 +1,300 @@
-import { useEffect, useState } from 'react'
+import { useEffect,useMemo,useState } from 'react'
 import axios from 'axios'
 
-type Equipo = {
-  id: number
-  nome: string
-  categoria: string
-  marca: string
-  modelo: string
-  numero_serie: string
-  estado: string
+import {
+Box,
+Paper,
+Typography,
+Button,
+TextField,
+Chip,
+Grid,
+Avatar
+} from '@mui/material'
+
+import AddIcon from '@mui/icons-material/Add'
+import Inventory2Icon from '@mui/icons-material/Inventory2'
+
+import {
+Table,
+TableBody,
+TableCell,
+TableContainer,
+TableHead,
+TableRow
+} from '@mui/material'
+
+type Equipamento={
+  id:number
+  nome:string
+  numero_serie:string
+  categoria:string
+  marca:string
+  estado_actual:string
+  ubicacion:string
+  valor_compra:number
 }
 
-export default function InventarioPage() {
-  const [equipos, setEquipos] = useState<Equipo[]>([])
-  const [loading, setLoading] = useState(true)
+export default function EquipamentosPage(){
 
-  useEffect(() => {
-    const obtenerEquipos = async () => {
-      try {
-        const response = await axios.get(
-          'http://localhost:3001/api/equipos'
+  const [equipos,setEquipos]=useState<Equipamento[]>([])
+  const [search,setSearch]=useState('')
+
+  useEffect(()=>{
+
+    const obtenerEquipamentos=async()=>{
+
+      try{
+
+        const response=await axios.get(
+          'http://localhost:3001/api/inventario'
         )
 
-        setEquipos(
-          Array.isArray(response.data)
-            ? response.data
-            : []
-        )
+        setEquipos(response.data)
 
-      } catch (error) {
+      }catch(error){
+
         console.error(error)
-      } finally {
-        setLoading(false)
+
       }
+
     }
 
-    obtenerEquipos()
-  }, [])
+    obtenerEquipamentos()
+console.log(equipos)
+  },[])
 
-  if (loading) {
-    return (
-      <div className="p-6">
-        Cargando equipos...
-      </div>
+  const filtrados=useMemo(()=>{
+
+    return equipos.filter(e=>
+
+      e.nome?.toLowerCase().includes(search.toLowerCase()) ||
+
+      e.numero_serie?.toLowerCase().includes(search.toLowerCase()) ||
+
+      e.categoria?.toLowerCase().includes(search.toLowerCase())
+
     )
-  }
 
-  return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">
-            Inventario
-          </h1>
-          <p className="text-zinc-500 mt-1">
-            Gestión de equipos de audio
-          </p>
-        </div>
-      </div>
+  },[equipos,search])
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {Array.isArray(equipos) && equipos.map((equipo) => (
-          <div
-            key={equipo.id}
-            className="
-              bg-white
-              rounded-2xl
-              border
-              border-zinc-200
-              p-5
-              shadow-sm
-            "
+  const total=equipos.length
+
+  const disponibles=equipos.filter(
+    e=>e.estado_actual==='disponible'
+  ).length
+
+  const alquilados=equipos.filter(
+    e=>e.estado_actual==='alquilado'
+  ).length
+
+  const mantenimiento=equipos.filter(
+    e=>e.estado_actual==='mantenimiento'
+  ).length
+
+  return(
+
+    <Box>
+
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+      >
+
+        <Box>
+
+          <Typography
+            variant="h4"
+            fontWeight={700}
           >
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-xl font-semibold">
-                  {equipo.nome}
-                </h2>
+            Equipamentos
+          </Typography>
 
-                <p className="text-sm text-zinc-500 mt-1">
-                  {equipo.categoria}
-                </p>
-              </div>
+          <Typography color="text.secondary">
+            Gestão de equipos de áudio
+          </Typography>
 
-              <span
-                className={`
-                  px-3
-                  py-1
-                  rounded-full
-                  text-xs
-                  font-medium
-                  ${
-                    equipo.estado === 'disponivel'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700'
-                  }
-                `}
-              >
-                {equipo.estado}
-              </span>
-            </div>
+        </Box>
 
-            <div className="mt-4 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-zinc-500">
-                  Marca:  
-                </span>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+        >
+          Novo Equipamento
+        </Button>
 
-                <span className="font-medium">
-                  {equipo.marca}
-                </span>
-              </div>
+      </Box>
 
-              <div className="flex justify-between">
-                <span className="text-zinc-500">
-                  Modelo:
-                </span>
+      <Grid container spacing={3} mb={4}>
 
-                <span className="font-medium">
-                  {equipo.modelo}
-                </span>
-              </div>
+        <Grid item xs={12} md={3}>
+          <Paper sx={{p:3,borderRadius:4}}>
+            <Typography color="text.secondary">
+              Total
+            </Typography>
+            <Typography variant="h4">
+              {total}
+            </Typography>
+          </Paper>
+        </Grid>
 
-              <div className="flex justify-between">
-                <span className="text-zinc-500">
-                  Serie:
-                </span>
+        <Grid item xs={12} md={3}>
+          <Paper sx={{p:3,borderRadius:4}}>
+            <Typography color="text.secondary">
+              Disponíveis
+            </Typography>
+            <Typography variant="h4">
+              {disponibles}
+            </Typography>
+          </Paper>
+        </Grid>
 
-                 <span className="font-medium">
-                  {equipo.numero_serie}
-                </span>
-                
-              </div>
-              <span className="text-zinc-500">
-                  Estado:
-                </span>
-              <span className="font-medium">
-                  {equipo.estado_actual}
-                </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+        <Grid item xs={12} md={3}>
+          <Paper sx={{p:3,borderRadius:4}}>
+            <Typography color="text.secondary">
+              Alugados
+            </Typography>
+            <Typography variant="h4">
+              {alquilados}
+            </Typography>
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={3}>
+          <Paper sx={{p:3,borderRadius:4}}>
+            <Typography color="text.secondary">
+              Manutenção
+            </Typography>
+            <Typography variant="h4">
+              {mantenimiento}
+            </Typography>
+          </Paper>
+        </Grid>
+
+      </Grid>
+
+      <Paper
+        sx={{
+          p:3,
+          borderRadius:4
+        }}
+      >
+
+        <Box mb={3}>
+
+          <TextField
+            fullWidth
+            label="Buscar equipamento..."
+            value={search}
+            onChange={(e)=>setSearch(e.target.value)}
+          />
+
+        </Box>
+
+        <TableContainer>
+
+          <Table>
+
+            <TableHead>
+
+              <TableRow>
+
+                <TableCell>Equipamento</TableCell>
+                <TableCell>Série</TableCell>
+                <TableCell>Categoria</TableCell>
+                <TableCell>Marca</TableCell>
+                <TableCell>Localização</TableCell>
+                <TableCell>Valor</TableCell>
+                <TableCell>Status</TableCell>
+
+              </TableRow>
+
+            </TableHead>
+
+            <TableBody>
+
+              {filtrados.map((equipamento)=>(
+
+                <TableRow
+                  hover
+                  key={equipamento.id}
+                >
+
+                  <TableCell>
+
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      gap={2}
+                    >
+
+                      <Avatar>
+
+                        <Inventory2Icon />
+
+                      </Avatar>
+
+                      <Typography
+                        fontWeight={600}
+                      >
+                        {equipamento.nome}
+                      </Typography>
+
+                    </Box>
+
+                  </TableCell>
+
+                  <TableCell>
+                    {equipamento.numero_serie}
+                  </TableCell>
+
+                  <TableCell>
+                    {equipamento.categoria}
+                  </TableCell>
+
+                  <TableCell>
+                    {equipamento.marca}
+                  </TableCell>
+
+                  <TableCell>
+                    {equipamento.ubicacion}
+                  </TableCell>
+
+                  <TableCell>
+                    R$ {equipamento.valor_compra}
+                  </TableCell>
+
+                  <TableCell>
+
+                    <Chip
+                      label={equipamento.estado_actual}
+                      color={
+                        equipamento.estado_actual === 'disponible'
+                        ? 'success'
+                        : equipamento.estado_actual === 'alquilado'
+                        ? 'warning'
+                        : 'error'
+                      }
+                    />
+
+                  </TableCell>
+
+                </TableRow>
+
+              ))}
+
+            </TableBody>
+
+          </Table>
+
+        </TableContainer>
+
+      </Paper>
+
+    </Box>
+
   )
+
 }
