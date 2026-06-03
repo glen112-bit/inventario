@@ -7,6 +7,8 @@ import usuariosRoutes from './routes/usuarios.routes.js'
 import clientesRoutes from './routes/clientes.routes.js'
 import dashboardRoutes from './routes/dashboard.routes.js'
 import manutencaoRoutes from './routes/manutencao.routes.js'
+import analyticsRoutes from './routes/analytics.routes.js'
+import configRoutes from './routes/config.routes.js'
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use('/api', equiposRoutes);
 app.use('/api', usuariosRoutes)
 app.use('/api', clientesRoutes)
 app.use('/api', manutencaoRoutes)
+app.use('/api/analytics', analyticsRoutes)
+app.use('/api/config', configRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 
 app.listen(3001, () => {

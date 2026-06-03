@@ -1,8 +1,8 @@
 import express from 'express'
-import { getManutencao } from '../controllers/manutencao.controller.js'
+import { getManutencoes } from '../controllers/equipos.controller.js'
 
 const Router = express.Router()
 
-Router.get('/manutencao', getManutencao)
+Router.get('/manutencao', getManutencoes)
 
 export default Router

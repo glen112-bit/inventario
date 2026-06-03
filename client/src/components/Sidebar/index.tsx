@@ -37,7 +37,7 @@ const items = [
     path: '/usuarios',
   },
   {
-    label: 'Mantenimiento',
+    label: 'Manutencao',
     icon: Wrench,
     path: '/manutencao',
   },

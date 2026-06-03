@@ -16,7 +16,7 @@ export const obtenerEquipos = async () => {
        e.fecha_compra,
        c.nombre AS categoria,
        u.nombre AS ubicacion
-       FROM equipamentos e
+       FROM equipos e
        LEFT JOIN categorias c
        ON e.categoria_id = c.categoria_id
        LEFT JOIN ubicaciones u
@@ -29,3 +29,42 @@ export const obtenerEquipos = async () => {
     throw error;
   }
 };
+
+export const obtenerEquiposEnManutencao = async () => {
+  try {
+
+    const [rows] = await db.query(`
+      SELECT
+        e.equipamento_id,
+        e.codigo_interno,
+        e.numero_serie,
+        e.marca,
+        e.modelo,
+        e.descripcion,
+        e.estado_actual,
+        e.valor,
+        e.fecha_compra,
+        c.nombre AS categoria,
+        u.nombre AS ubicacion
+      FROM equipos e
+      LEFT JOIN categorias c
+        ON e.categoria_id = c.id
+      LEFT JOIN ubicaciones u
+        ON e.ubicacion_id = u.id
+      WHERE e.estado_actual = 'manutencao'
+      ORDER BY e.equipamento_id DESC
+    `)
+
+    return rows
+
+  } catch (error) {
+
+    console.error(
+      'Erro SQL no serviço de manutenção:',
+      error
+    )
+
+    throw error
+
+  }
+}

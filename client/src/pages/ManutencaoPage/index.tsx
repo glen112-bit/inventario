@@ -1,169 +1,360 @@
-import { useEffect, useState } from 'react'
+import { React, useEffect, useState } from 'react'
 import axios from 'axios'
-import { Wrench, Calendar, AlertTriangle } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
-type Manutencao = {
-  id: number
-  equipamento: string
-  estado: string
-  status: string
-  data_manutencao: string
-  observacoes: string
+import {
+  Box,
+  Paper,
+  Typography,
+  Button,
+  TextField,
+  Chip,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow
+} from '@mui/material'
+
+import BuildIcon from '@mui/icons-material/Build'
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
+import CategoryIcon from '@mui/icons-material/Category'
+import WarningIcon from '@mui/icons-material/Warning'
+import AddIcon from '@mui/icons-material/Add'
+
+import { DataGrid } from '@mui/x-data-grid'
+import type { GridColDef } from '@mui/x-data-grid'
+
+import KpiCard from '../../components/KpiCard'
+
+type EquipamentoManutencao = {
+  equipamento_id: number
+  codigo_interno: string
+  numero_serie: string
+  marca: string
+  modelo: string
+  descripcion: string
+  estado_actual: string
+  valor: number
+  fecha_compra: string
 }
 
 export default function ManutencaoPage() {
-  const [manutencoes, setManutencoes] = useState<Manutencao[]>([])
+
+  const [equipamentos, setEquipamentos] = useState<EquipamentoManutencao[]>([])
+  const [filtro, setFiltro] = useState('todos')
+  const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const obterManutencoes = async () => {
-      try {
-        const response = await axios.get(
-          '/api/manutencao'
-        )
+  const navigate = useNavigate()
 
-        setManutencoes(
+  useEffect(() => {
+    const carregar = async () => {
+      try{
+        const response = await axios.get(
+          'api/inventario'
+        )
+        setEquipamentos(
           Array.isArray(response.data)
             ? response.data
             : []
         )
-console.log(manutencoes)
-      } catch (error) {
+      }catch(error){
         console.error(error)
-
       } finally {
         setLoading(false)
       }
     }
+    carregar()
 
-    obterManutencoes()
-  }, [])
+  },[])
 
-  if (loading) {
-    return (
-      <div className="p-6">
-        Carregando manutenções...
-      </div>
+  const filtrados = equipamentos.filter(item => 
+                                        `${item.codigo_interno} ${item.marca} ${item.modelo}`
+  .toLowerCase()
+  .includes(search.toLowerCase()) )
+  const valorTotal = equipamentos.reduce(
+    (acc, item) => acc + Number(item.valor || 0 ),
+    0
+  )
+  const totalEquipamentos = equipamentos.length
+
+  const marcas = [
+    ...new Set(
+      equipamentos.map(item => item.marca)
     )
+  ]
+  const totalMarcas = marcas.length
+
+  let dadosExibidos = [...filtrados]
+
+  if (filtro === 'marcas') {
+
+    dadosExibidos.sort(
+      (a, b) => a.marca.localeCompare(b.marca)
+    )
+
   }
 
+  if (filtro === 'fora-operacao') {
+
+    dadosExibidos = dadosExibidos.filter(
+      item => item.estado_actual === 'mantenimiento'
+      || item.estado_actual === 'manutencao'
+    )
+
+  }
+  if (filtro === 'valor-total') {
+
+    dadosExibidos.sort(
+      (a, b) => Number(b.valor) - Number(a.valor)
+    )
+
+  }
+  const columns: GridColDef[] = [
+
+    {
+      field: 'codigo_interno',
+      headerName: 'Código',
+      flex: 1
+    },
+    {
+      field: 'marca',
+      headerName: 'Marca',
+      flex: 1
+    },
+    {
+      field: 'modelo',
+      headerName: 'Modelo',
+      flex: 1
+    },
+    {
+      field: 'numero_serie',
+      headerName: 'Série',
+      flex: 1
+    },
+    {
+      field: 'valor',
+      headerName: 'Valor',
+      flex: 1,
+      renderCell: params =>
+        `R$ ${Number(params.value).toLocaleString('pt-BR')}`
+    },
+    {
+      field: 'estado_actual',
+      headerName: 'Status',
+      flex: 1,
+      renderCell: () => (
+        <Chip
+          label="Manutenção"
+          color="error"
+          size="small"
+        />
+      )
+    }
+  ]
+
+  const rows = filtrados.map(item => ({
+    id: item.equipamento_id,
+    ...item
+  }))
+
+  const foraOperacao = equipamentos.filter(
+    item => item.estado_actual === 'manutencao'
+  ).length
+
   return (
-    <div className="p-6">
 
-      <div className="flex items-center justify-between mb-8">
+    <Box>
 
-        <div>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+      >
 
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Wrench size={32} />
-            Manutenção
-          </h1>
+        <Box>
 
-          <p className="text-zinc-500 mt-2">
-            Controle de manutenção dos equipamentos
-          </p>
-
-        </div>
-
-        <button
-          className="
-            bg-black
-            text-white
-            px-5
-            py-3
-            rounded-xl
-            hover:bg-zinc-800
-            transition-all
-          "
-        >
-          Nova manutenção
-        </button>
-
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-
-        {manutencoes.map((manutencao) => (
-
-          <div
-            key={manutencao.id}
-            className="
-              bg-white
-              border
-              border-zinc-200
-              rounded-2xl
-              p-5
-              shadow-sm
-            "
+          <Typography
+            variant="h4"
+            fontWeight={700}
           >
+            Manutenção
+          </Typography>
 
-            <div className="flex items-start justify-between">
+          <Typography color="text.secondary">
+            Equipamentos em manutenção
+          </Typography>
 
-              <div>
+        </Box>
 
-                <p className="text-zinc-500 text-sm mt-1">
-                 Equipo: {manutencao.equipamento}
-                </p>
-                 <p className="text-zinc-500 text-sm mt-1">
-                  Costo: {manutencao.costo}
-                </p>
-                <p className="text-zinc-500 text-sm mt-1">
-                  Descricao: {manutencao.descripcion}
-                </p>
-                <p className="text-zinc-500 text-sm mt-1">
-                  Tipo: {manutencao.tipo}
-                </p>
-                 <p className="text-zinc-500 text-sm mt-1">
-                  Estado: {manutencao.estado}
-                </p>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+        >
+          Nova Manutenção
+        </Button>
 
-              </div>
+      </Box>
 
-              <span
-                className={`
-                  px-3
-                  py-1
-                  rounded-full
-                  text-xs
-                  font-medium
-                  ${
-                    manutencao.status === 'concluida'
-                      ? 'bg-green-100 text-green-700'
-                      : manutencao.status === 'pendente'
-                      ? 'bg-yellow-100 text-yellow-700'
-                      : 'bg-red-100 text-red-700'
-                  }
-                `}
-              >
-                {manutencao.status}
-              </span>
+      <Grid container spacing={3} mb={3}>
 
-            </div>
+        <Grid size={{ xs: 12, md: 3 }}>
+          <KpiCard
+            title="Equipamentos"
+            value={totalEquipamentos}
+            icon={<BuildIcon />}
+            color="#ef4444"
+            onClick={() =>
+              navigate('/manutencao/detalhes/equipamentos')
+            }
+          />
+        </Grid>
 
-            <div className="mt-5 space-y-3">
+        <Grid size={{ xs: 12, md: 3 }}>
+          <KpiCard
+            title="Valor Imobilizado"
+            value={`R$ ${valorTotal.toLocaleString('pt-BR')}`}
+            icon={<AttachMoneyIcon />}
+            color="#10b981"
+            onClick={() =>
+              navigate('/manutencao/detalhes/valor')
+            }
+          />
+        </Grid>
 
-              <div className="flex items-center gap-2 text-sm text-zinc-600">
-                <Calendar size={16} />
-                {manutencao.data_manutencao}
-              </div>
+        <Grid size={{ xs: 12, md: 3 }}>
+          <KpiCard
+            title="Marcas Afetadas"
+            value={totalMarcas}
+            icon={<CategoryIcon />}
+            color="#3b82f6"
+            onClick={() =>
+              navigate('/manutencao/detalhes/marcas')
+            }
+          />
+        </Grid>
 
-              <div className="flex items-start gap-2 text-sm text-zinc-600">
-                <AlertTriangle size={16} />
+        <Grid size={{ xs: 12, md: 3 }}>
+          <KpiCard
+            title="Fora de Operação"
+            value={foraOperacao}
+            icon={<WarningIcon />}
+            color="#f59e0b"
+            onClick={() =>
+              navigate('/manutencao/detalhes/fora-operacao')
+            }
+          />
+        </Grid>
 
-                <span>
-                  {manutencao.observacoes}
-                </span>
+      </Grid>
+      <Paper
+        sx={{
+          p: 3,
+          borderRadius: 4
+        }}
+      >
 
-              </div>
+        <Box mb={3}>
 
-            </div>
+          <TextField
+            fullWidth
+            label="Buscar equipamento..."
+            value={search}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+          />
 
-          </div>
+        </Box>
 
-        ))}
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          loading={loading}
+          autoHeight
+          disableRowSelectionOnClick
+          pageSizeOptions={[10, 25, 50 ]}
+        />
 
-      </div>
+      </Paper>
 
-    </div>
+      <Box mt={4}>
+
+        <Paper
+          sx={{
+            p: 3,
+            borderRadius: 4
+          }}
+        >
+
+          <Typography
+            variant="h6"
+            fontWeight={600}
+            mb={3}
+          >
+            Marcas em Manutenção
+          </Typography>
+
+          <Table>
+
+            <TableHead>
+
+              <TableRow>
+
+                <TableCell>
+                  Marca
+                </TableCell>
+
+                <TableCell align="right">
+                  Equipamentos
+                </TableCell>
+
+              </TableRow>
+
+            </TableHead>
+
+            <TableBody>
+
+              {Object.entries(
+
+                equipamentos.reduce((acc, item) => {
+
+                  acc[item.marca] =
+                    (acc[item.marca] || 0) + 1
+
+                  return acc
+
+                }, {} as Record<string, number>)
+
+              ).map(([marca, quantidade]) => (
+
+                <TableRow key={marca}>
+
+                  <TableCell>
+                    {marca}
+                  </TableCell>
+
+                  <TableCell align="right">
+                    {quantidade}
+                  </TableCell>
+
+                </TableRow>
+
+              ))}
+
+            </TableBody>
+
+          </Table>
+
+        </Paper>
+
+      </Box>
+
+    </Box>
+
   )
+
 }
