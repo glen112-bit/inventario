@@ -32,7 +32,7 @@ export default function DashboardPage() {
       )
 
       setStats(res.data)
-console.log(res.data)
+console.log(stats)
     } catch (err) {
 
       console.error(err)
@@ -68,7 +68,7 @@ console.log(res.data)
         <Grid item xs={12} md={3}>
           <KpiCard
             title="Mantenimiento"
-            value={stats.mantenimientosPendientes || 0}
+            value={stats.equiposMantenimiento || 0}
             icon={<BuildIcon />}
             color="#f59e0b"
           />

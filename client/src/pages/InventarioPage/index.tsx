@@ -2,37 +2,37 @@ import { useEffect,useMemo,useState } from 'react'
 import axios from 'axios'
 
 import {
-Box,
-Paper,
-Typography,
-Button,
-TextField,
-Chip,
-Grid,
-Avatar
+  Box,
+  Paper,
+  Typography,
+  Button,
+  TextField,
+  Chip,
+  Grid,
+  Avatar
 } from '@mui/material'
 
 import AddIcon from '@mui/icons-material/Add'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 
 import {
-Table,
-TableBody,
-TableCell,
-TableContainer,
-TableHead,
-TableRow
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow
 } from '@mui/material'
 
 type Equipamento={
   id:number
-  nome:string
-  numero_serie:string
-  categoria:string
-  marca:string
-  estado_actual:string
-  ubicacion:string
-  valor_compra:number
+nome:string
+numero_serie:string
+categoria:string
+marca:string
+estado_actual:string
+ubicacion:string
+valor_compra:number
 }
 
 export default function EquipamentosPage(){
@@ -61,35 +61,35 @@ export default function EquipamentosPage(){
     }
 
     obtenerEquipamentos()
-console.log(equipos)
+    console.log(equipos)
   },[])
 
   const filtrados=useMemo(()=>{
 
     return equipos.filter(e=>
 
-      e.nome?.toLowerCase().includes(search.toLowerCase()) ||
+                          e.nome?.toLowerCase().includes(search.toLowerCase()) ||
 
-      e.numero_serie?.toLowerCase().includes(search.toLowerCase()) ||
+                          e.numero_serie?.toLowerCase().includes(search.toLowerCase()) ||
 
-      e.categoria?.toLowerCase().includes(search.toLowerCase())
+                          e.categoria?.toLowerCase().includes(search.toLowerCase())
 
-    )
+                         )
 
   },[equipos,search])
 
   const total=equipos.length
 
-  const disponibles=equipos.filter(
-    e=>e.estado_actual==='disponible'
+  const disponiveis=equipos.filter(
+    e=>e.estado_actual==='disponivel'
   ).length
 
-  const alquilados=equipos.filter(
-    e=>e.estado_actual==='alquilado'
+  const alugados=equipos.filter(
+    e=>e.estado_actual==='alugado'
   ).length
 
-  const mantenimiento=equipos.filter(
-    e=>e.estado_actual==='mantenimiento'
+  const manutencao=equipos.filter(
+    e=>e.estado_actual==='manutencao'
   ).length
 
   return(
@@ -146,7 +146,7 @@ console.log(equipos)
               Disponíveis
             </Typography>
             <Typography variant="h4">
-              {disponibles}
+              {disponiveis}
             </Typography>
           </Paper>
         </Grid>
@@ -157,7 +157,7 @@ console.log(equipos)
               Alugados
             </Typography>
             <Typography variant="h4">
-              {alquilados}
+              {alugados}
             </Typography>
           </Paper>
         </Grid>
@@ -168,7 +168,7 @@ console.log(equipos)
               Manutenção
             </Typography>
             <Typography variant="h4">
-              {mantenimiento}
+              {manutencao}
             </Typography>
           </Paper>
         </Grid>
@@ -269,18 +269,27 @@ console.log(equipos)
                   <TableCell>
 
                     <Chip
-                      label={equipamento.estado_actual}
+                      label={
+                        equipamento.estado_actual === 'disponivel'
+                          ? 'Disponível'
+                          : equipamento.estado_actual === 'alugado'
+                            ? 'Alugado'
+                            : equipamento.estado_actual === 'manutencao'
+                              ? 'Manutenção'
+                              : equipamento.estado_actual
+                      }
                       color={
-                        equipamento.estado_actual === 'disponible'
-                        ? 'success'
-                        : equipamento.estado_actual === 'alquilado'
-                        ? 'warning'
-                        : 'error'
+                        equipamento.estado_actual === 'disponivel'
+                          ? 'success'
+                          : equipamento.estado_actual === 'alugado'
+                            ? 'warning'
+                            : equipamento.estado_actual === 'manutencao'
+                              ? 'error'
+                              : 'default'
                       }
                     />
 
                   </TableCell>
-
                 </TableRow>
 
               ))}

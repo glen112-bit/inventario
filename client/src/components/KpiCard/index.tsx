@@ -1,72 +1,87 @@
 import { Card, CardContent, Typography, Box } from '@mui/material'
 
+type Props = {
+  title: string
+  value: string | number
+  icon: React.ReactNode
+  color: string
+  onClick?: () => void
+}
+
 export default function KpiCard({
   title,
   value,
   icon,
-  color = '#1976d2'
-}) {
+  color = '#1976d2',
+  onClick
+}: Props) {
 
   return (
+
     <Card
+  onClick={onClick}
+  sx={{
+    height: 110,
+    borderRadius: 2,
+    background: '#111827',
+    border: '1px solid rgba(255,255,255,.05)',
+    cursor: onClick ? 'pointer' : 'default',
+    transition: '.2s',
+    '&:hover': {
+      transform: 'translateY(-3px)',
+      borderColor: color
+    }
+  }}
+>
+
+  <CardContent
+    sx={{
+      height: '100%',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      py: 2
+    }}
+  >
+
+    <Box>
+
+      <Typography
+        variant="body2"
+        color="text.secondary"
+      >
+        {title}
+      </Typography>
+
+      <Typography
+        variant="h5"
+        fontWeight={700}
+        noWrap
+      >
+        {value}
+      </Typography>
+
+    </Box>
+
+    <Box
       sx={{
-        height: '100%',
-        borderRadius: 4,
-        background: '#111827',
-        border: '1px solid rgba(255,255,255,.05)',
-        transition: '.2s',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          borderColor: color
-        }
+        width: 48,
+        height: 48,
+        borderRadius: 2,
+        background: `${color}20`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color,
+        flexShrink: 0
       }}
     >
-      <CardContent>
+      {icon}
+    </Box>
 
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-        >
+  </CardContent>
 
-          <Box>
+</Card>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-            >
-              {title}
-            </Typography>
-
-            <Typography
-              variant="h4"
-              fontWeight={700}
-              mt={1}
-            >
-              {value}
-            </Typography>
-
-          </Box>
-
-          <Box
-            sx={{
-              width: 56,
-              height: 56,
-              borderRadius: 3,
-              background: `${color}20`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color
-            }}
-          >
-            {icon}
-          </Box>
-
-        </Box>
-
-      </CardContent>
-
-    </Card>
   )
 }
