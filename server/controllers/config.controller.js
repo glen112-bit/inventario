@@ -38,7 +38,7 @@ export const getCategorias = async (req, res) => {
     const [rows] = await db.query(`
       SELECT *
       FROM categorias
-      ORDER BY nombre
+      ORDER BY nome
     `)
 
     res.json(rows)
@@ -189,9 +189,9 @@ export const deleteMarca = async (req, res) => {
 
 }
 
-export const atualizarEstadoEquipamento = async (req, res) => {
+export const atualizarEstadoEquipamento = async (req,res) => {
 
-  try {
+    try {
 
     const { id } = req.params
 
@@ -200,70 +200,55 @@ export const atualizarEstadoEquipamento = async (req, res) => {
       observacao
     } = req.body
 
-    const [equipamento] = await db.query(`
-      SELECT
-        equipamento_id,
-        estado_actual
-      FROM equipamentos
-      WHERE equipamento_id = ?
-    `, [id])
-
-    if (equipamento.length === 0) {
-
-      return res.status(404).json({
-        error: 'Equipamento não encontrado'
-      })
-
-    }
-
-    const estadoAnterior =
-      equipamento[0].estado_actual
-
     await db.query(`
       UPDATE equipos
       SET estado_actual = ?
       WHERE equipamento_id = ?
-    `, [
+    `,[
       estado_actual,
       id
     ])
 
-    try {
-
-      await db.query(`
-        INSERT INTO historico_estados (
-          equipamento_id,
-          estado_anterior,
-          estado_novo,
-          observacao
-        )
-        VALUES (?, ?, ?, ?)
-      `, [
-        id,
-        estadoAnterior,
-        estado_actual,
-        observacao || null
-      ])
-
-    } catch {
-
-      console.log(
-        'Tabela historico_estados não encontrada'
-      )
-
-    }
-
     res.json({
-      success: true,
-      message: 'Estado atualizado'
+      success:true
     })
 
-  } catch (error) {
+  } catch(error) {
 
     console.error(error)
 
     res.status(500).json({
-      error: error.message
+      error:error.message
+    })
+
+  }
+
+}
+export const getHistoricoEquipamento = async (req,res) => {
+
+  try {
+
+    const { id } = req.params
+
+    const [rows] = await db.query(`
+      SELECT
+        h.*,
+        u.nome AS usuario
+      FROM historico_equipamentos h
+      LEFT JOIN usuarios u
+        ON u.id = h.usuario_id
+      WHERE h.equipamento_id = ?
+      ORDER BY h.created_at DESC
+    `,[id])
+
+    res.json(rows)
+
+  } catch(error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      error:error.message
     })
 
   }

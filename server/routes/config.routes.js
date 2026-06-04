@@ -8,7 +8,8 @@ import {
 
   getCategorias,
   getLocalizacoes,
-  atualizarEstadoEquipamento
+  atualizarEstadoEquipamento,
+  getHistoricoEquipamento
 } from '../controllers/config.controller.js'
 
 const router = express.Router()
@@ -25,8 +26,9 @@ router.get('/categorias', getCategorias)
 // LOCALIZACOES
 router.get('/localizacoes', getLocalizacoes)
 //estados
-router.put(
-  '/config/:id/estado',
-  atualizarEstadoEquipamento
+router.put('/equipamentos/:id/estado', atualizarEstadoEquipamento)
+router.get(
+  '/equipamentos/:id/historico',
+  getHistoricoEquipamento
 )
 export default router
