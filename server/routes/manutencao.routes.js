@@ -1,8 +1,23 @@
 import express from 'express'
-import { getManutencoes } from '../controllers/equipos.controller.js'
 
-const Router = express.Router()
+import {
+  getManutencoes,
+  getManutencao,
+  createManutencao,
+  updateManutencao,
+  deleteManutencao
+} from '../controllers/manutencao.controller.js'
 
-Router.get('/manutencao', getManutencoes)
+const router = express.Router()
 
-export default Router
+router.get('/manutencao', getManutencoes)
+
+router.get('/manutencao/:id', getManutencao)
+
+router.post('/manutencao', createManutencao)
+
+router.put('/manutencao/:id', updateManutencao)
+
+router.delete('/manutencao/:id', deleteManutencao)
+
+export default router

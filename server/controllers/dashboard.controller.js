@@ -1,44 +1,63 @@
 import db from '../config/db.js'
 
 export const getStats = async (req, res) => {
+
   try {
 
-    const [equipos] = await db.query(
-      'SELECT COUNT(*) total FROM equipos'
-    )
+    const [[equipos]] = await db.query(`
+      SELECT COUNT(*) total
+      FROM equipos
+    `)
 
-    const [disponibles] = await db.query(
-      "SELECT COUNT(*) total FROM equipos WHERE estado_actual = 'disponible'"
-    )
+    const [[disponiveis]] = await db.query(`
+      SELECT COUNT(*) total
+      FROM equipos
+      WHERE estado_actual = 'disponivel'
+    `)
 
-    const [alquilados] = await db.query(
-      "SELECT COUNT(*) total FROM equipos WHERE estado_actual = 'alugado'"
-    )
+    const [[manutencao]] = await db.query(`
+      SELECT COUNT(*) total
+      FROM equipos
+      WHERE estado_actual = 'manutencao'
+    `)
 
-    const [mantenimiento] = await db.query(
-      "SELECT COUNT(*) total FROM equipos WHERE estado_actual = 'mantenimiento'"
-    )
+    const [[usuarios]] = await db.query(`
+      SELECT COUNT(*) total
+      FROM usuarios
+    `)
 
-    const [clientes] = await db.query(
-      'SELECT COUNT(*) total FROM clientes'
-    )
+    const [equipamentosManutencao] = await db.query(`
+      SELECT
+        equipamento_id,
+        codigo_interno,
+        marca,
+        modelo
+      FROM equipos
+      WHERE estado_actual =  'manutencao'
+      LIMIT 10
+    `)
 
-    const [usuarios] = await db.query(
-      'SELECT COUNT(*) total FROM usuarios'
-    )
-
-    const [alugueis] = await db.query(
-      'SELECT COUNT(*) total FROM alugueis'
-    )
+    const [ultimosAlugueis] = await db.query(`
+      SELECT
+        a.id,
+        c.nome AS cliente,
+        a.fecha_salida,
+        a.fecha_retorno,
+        a.estado
+      FROM alugueis a
+      JOIN clientes c
+        ON c.id = a.cliente_id
+      ORDER BY a.id DESC
+      LIMIT 10
+    `)
 
     res.json({
-      totalEquipos: equipos[0].total,
-      equiposDisponibles: disponibles[0].total,
-      equiposAlquilados: alquilados[0].total,
-      equiposMantenimiento: mantenimiento[0].total,
-      clientes: clientes[0].total,
-      usuarios: usuarios[0].total,
-      alugueis: alugueis[0].total
+      totalEquipos: equipos.total,
+      equiposDisponiveis: disponiveis.total,
+      equiposManutencao: manutencao.total,
+      usuarios: usuarios.total,
+      equipamentosManutencao,
+      ultimosAlugueis
     })
 
   } catch (error) {
@@ -50,4 +69,5 @@ export const getStats = async (req, res) => {
     })
 
   }
+
 }

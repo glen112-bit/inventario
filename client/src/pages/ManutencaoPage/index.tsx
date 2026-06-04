@@ -53,7 +53,7 @@ export default function ManutencaoPage() {
     const carregar = async () => {
       try{
         const response = await axios.get(
-          'api/inventario'
+          'http://localhost:3001/api/manutencao'
         )
         setEquipamentos(
           Array.isArray(response.data)
