@@ -46,6 +46,7 @@ export default function ManutencaoPage() {
   const [filtro, setFiltro] = useState('todos')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
+const [movimentacoes, setMovimentacoes] = useState([])
 
   const navigate = useNavigate()
 
@@ -67,6 +68,7 @@ export default function ManutencaoPage() {
       }
     }
     carregar()
+    console.log(equipamentos)
 
   },[])
 
@@ -215,7 +217,7 @@ export default function ManutencaoPage() {
 
         <Grid size={{ xs: 12, md: 3 }}>
           <KpiCard
-            title="Valor Imobilizado"
+            title="Valor"
             value={`R$ ${valorTotal.toLocaleString('pt-BR')}`}
             icon={<AttachMoneyIcon />}
             color="#10b981"
@@ -276,7 +278,7 @@ export default function ManutencaoPage() {
           loading={loading}
           autoHeight
           disableRowSelectionOnClick
-          pageSizeOptions={[10, 25, 50 ]}
+          pageSizeOptions={[10, 25, 50, 100 ]}
         />
 
       </Paper>
@@ -348,7 +350,52 @@ export default function ManutencaoPage() {
             </TableBody>
 
           </Table>
+<Paper
+  sx={{
+    p: 3,
+    borderRadius: 4,
+    mt: 3
+  }}
+>
+  <Typography
+    variant="h6"
+    fontWeight={600}
+    mb={2}
+  >
+    Últimas Movimentações
+  </Typography>
 
+  {movimentacoes.map((item) => (
+    <Box
+      key={item.id}
+      sx={{
+        py: 1,
+        borderBottom:
+          '1px solid rgba(255,255,255,.08)'
+      }}
+    >
+      <Typography fontWeight={600}>
+        {item.codigo_interno}
+      </Typography>
+
+      <Typography
+        variant="body2"
+        color="text.secondary"
+      >
+        {item.estado_anterior}
+        {' → '}
+        {item.estado_novo}
+      </Typography>
+
+      <Typography
+        variant="caption"
+        color="text.secondary"
+      >
+        {item.observacao}
+      </Typography>
+    </Box>
+  ))}
+</Paper>
         </Paper>
 
       </Box>

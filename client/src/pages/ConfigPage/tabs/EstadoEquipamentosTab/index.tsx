@@ -19,37 +19,24 @@ import {
 import { DataGrid } from '@mui/x-data-grid'
 
 export default function EstadoEquipamentosTab() {
-
   const [rows, setRows] = useState<any[]>([])
-
   const [open, setOpen] = useState(false)
-
   const [equipamentoSelecionado, setEquipamentoSelecionado] =
     useState<any>(null)
-
   const [estadoAtual, setEstadoAtual] =
     useState('')
-
   const [observacao, setObservacao] =
     useState('')
 
   useEffect(() => {
-
     carregar()
-
   }, [])
 
   const carregar = async () => {
-
   try {
-
     const response = await axios.get(
       '/api/inventario'
     )
-
-    console.log('API EQUIPOS:')
-    console.log(response.data)
-
     setRows(
       response.data.map(
         (item: any) => ({
@@ -60,7 +47,6 @@ export default function EstadoEquipamentosTab() {
     )
 
   } catch (error: any) {
-
     console.error('ERRO API:')
     console.error(error)
 
@@ -95,7 +81,6 @@ export default function EstadoEquipamentosTab() {
           observacao
         }
       )
-
       setRows(prev =>
         prev.map(item =>
           item.equipamento_id === equipamentoSelecionado.equipamento_id
@@ -106,19 +91,12 @@ export default function EstadoEquipamentosTab() {
             : item
         )
       )
-
       setOpen(false)
-
       setEquipamentoSelecionado(null)
-
       setObservacao('')
-
     } catch (error) {
-
       console.error(error)
-
     }
-
   }
 
   const columns = [
@@ -362,7 +340,5 @@ export default function EstadoEquipamentosTab() {
       </Dialog>
 
     </>
-
   )
-
 }

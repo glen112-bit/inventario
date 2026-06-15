@@ -15,73 +15,63 @@ export default function KpiCard({
   color = '#1976d2',
   onClick
 }: Props) {
-
   return (
-
     <Card
-  onClick={onClick}
-  sx={{
-    height: 110,
-    borderRadius: 2,
-    background: '#111827',
-    border: '1px solid rgba(255,255,255,.05)',
-    cursor: onClick ? 'pointer' : 'default',
-    transition: '.2s',
-    '&:hover': {
-      transform: 'translateY(-3px)',
-      borderColor: color
-    }
-  }}
->
-
-  <CardContent
-    sx={{
-      height: '100%',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      py: 2
-    }}
-  >
-
-    <Box>
-
-      <Typography
-        variant="body2"
-        color="text.secondary"
-      >
-        {title}
-      </Typography>
-
-      <Typography
-        variant="h5"
-        fontWeight={700}
-        noWrap
-      >
-        {value}
-      </Typography>
-
-    </Box>
-
-    <Box
+      onClick={onClick}
       sx={{
-        width: 48,
-        height: 48,
+        width: '100%',
+        height: 110,
         borderRadius: 2,
-        background: `${color}20`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color,
-        flexShrink: 0
+        background: '#111827',
+        border: '1px solid rgba(255,255,255,.05)',
+        cursor: onClick ? 'pointer' : 'default',
+        transition: '.2s',
+        '&:hover': {
+          transform: 'translateY(-3px)',
+          borderColor: color
+        }
       }}
     >
-      {icon}
-    </Box>
+      <CardContent
+        sx={{
+          height: '100%',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          py: 2
+        }}
+      >
+        <Box>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+          >
+            {title}
+          </Typography>
 
-  </CardContent>
+          <Typography
+            variant="h5"
+            fontWeight={700}
+          >
+            {value}
+          </Typography>
+        </Box>
 
-</Card>
-
+        <Box
+          sx={{
+            width: 48,
+            height: 48,
+            borderRadius: 2,
+            background: `${color}20`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color
+          }}
+        >
+          {icon}
+        </Box>
+      </CardContent>
+    </Card>
   )
 }

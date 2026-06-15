@@ -82,8 +82,8 @@ export default function UsuariosPage(){
   },
 
   {
-    field:'cargo',
-    headerName:'Cargo',
+    field:'lugar',
+    headerName:'Lugar',
     flex:1
   },
 
@@ -171,7 +171,7 @@ export default function UsuariosPage(){
         <DataGrid
           rows={usuarios}
           columns={columns}
-          pageSizeOptions={[10,25,50]}
+          pageSizeOptions={[10,25,50,100]}
           disableRowSelectionOnClick
         />
 

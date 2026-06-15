@@ -18,12 +18,40 @@ export const getEquipos = async (req, res) => {
     });
   }
 };
+export const sincronizarMarcas = async (req,res) => {
 
+  try {
+
+    await db.query(`
+      INSERT INTO marcas (nome)
+      SELECT DISTINCT marca
+      FROM equipos e
+      WHERE marca IS NOT NULL
+        AND marca <> ''
+        AND NOT EXISTS (
+          SELECT 1
+          FROM marcas m
+          WHERE m.nome = e.marca
+        )
+    `)
+
+    res.json({
+      success:true
+    })
+
+  } catch(error) {
+
+    console.error(error)
+
+    res.status(500).json(error)
+
+  }
+
+}
 export const createEquipamento = async (req,res) => {
 
   try {
 
-    console.log(req.body)
     const {
       marca,
       modelo,
@@ -49,7 +77,7 @@ export const createEquipamento = async (req,res) => {
         ubicacion_id,
         codigo_interno
       )
-      VALUES (?,?,?,?,?,?,?,?,?)
+      VALUES (?,?,?,?,?,?,?,?,?,?)
     `,[ 
       marca,
       modelo,
@@ -94,7 +122,7 @@ export const createEquipamento = async (req,res) => {
         FROM equipos
         WHERE equipamento_id = ?
       `,[equipamentoId])
-
+    await sincronizarMarcas() 
     res.status(201).json({
       success:true,
       equipamento
@@ -109,5 +137,31 @@ export const createEquipamento = async (req,res) => {
     })
 
   }
-
 }
+export const historio_equipamentos = async (req, res) => {
+  try{
+    const [rows] = await db.query(`
+  INSERT INTO historico_equipamentos (
+    equipamento_id,
+    estado_anterior,
+    estado_novo,
+    observacao,
+    usuario_id
+  )
+  VALUES (?, ?, ?, ?, ?)
+`, [
+  equipamentoId,
+  estadoAnterior,
+  estadoNovo,
+  observacao,
+  usuarioId
+])   
+    res.json(rows)
+  }catch(error){
+    console.error(error)
+    res.status(500).json({
+      error: error.message
+    })
+  }
+}
+

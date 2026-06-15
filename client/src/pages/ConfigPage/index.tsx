@@ -1,20 +1,138 @@
 import { useState } from 'react'
+
 import {
   Box,
   Typography,
   Tabs,
   Tab,
+  Button,
   Paper
 } from '@mui/material'
 
-import MarcasTab from './tabs/MarcasTab'
-import CategoriasTab from './tabs/CategoriasTab'
-import LocalizacoesTab from './tabs/LocalizacoesTab'
-import EstadoEquipamentosTab from './tabs/EstadoEquipamentosTab'
+import ClientesTable from '../../components/configuracoes/ClientesTable'
+import CategoriasTable from '../../components/configuracoes/CategoriasTable'
+import MarcasTable from '../../components/configuracoes/MarcasTable'
+import UsuariosTable from '../../components/configuracoes/UsuariosTable'
+import EquipamentosTable from '../../components/configuracoes/EquipamentosTable'
+import CategoriaDialog from '../../components/configuracoes/CategoriaDialog'
 
-export default function ConfigPage() {
+import useClientes from '../../hooks/useClientes'
+import useCategorias from '../../hooks/useCategorias'
+import useClientesFilter from '../../hooks/useClientesFilter'
+import useEquipamentos from '../../hooks/useEquipamentos'
+import useEquipamentosFilter from '../../hooks/useEquipamentosFilter'
+import useEquipamentoForm from '../../hooks/useEquipamentoForm'
+import useLocalizacoes from '../../hooks/useLocalizacoes'
+import useUsuarios from '../../hooks/useUsuarios'
 
-  const [tab, setTab] = useState(0)
+export default function ConfiguracoesPage() {
+
+  const [openCategoria,setOpenCategoria] = useState(false)
+  const [nomeCategoria,setNomeCategoria] = useState('')
+  const [descricaoCategoria,setDescricaoCategoria] = useState('')
+  const [categoriaSelecionada,setCategoriaSelecionada] = useState<any>(null)
+  const [marcas, setMarcas] = useState('')
+  const [openEquipamento, setOpenEquipamento] = useState(false)
+const [marca, setMarca] = useState('')
+const [modelo, setModelo] = useState('')
+const [estado, setEstado] = useState('')
+const [descricao, setDescricao] = useState('')
+const [localizacao, setLocalizacao] = useState('')
+const [valor, setValor] = useState(0)
+  const [aba,setAba] = useState(0)
+  const {
+    clientes,
+    criarCliente,
+    atualizarCliente,
+    excluirCliente
+  } = useClientes()
+
+  const {
+    categorias,
+    criarCategoria,
+    atualizarCategoria
+  } = useCategorias()
+
+  const {
+    usuarios,
+    criarUsuario,
+    atualizarUsuario,
+    excluirUsuario
+  } = useUsuarios()
+  const {
+    equipos,
+    setEquipos,
+    carregarEquipamentos,
+    criarEquipamento,
+    salvarEquipamento,
+    alterarEstado
+  } = useEquipamentos()
+
+  const salvarCategoria = async () => {
+    try {
+      if(categoriaSelecionada){
+        await atualizarCategoria(
+          categoriaSelecionada.id,
+          {
+            nome: nomeCategoria,
+            descricao: descricaoCategoria
+          }
+        )
+      } else {
+        await criarCategoria({
+          nome: nomeCategoria,
+          descricao: descricaoCategoria
+        })
+      }
+      setOpenCategoria(false)
+      setNomeCategoria('')
+      setDescricaoCategoria('')
+      setCategoriaSelecionada(null)
+    } catch(error) {
+      console.error(error)
+    }
+  }
+  const editarCategoria = ( categoria:any) => {
+    setCategoriaSelecionada(
+      categoria
+    )
+    setNomeCategoria(
+      categoria.nome
+    )
+
+    setDescricaoCategoria(
+      categoria.descricao || ''
+    )
+    setOpenCategoria(true)
+  }
+  const handleEditar = (equipo: Equipo) => {
+    console.log('Editar:', equipo)
+  }
+
+const salvarNovoEquipamento = async () => {
+  try {
+    await criarEquipamento({
+      marca,
+      modelo,
+      estado,
+      descricao,
+      localizacao,
+      valor
+    })
+
+    setOpenEquipamento(false)
+
+    setMarca('')
+    setModelo('')
+    setEstado('')
+    setDescricao('')
+    setLocalizacao('')
+    setValor(0)
+
+  } catch (error) {
+    console.error(error)
+  }
+}
 
   return (
 
@@ -30,42 +148,79 @@ export default function ConfigPage() {
 
       <Paper
         sx={{
-          borderRadius: 3,
-          overflow: 'hidden'
+          borderRadius:1,
+          overflow:'hidden'
         }}
       >
 
         <Tabs
-          value={tab}
-          onChange={(_, value) =>
-            setTab(value)
+          value={aba}
+          onChange={(_,value)=>
+            setAba(value)
           }
+          variant="fullWidth"
         >
-
-          <Tab label="Marcas" />
-
+          <Tab label="Clientes" />
           <Tab label="Categorias" />
-
-          <Tab label="Localizações" />
-
-          <Tab label="Estado" />
-
+          <Tab label="Usuários" />
+          <Tab label="Equipamentos" />
         </Tabs>
 
       </Paper>
 
       <Box mt={3}>
 
-        {tab === 0 && <MarcasTab />}
+        {aba === 0 &&
+        <ClientesTable clientes = {clientes} />
+        }
 
-        {tab === 1 && <CategoriasTab />}
+        {aba === 1 &&
+          <CategoriasTable 
+            categorias = {categorias} 
+            onEditar = { editarCategoria }
+          />
+        }
 
-        {tab === 2 && <LocalizacoesTab />}
+        {aba === 2 &&
+          <UsuariosTable 
+            usuarios = {usuarios}
+            criarUsuario = { criarUsuario }
+            atualizarUsuario = { atualizarUsuario }
+            excluirUsuario = { excluirUsuario }
+          />
+        }
+        {aba === 3 && (
+          <>
+            <Box
+              display="flex"
+              justifyContent="flex-end"
+              mb={2}
+            >
+              <Button
+                variant="contained"
+                onClick={() => setOpenEquipamento(true)}
+              >
+                Novo Equipamento
+              </Button>
+            </Box>
 
-        {tab === 3 && <EstadoEquipamentosTab />}
-
+            <EquipamentosTable
+              equipos={equipos}
+              onEditar={handleEditar}
+            />
+          </>
+        )}
       </Box>
-
+      <CategoriaDialog
+        open={openCategoria}
+        nome={nomeCategoria}
+        descricao={descricaoCategoria}
+        setNome={setNomeCategoria}
+        setDescricao={setDescricaoCategoria}
+        onClose={() => setOpenCategoria(false)}
+        onSalvar={salvarCategoria}
+        editando={!!categoriaSelecionada}
+      />
     </Box>
 
   )

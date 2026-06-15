@@ -11,7 +11,7 @@ export const getMarcas = async (req, res) => {
     const [rows] = await db.query(`
       SELECT *
       FROM marcas
-      ORDER BY nombre
+      ORDER BY nome
     `)
 
     res.json(rows)
@@ -54,7 +54,55 @@ export const getCategorias = async (req, res) => {
   }
 
 }
+// =====================
+// UPDATE CATEGORIAS
+//
+export const updateCategoria = async (
+  req,
+  res
+) => {
 
+  const { id } = req.params
+
+  const {
+    nome,
+    descricao
+  } = req.body
+
+  try {
+
+    await db.query(
+      `
+      UPDATE categorias
+      SET
+        nome = ?,
+        descricao = ?
+      WHERE id = ?
+      `,
+      [
+        nome,
+        descricao,
+        id
+      ]
+    )
+
+    res.json({
+      success: true,
+      message: 'Categoria atualizada'
+    })
+
+  } catch(error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao atualizar categoria'
+    })
+
+  }
+
+}
 // =====================
 // GET LOCALIZACOES
 // =====================
@@ -64,9 +112,8 @@ export const getLocalizacoes = async (req, res) => {
   try {
 
     const [rows] = await db.query(`
-      SELECT *
-      FROM ubicaciones
-      ORDER BY nombre
+      SELECT localizacao
+      FROM equipos
     `)
 
     res.json(rows)
@@ -90,15 +137,15 @@ export const createMarca = async (req, res) => {
 
   try {
 
-    const { nombre } = req.body
+    const { nome } = req.body
 
     const [result] = await db.query(`
       INSERT INTO marcas (
-        nombre
+        nome
       )
       VALUES (?)
     `, [
-      nombre
+      nome
     ])
 
     res.status(201).json({
@@ -127,14 +174,14 @@ export const updateMarca = async (req, res) => {
   try {
 
     const { id } = req.params
-    const { nombre } = req.body
+    const { nome } = req.body
 
     await db.query(`
       UPDATE marcas
-      SET nombre = ?
+      SET nome = ?
       WHERE id = ?
     `, [
-      nombre,
+      nome,
       id
     ])
 

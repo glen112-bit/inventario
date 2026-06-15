@@ -10,6 +10,7 @@ import {
   TableHead,
   TableRow,
   TableCell,
+  Divider,
   TableBody
 } from '@mui/material'
 
@@ -34,7 +35,7 @@ import KpiCard from '../../components/KpiCard'
 
 export default function AnalyticsPage() {
 
-  const [data, setData] = useState<any>(null)
+  const [stats, setStats] = useState<any>(null)
 
   useEffect(() => {
 
@@ -50,7 +51,7 @@ export default function AnalyticsPage() {
         '/api/analytics'
       )
 
-      setData(response.data)
+      setStats(response.data)
 
     } catch (error) {
 
@@ -60,7 +61,7 @@ export default function AnalyticsPage() {
 
   }
 
-  if (!data) {
+  if (!stats) {
 
     return (
       <Typography>
@@ -91,7 +92,7 @@ export default function AnalyticsPage() {
         <Grid size={{ xs: 12, md: 3 }}>
           <KpiCard
             title="Equipamentos"
-            value={data.totalEquipamentos}
+            value={stats.totalEquipamentos}
             icon={<InventoryIcon />}
             color="#3b82f6"
           />
@@ -100,7 +101,7 @@ export default function AnalyticsPage() {
         <Grid size={{ xs: 12, md: 3 }}>
           <KpiCard
             title="Clientes"
-            value={data.totalClientes}
+            value={stats.totalClientes}
             icon={<PeopleIcon />}
             color="#10b981"
           />
@@ -109,7 +110,7 @@ export default function AnalyticsPage() {
         <Grid size={{ xs: 12, md: 3 }}>
           <KpiCard
             title="Aluguéis"
-            value={data.totalAlugueis}
+            value={stats.totalAlugueis}
             icon={<HandshakeIcon />}
             color="#f59e0b"
           />
@@ -118,102 +119,107 @@ export default function AnalyticsPage() {
         <Grid size={{ xs: 12, md: 3 }}>
           <KpiCard
             title="Manutenção"
-            value={data.totalManutencao}
+            value={stats.totalManutencao}
             icon={<BuildIcon />}
             color="#ef4444"
           />
         </Grid>
 
       </Grid>
-<Grid container spacing={3} mb={4}>
+      <Grid container spacing={3} mb={4}>
 
-  <Grid size={{ xs: 12, md: 4 }}>
-    <KpiCard
-      title="Disponíveis"
-      value={
-        data.porEstado.find(
-          x => x.estado_actual === 'disponible'
-        )?.total || 0
-      }
-      icon={<InventoryIcon />}
-      color="#22c55e"
-    />
-  </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <KpiCard
+            title="Disponíveis"
+            value={
+              stats.porEstado.find(
+                x => x.estado_actual === 'disponible'
+            )?.total || 0
+            }
+            icon={<InventoryIcon />}
+            color="#22c55e"
+          />
+        </Grid>
 
-  <Grid size={{ xs: 12, md: 4 }}>
-    <KpiCard
-      title="Alugados"
-      value={
-        data.porEstado.find(
-          x => x.estado_actual === 'alquilado'
-        )?.total || 0
-      }
-      icon={<HandshakeIcon />}
-      color="#f59e0b"
-    />
-  </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <KpiCard
+            title="Alugados"
+            value={
+              stats.porEstado.find(
+                x => x.estado_actual === 'alquilado'
+            )?.total || 0
+            }
+            icon={<HandshakeIcon />}
+            color="#f59e0b"
+          />
+        </Grid>
 
-  <Grid size={{ xs: 12, md: 4 }}>
-    <KpiCard
-      title="Em Manutenção"
-      value={data.totalManutencao}
-      icon={<BuildIcon />}
-      color="#ef4444"
-    />
-  </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <KpiCard
+            title="Em Manutenção"
+            value={stats.totalManutencao}
+            icon={<BuildIcon />}
+            color="#ef4444"
+          />
+        </Grid>
 
-</Grid>
-<Paper
-  sx={{
-    p: 3,
-    borderRadius: 3,
-    mt: 3
-  }}
->
+      </Grid>
 
-  <Typography
-    variant="h6"
-    mb={2}
-  >
-    Top Marcas
-  </Typography>
+      <Divider sx={{ mb: 2 }} />
 
-  <Table>
+      <Paper
+        sx={{
+          p: 3,
+          borderRadius: 3,
+          mt: 3
+        }}
+      >
 
-    <TableHead>
+        <Typography
+          variant="h6"
+          mb={2}
+        >
+          Top Marcas
+        </Typography>
 
-      <TableRow>
-        <TableCell>Marca</TableCell>
-        <TableCell align="right">
-          Equipamentos
-        </TableCell>
-      </TableRow>
+        <Table>
 
-    </TableHead>
+          <TableHead>
 
-    <TableBody>
+            <TableRow>
+              <TableCell>Marca</TableCell>
+              <TableCell align="right">
+                Equipamentos
+              </TableCell>
+            </TableRow>
 
-      {data.porMarca.map(item => (
+          </TableHead>
 
-        <TableRow key={item.marca}>
+          <TableBody>
 
-          <TableCell>
-            {item.marca}
-          </TableCell>
+            {stats.porMarca.map(item => (
 
-          <TableCell align="right">
-            {item.total}
-          </TableCell>
+              <TableRow key={item.marca}>
 
-        </TableRow>
+                <TableCell>
+                  {item.marca}
+                </TableCell>
 
-      ))}
+                <TableCell align="right">
+                  {item.total}
+                </TableCell>
 
-    </TableBody>
+              </TableRow>
 
-  </Table>
+            ))}
 
-</Paper>
+          </TableBody>
+
+        </Table>
+
+      </Paper>
+
+      <Divider sx={{ mb: 2, mt:2 }} />
       <Grid
         container
         spacing={3}
@@ -224,10 +230,16 @@ export default function AnalyticsPage() {
           <Paper
             sx={{
               p: 3,
-              borderRadius: 3,
               height: 400
             }}
           >
+            <Box
+              sx={{
+                width:'100%',
+                height:300
+              }}
+
+            >
 
             <Typography
               variant="h6"
@@ -237,33 +249,33 @@ export default function AnalyticsPage() {
             </Typography>
 
             <ResponsiveContainer
-              width="100%"
-              height="100%"
+              width={600}
+              height={300}
             >
 
-<BarChart
-  layout="vertical"
-  data={data.porEstado}
->
-  <CartesianGrid strokeDasharray="3 3" />
+              <BarChart
+                layout="vertical"
+                data={stats.porEstado}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
 
-  <XAxis type="number" />
+                <XAxis type="number" />
 
-  <YAxis
-    type="category"
-    dataKey="estado_actual"
-  />
+                <YAxis
+                  type="category"
+                  dataKey="estado_actual"
+                />
 
-  <Tooltip />
+                <Tooltip />
 
-  <Bar
-    dataKey="total"
-    radius={[0, 6, 6, 0]}
-  />
-</BarChart>
+                <Bar
+                  dataKey="total"
+                  radius={[0, 6, 6, 0]}
+                />
+              </BarChart>
 
             </ResponsiveContainer>
-
+            </Box>
           </Paper>
 
         </Grid>
@@ -291,7 +303,7 @@ export default function AnalyticsPage() {
             >
 
               <BarChart
-                data={data.porMarca}
+                data={stats.porMarca}
               >
 
                 <CartesianGrid strokeDasharray="3 3" />
