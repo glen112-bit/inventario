@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
+import useClientesFilter from '../../hooks/useClientesFilter'
 
 import {
   Box,
@@ -12,8 +13,12 @@ import {
   Grid
 } from '@mui/material'
 
+import PeopleIcon from '@mui/icons-material/People'
+import HandshakeIcon from '@mui/icons-material/Handshake'
+import BlockIcon from '@mui/icons-material/Block'
 import AddIcon from '@mui/icons-material/Add'
 import BusinessIcon from '@mui/icons-material/Business'
+import KpiCard from '../../components/kpiCard'
 
 import {
   Table,
@@ -27,18 +32,29 @@ import {
 type Cliente = {
   id:number
   nome:string
-  empresa:string
+  empresa?:string
+  documento:string
   email:string
   telefone:string
-  cidade:string
-  activo:number
+  endereco:string
+  cidade?:string
+  activo?:number
   created_at:string
 }
 
 export default function ClientesPage(){
 
-  const [clientes,setClientes]=useState<Cliente[]>([])
-  const [search,setSearch]=useState('')
+  const [ clientes,setClientes ]=useState<Cliente[]>([])
+  const [ search,setSearch ] = useState('')
+  const [ filtroStatus, setFiltroStatus ] = useState('')
+  const {
+    filtrados
+  } = useClientesFilter(
+    clientes,
+    search,
+    filtroStatus
+  )
+
 
   useEffect(()=>{
 
@@ -47,7 +63,7 @@ export default function ClientesPage(){
       try{
 
         const response=await axios.get(
-'http://localhost:3001/api/clientes'
+          'http://localhost:3001/api/clientes'
         )
 
         setClientes(response.data)
@@ -61,18 +77,9 @@ export default function ClientesPage(){
     }
 
     obtenerClientes()
-console.log
+    console.log
   },[])
 
-  const clientesFiltrados=useMemo(()=>{
-
-    return clientes.filter(cliente=>
-      cliente.nome?.toLowerCase().includes(search.toLowerCase()) ||
-      cliente.empresa?.toLowerCase().includes(search.toLowerCase()) ||
-      cliente.email?.toLowerCase().includes(search.toLowerCase())
-    )
-
-  },[clientes,search])
 
   const totalClientes=clientes.length
 
@@ -121,41 +128,34 @@ console.log
 
       <Grid container spacing={3} mb={4}>
 
-        <Grid item xs={12} md={4}>
-          <Paper sx={{p:3,borderRadius:3}}>
-            <Typography color="text.secondary">
-              Total Clientes
-            </Typography>
-            <Typography variant="h4">
-              {totalClientes}
-            </Typography>
-          </Paper>
+        <Grid size={{ xs:12, md:4 }}>
+          <KpiCard
+            title="Clientes"
+            value={totalClientes}
+            icon={<PeopleIcon />}
+            color="#3b82f6"
+          />
         </Grid>
 
-        <Grid item xs={12} md={4}>
-          <Paper sx={{p:3,borderRadius:3}}>
-            <Typography color="text.secondary">
-              Activos
-            </Typography>
-            <Typography variant="h4">
-              {clientesActivos}
-            </Typography>
-          </Paper>
+        <Grid size={{ xs:12, md:4 }}>
+          <KpiCard
+            title="Activos"
+            value={clientesActivos}
+            icon={<HandshakeIcon />}
+            color="#10b981"
+          />
         </Grid>
 
-        <Grid item xs={12} md={4}>
-          <Paper sx={{p:3,borderRadius:3}}>
-            <Typography color="text.secondary">
-              Inactivos
-            </Typography>
-            <Typography variant="h4">
-              {clientesInactivos}
-            </Typography>
-          </Paper>
+        <Grid size={{ xs:12, md:4 }}>
+          <KpiCard
+            title="Inactivos"
+            value={clientesInactivos}
+            icon={<BlockIcon />}
+            color="#ef4444"
+          />
         </Grid>
 
       </Grid>
-
       <Paper
         sx={{
           p:3,
@@ -195,7 +195,7 @@ console.log
 
             <TableBody>
 
-              {clientesFiltrados.map(cliente=>(
+              {filtrados.map(cliente=>(
 
                 <TableRow key={cliente.id} hover>
 

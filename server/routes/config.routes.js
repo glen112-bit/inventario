@@ -7,6 +7,7 @@ import {
   deleteMarca,
 
   getCategorias,
+  updateCategoria,
   getLocalizacoes,
   atualizarEstadoEquipamento,
   getHistoricoEquipamento
@@ -22,7 +23,7 @@ router.delete('/marcas/:id', deleteMarca)
 
 // CATEGORIAS
 router.get('/categorias', getCategorias)
-
+router.put('/categorias/:id', updateCategoria)
 // LOCALIZACOES
 router.get('/localizacoes', getLocalizacoes)
 //estados
