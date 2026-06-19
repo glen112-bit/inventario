@@ -6,9 +6,15 @@ import {
   Tabs,
   Tab,
   Button,
-  Paper
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material'
 
+
+import NovoEquipamentoForm from '../../components/equipamentos/NovoEquipamentoForm'
 import ClientesTable from '../../components/configuracoes/ClientesTable'
 import CategoriasTable from '../../components/configuracoes/CategoriasTable'
 import MarcasTable from '../../components/configuracoes/MarcasTable'
@@ -24,6 +30,7 @@ import useEquipamentosFilter from '../../hooks/useEquipamentosFilter'
 import useEquipamentoForm from '../../hooks/useEquipamentoForm'
 import useLocalizacoes from '../../hooks/useLocalizacoes'
 import useUsuarios from '../../hooks/useUsuarios'
+import useMarcas from '../../hooks/useMarcas'
 
 export default function ConfiguracoesPage() {
 
@@ -31,15 +38,24 @@ export default function ConfiguracoesPage() {
   const [nomeCategoria,setNomeCategoria] = useState('')
   const [descricaoCategoria,setDescricaoCategoria] = useState('')
   const [categoriaSelecionada,setCategoriaSelecionada] = useState<any>(null)
-  const [marcas, setMarcas] = useState('')
+  // const [marcas, setMarcas] = useState('')
   const [openEquipamento, setOpenEquipamento] = useState(false)
-const [marca, setMarca] = useState('')
-const [modelo, setModelo] = useState('')
-const [estado, setEstado] = useState('')
-const [descricao, setDescricao] = useState('')
-const [localizacao, setLocalizacao] = useState('')
-const [valor, setValor] = useState(0)
+  // const [marca, setMarca] = useState('')
+  // const [modelo, setModelo] = useState('')
+  // const [estado, setEstado] = useState('')
+  // const [descricao, setDescricao] = useState('')
+  // const [localizacao, setLocalizacao] = useState('')
+  // const [valor, setValor] = useState(0)
   const [aba,setAba] = useState(0)
+
+  const {
+    localizacoes
+  } = useLocalizacoes()
+
+  const { 
+    marcas 
+  } = useMarcas()
+
   const {
     clientes,
     criarCliente,
@@ -59,6 +75,7 @@ const [valor, setValor] = useState(0)
     atualizarUsuario,
     excluirUsuario
   } = useUsuarios()
+
   const {
     equipos,
     setEquipos,
@@ -67,6 +84,14 @@ const [valor, setValor] = useState(0)
     salvarEquipamento,
     alterarEstado
   } = useEquipamentos()
+
+  const {
+    form,
+    setForm,
+    resetForm,
+    validate,
+    buildPayload
+  } = useEquipamentoForm()
 
   const salvarCategoria = async () => {
     try {
@@ -105,34 +130,35 @@ const [valor, setValor] = useState(0)
     )
     setOpenCategoria(true)
   }
-  const handleEditar = (equipo: Equipo) => {
+  const handleEditar = (equipo: any) => {
     console.log('Editar:', equipo)
   }
 
-const salvarNovoEquipamento = async () => {
-  try {
-    await criarEquipamento({
-      marca,
-      modelo,
-      estado,
-      descricao,
-      localizacao,
-      valor
-    })
+  const salvarNovoEquipamento = async () => {
 
-    setOpenEquipamento(false)
+    try {
 
-    setMarca('')
-    setModelo('')
-    setEstado('')
-    setDescricao('')
-    setLocalizacao('')
-    setValor(0)
+      if (!validate()) {
+        return
+      }
 
-  } catch (error) {
-    console.error(error)
+      await criarEquipamento(
+        buildPayload()
+      )
+
+      resetForm()
+
+      setOpenEquipamento(false)
+
+      await carregarEquipamentos()
+
+    } catch (error) {
+
+      console.error(error)
+
+    }
+
   }
-}
 
   return (
 
@@ -198,7 +224,9 @@ const salvarNovoEquipamento = async () => {
             >
               <Button
                 variant="contained"
-                onClick={() => setOpenEquipamento(true)}
+                onClick={() => {
+                  setOpenEquipamento(true)
+                }}
               >
                 Novo Equipamento
               </Button>
@@ -207,6 +235,7 @@ const salvarNovoEquipamento = async () => {
             <EquipamentosTable
               equipos={equipos}
               onEditar={handleEditar}
+              localizacoes={localizacoes}
             />
           </>
         )}
@@ -221,7 +250,65 @@ const salvarNovoEquipamento = async () => {
         onSalvar={salvarCategoria}
         editando={!!categoriaSelecionada}
       />
+      <Dialog
+        open={openEquipamento}
+        onClose={() => setOpenEquipamento(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Novo Equipamento
+        </DialogTitle>
+
+        <DialogContent>
+
+          <NovoEquipamentoForm
+            form={form}
+            setForm={setForm}
+            categorias={categorias}
+            marcas={marcas}
+            localizacoes={localizacoes}
+          />
+
+        </DialogContent>
+
+        <DialogActions>
+
+          <Button
+            onClick={() => setOpenEquipamento(false)}
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={salvarNovoEquipamento}
+          >
+            Salvar
+          </Button>
+
+        </DialogActions>
+
+      </Dialog>
+
+      <DialogActions>
+
+        <Button
+          onClick={() => setOpenEquipamento(false)}
+        >
+          Cancelar
+        </Button>
+
+        <Button
+          variant="contained"
+          onClick={salvarNovoEquipamento}
+        >
+          Salvar
+        </Button>
+
+      </DialogActions>
     </Box>
+
 
   )
 

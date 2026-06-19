@@ -1,3 +1,5 @@
+import React, { useState } from 'react'
+import QRCode from 'react-qr-code'
 import {
   Table,
   TableBody,
@@ -9,7 +11,11 @@ import {
   Avatar,
   Box,
   Button,
-  Chip
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material'
 
 import Inventory2Icon from '@mui/icons-material/Inventory2'
@@ -19,7 +25,7 @@ type Props = {
   equipamentos:any[]
   categorias:any[]
   localizacoes:any[]
-  onEditar:(equipamento:any)=>void
+  onEditar:(equipos:any)=>void
 }
 
 export default function EquipamentosTable({
@@ -28,6 +34,8 @@ export default function EquipamentosTable({
   localizacoes,
   onEditar
 }:Props) {
+  const [openQr, setOpenQr] = useState(false)
+  const [equipamentoSelecionado, setEquipamentoSelecionado] = useState<any>(null)
 
   const getCategoriaNome = (
     id:number
@@ -36,7 +44,7 @@ export default function EquipamentosTable({
     const categoria =
       categorias.find(
         c => c.id === id
-      )
+    )
 
     return categoria?.nombre || '-'
 
@@ -49,7 +57,7 @@ export default function EquipamentosTable({
     const localizacao =
       localizacoes.find(
         l => l.id === id
-      )
+    )
 
     return localizacao?.nombre || '-'
 
@@ -117,7 +125,9 @@ export default function EquipamentosTable({
             <TableCell>
               Status
             </TableCell>
-
+            <TableCell>
+              QR
+            </TableCell>
             <TableCell align="center">
               Ações
             </TableCell>
@@ -129,12 +139,12 @@ export default function EquipamentosTable({
         <TableBody>
 
           {equipamentos.map(
-            equipamento => (
+            equipos => (
 
               <TableRow
                 hover
                 key={
-                  equipamento.equipamento_id
+                  equipos.equipamento_id
                 }
               >
 
@@ -155,7 +165,7 @@ export default function EquipamentosTable({
                     <Typography
                       fontWeight={600}
                     >
-                      {equipamento.marca} {equipamento.modelo}
+                      {equipos.marca} {equipos.modelo}
                     </Typography>
 
                   </Box>
@@ -163,25 +173,25 @@ export default function EquipamentosTable({
                 </TableCell>
 
                 <TableCell>
-                  {equipamento.numero_serie}
+                  {equipos.numero_serie}
                 </TableCell>
 
                 <TableCell>
                   {
                     getCategoriaNome(
-                      equipamento.categoria_id
+                      equipos.categoria_id
                     )
                   }
                 </TableCell>
 
                 <TableCell>
-                  {equipamento.marca}
+                  {equipos.marca}
                 </TableCell>
 
                 <TableCell>
                   {
                     getLocalizacaoNome(
-                      equipamento.ubicacion_id
+                      equipos.localizacao
                     )
                   }
                 </TableCell>
@@ -190,28 +200,42 @@ export default function EquipamentosTable({
 
                   R$ {
                     Number(
-                      equipamento.valor
+                      equipos.valor
                     ).toLocaleString(
-                      'pt-BR',
-                      {
-                        minimumFractionDigits:2
-                      }
+                    'pt-BR',
+                    {
+                      minimumFractionDigits:2
+                    }
                     )
                   }
 
                 </TableCell>
 
                 <TableCell>
-
                   <Chip
                     size="small"
                     variant="outlined"
                     label={
                       getEstadoLabel(
-                        equipamento.estado_actual
-                      )
+                        equipos.estado_actual
+                    )
                     }
                   />
+                </TableCell>
+
+                <TableCell align="center">
+                  <Box
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      setEquipamentoSelecionado(equipos)
+                      setOpenQr(true)
+                    }}
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <QRCode size={35} value={`https://tu-dominio.com/equipamento/${equipos.equipamento_id }`}/>
+                  </Box>
 
                 </TableCell>
 
@@ -222,16 +246,13 @@ export default function EquipamentosTable({
                     variant="outlined"
                     startIcon={<EditIcon />}
                     onClick={() =>
-                      onEditar(
-                        equipamento
-                      )
+                      onEditar(equipos)
                     }
                   >
                     Editar
                   </Button>
 
                 </TableCell>
-
               </TableRow>
 
             )
@@ -240,6 +261,75 @@ export default function EquipamentosTable({
         </TableBody>
 
       </Table>
+      <Dialog
+        open={openQr}
+        onClose={() => setOpenQr(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          Etiqueta do Equipamento
+        </DialogTitle>
+
+        <DialogContent>
+
+          {equipamentoSelecionado && (
+
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              gap={2}
+              py={2}
+            >
+
+              <QRCode
+                value={`https://tu-dominio.com/equipamento/${equipamentoSelecionado.equipamento_id}`}
+                size={200}
+              />
+
+              <Typography variant="h6">
+                {equipamentoSelecionado.marca}
+                {' '}
+                {equipamentoSelecionado.modelo}
+              </Typography>
+
+              <Typography>
+                Código: {equipamentoSelecionado.codigo_interno}
+              </Typography>
+
+              <Typography>
+                Série: {equipamentoSelecionado.numero_serie}
+              </Typography>
+
+              <Typography>
+                Estado: {equipamentoSelecionado.estado_actual}
+              </Typography>
+
+            </Box>
+
+          )}
+
+        </DialogContent>
+
+        <DialogActions>
+
+          <Button
+            onClick={() => window.print()}
+            variant="contained"
+          >
+            Imprimir
+          </Button>
+
+          <Button
+            onClick={() => setOpenQr(false)}
+          >
+            Fechar
+          </Button>
+
+        </DialogActions>
+
+      </Dialog>
 
     </TableContainer>
 

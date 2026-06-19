@@ -18,6 +18,10 @@ import KpiCard from '../../components/KpiCard'
 
 export default function DashboardPage() {
 
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  'http://localhost:3001/api'
+  
   const [stats, setStats] = useState<any>({
     totalEquipos: 0,
     equiposDisponiveis: 0,
@@ -43,7 +47,7 @@ export default function DashboardPage() {
     try {
 
       const res = await axios.get(
-        'http://localhost:3001/api/dashboard/stats'
+        `${API_URL}/dashboard/stats`
       )
       setStats(res.data)
     } catch (err) {

@@ -54,7 +54,9 @@ export default function ClientesPage(){
     search,
     filtroStatus
   )
-
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  'http://localhost:3001/api'
 
   useEffect(()=>{
 
@@ -62,10 +64,7 @@ export default function ClientesPage(){
 
       try{
 
-        const response=await axios.get(
-          'http://localhost:3001/api/clientes'
-        )
-
+        const response= await axios.get(`${API_URL}/clientes`)
         setClientes(response.data)
 
       }catch(error){

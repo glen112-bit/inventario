@@ -8,14 +8,29 @@ import {
   Chip,
   Paper
 } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
+
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
 type Props = {
   alugueis:any[]
+  onDetalhes:(aluguel:any)=>void
+  onEditar:(aluguel:any)=>void
+  onExcluir:(aluguel:any)=>void
+  onFinalizar?:(aluguel:any)=>void
 }
 
 export default function AlugueisTable({
-  alugueis
+  alugueis,
+  onDetalhes,
+  onEditar,
+  onExcluir,
+  onFinalizar
 }: Props) {
+  // console.log(alugueis)
 
   return (
 
@@ -49,6 +64,13 @@ export default function AlugueisTable({
               Status
             </TableCell>
 
+            <TableCell>
+              Equipos
+            </TableCell>
+
+            <TableCell>
+              Ações
+            </TableCell>
           </TableRow>
 
         </TableHead>
@@ -75,10 +97,10 @@ export default function AlugueisTable({
                 {
                   item.fecha_salida
                     ? new Date(
-                        item.fecha_salida
-                      ).toLocaleDateString(
-                        'pt-BR'
-                      )
+                      item.fecha_salida
+                    ).toLocaleDateString(
+                    'pt-BR'
+                    )
                     : '-'
                 }
 
@@ -89,10 +111,10 @@ export default function AlugueisTable({
                 {
                   item.fecha_retorno
                     ? new Date(
-                        item.fecha_retorno
-                      ).toLocaleDateString(
-                        'pt-BR'
-                      )
+                      item.fecha_retorno
+                    ).toLocaleDateString(
+                    'pt-BR'
+                    )
                     : '-'
                 }
 
@@ -115,16 +137,59 @@ export default function AlugueisTable({
                 />
 
               </TableCell>
+              <TableCell>
+                {item.total_equipamentos || 0}
+              </TableCell>
+              <TableCell>
 
-            </TableRow>
+                <IconButton
+                  color="primary"
+                  onClick={() => onDetalhes(item)}
+                >
+                  <VisibilityIcon />
+                </IconButton>
+
+                <IconButton
+                  color="warning"
+                  onClick={() => onEditar(item)}
+                >
+                  <EditIcon />
+                </IconButton>
+
+                {item.estado === 'ativo' && (
+                  <IconButton
+                    color="success"
+                    onClick={() => onFinalizar?.(item)}
+                  >
+                    <CheckCircleIcon />
+                  </IconButton>
+                )}
+
+                <IconButton
+                  color="error"
+                  onClick={() => {
+                    if(
+                      window.confirm(
+                        `Deseja excluir o aluguel #${item.id}?`
+                      )
+                    ){
+                      onExcluir(item)
+                    }
+                  }}
+                  >
+                  <DeleteIcon />
+                  </IconButton>
+
+                  </TableCell>
+                  </TableRow>
 
           ))}
 
-        </TableBody>
+          </TableBody>
 
-      </Table>
+          </Table>
 
-    </TableContainer>
+          </TableContainer>
 
   )
 
