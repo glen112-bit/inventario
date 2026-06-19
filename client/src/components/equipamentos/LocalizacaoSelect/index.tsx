@@ -29,6 +29,7 @@ export default function LocalizacaoSelect({
       </InputLabel>
 
       <Select
+
         value={value}
         label="Localização"
         onChange={(e) =>
@@ -40,6 +41,7 @@ export default function LocalizacaoSelect({
 
         {
           localizacoes.map(
+
             localizacao => (
 
               <MenuItem

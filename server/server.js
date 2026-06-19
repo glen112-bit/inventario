@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv'
 
 import alugueisRoutes from './routes/alugueis.routes.js';
 import equiposRoutes from './routes/equipos.routes.js';
@@ -10,9 +11,19 @@ import manutencaoRoutes from './routes/manutencao.routes.js'
 import analyticsRoutes from './routes/analytics.routes.js'
 import configRoutes from './routes/config.routes.js'
 
+dotenv.config()
 const app = express();
 
-app.use(cors());
+
+app.use(cors({
+  // origin: process.env.FRONTEND_URL,
+  origin:[
+       'http://localhost:5173',
+    'https://inventario.suaempresa.com' 
+  ],
+  credentials: true
+}));
+console.log('FRONTEND_URL:', process.env.FRONTEND_URL)
 app.use(express.json());
 
 app.use('/api', alugueisRoutes);
@@ -24,6 +35,9 @@ app.use('/api/analytics', analyticsRoutes)
 app.use('/api/config', configRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 
-app.listen(3001, () => {
-  console.log('Servidor corriendo en puerto 3001');
+const PORT = process.env.PORT || 3001
+
+app.listen(PORT, () => {
+
+  console.log(`Servidor corriendo en puerto ${PORT}`);
 });

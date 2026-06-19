@@ -46,15 +46,17 @@ export default function ManutencaoPage() {
   const [filtro, setFiltro] = useState('todos')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
-const [movimentacoes, setMovimentacoes] = useState([])
-
+  const [movimentacoes, setMovimentacoes] = useState([])
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    'http://localhost:3001/api'
   const navigate = useNavigate()
 
   useEffect(() => {
     const carregar = async () => {
       try{
         const response = await axios.get(
-          'http://localhost:3001/api/manutencao'
+          `${API_URL}/manutencao`
         )
         setEquipamentos(
           Array.isArray(response.data)
@@ -68,7 +70,6 @@ const [movimentacoes, setMovimentacoes] = useState([])
       }
     }
     carregar()
-    console.log(equipamentos)
 
   },[])
 
@@ -152,7 +153,7 @@ const [movimentacoes, setMovimentacoes] = useState([])
           label="Manutenção"
           color="error"
           size="small"
-        />
+          />
       )
     }
   ]
@@ -180,64 +181,64 @@ const [movimentacoes, setMovimentacoes] = useState([])
         <Box>
 
           <Typography
-            variant="h4"
-            fontWeight={700}
+          variant="h4"
+          fontWeight={700}
           >
-            Manutenção
+          Manutenção
           </Typography>
 
-          <Typography color="text.secondary">
-            Equipamentos em manutenção
-          </Typography>
+            <Typography color="text.secondary">
+              Equipamentos em manutenção
+            </Typography>
 
         </Box>
 
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-        >
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+            >
           Nova Manutenção
-        </Button>
+            </Button>
 
       </Box>
 
-      <Grid container spacing={3} mb={3}>
+        <Grid container spacing={3} mb={3}>
 
-        <Grid size={{ xs: 12, md: 3 }}>
-          <KpiCard
-            title="Equipamentos"
-            value={totalEquipamentos}
-            icon={<BuildIcon />}
-            color="#ef4444"
-            onClick={() =>
-              navigate('/manutencao/detalhes/equipamentos')
-            }
-          />
-        </Grid>
+          <Grid size={{ xs: 12, md: 3 }}>
+            <KpiCard
+        title="Equipamentos"
+        value={totalEquipamentos}
+        icon={<BuildIcon />}
+        color="#ef4444"
+        onClick={() =>
+          navigate('/manutencao/detalhes/equipamentos')
+          }
+            />
+          </Grid>
 
-        <Grid size={{ xs: 12, md: 3 }}>
-          <KpiCard
-            title="Valor"
-            value={`R$ ${valorTotal.toLocaleString('pt-BR')}`}
-            icon={<AttachMoneyIcon />}
+          <Grid size={{ xs: 12, md: 3 }}>
+            <KpiCard
+              title="Valor"
+              value={`R$ ${valorTotal.toLocaleString('pt-BR')}`}
+              icon={<AttachMoneyIcon />}
             color="#10b981"
             onClick={() =>
               navigate('/manutencao/detalhes/valor')
             }
-          />
-        </Grid>
+            />
+            </Grid>
 
-        <Grid size={{ xs: 12, md: 3 }}>
-          <KpiCard
-            title="Marcas Afetadas"
+            <Grid size={{ xs: 12, md: 3 }}>
+              <KpiCard
+                title="Marcas Afetadas"
             value={totalMarcas}
             icon={<CategoryIcon />}
             color="#3b82f6"
             onClick={() =>
               navigate('/manutencao/detalhes/marcas')
-            }
-          />
-        </Grid>
+              }
+              />
+            </Grid>
 
         <Grid size={{ xs: 12, md: 3 }}>
           <KpiCard
@@ -251,15 +252,15 @@ const [movimentacoes, setMovimentacoes] = useState([])
           />
         </Grid>
 
-      </Grid>
-      <Paper
-        sx={{
-          p: 3,
+          </Grid>
+            <Paper
+              sx={{
+                p: 3,
           borderRadius: 4
-        }}
-      >
+          }}
+            >
 
-        <Box mb={3}>
+          <Box mb={3}>
 
           <TextField
             fullWidth
@@ -270,26 +271,26 @@ const [movimentacoes, setMovimentacoes] = useState([])
             }
           />
 
-        </Box>
+            </Box>
 
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          loading={loading}
-          autoHeight
-          disableRowSelectionOnClick
-          pageSizeOptions={[10, 25, 50, 100 ]}
-        />
+            <DataGrid
+              rows={rows}
+              columns={columns}
+            loading={loading}
+            autoHeight
+            disableRowSelectionOnClick
+            pageSizeOptions={[10, 25, 50, 100 ]}
+            />
 
-      </Paper>
+          </Paper>
 
-      <Box mt={4}>
+            <Box mt={4}>
 
-        <Paper
-          sx={{
-            p: 3,
-            borderRadius: 4
-          }}
+      <Paper
+        sx={{
+          p: 3,
+          borderRadius: 4
+        }}
         >
 
           <Typography
@@ -300,108 +301,108 @@ const [movimentacoes, setMovimentacoes] = useState([])
             Marcas em Manutenção
           </Typography>
 
-          <Table>
+            <Table>
 
-            <TableHead>
+              <TableHead>
 
-              <TableRow>
+                <TableRow>
 
-                <TableCell>
-                  Marca
-                </TableCell>
+              <TableCell>
+                Marca
+              </TableCell>
 
                 <TableCell align="right">
                   Equipamentos
                 </TableCell>
 
-              </TableRow>
+                </TableRow>
 
-            </TableHead>
+              </TableHead>
 
-            <TableBody>
+                <TableBody>
 
-              {Object.entries(
+            {Object.entries(
 
-                equipamentos.reduce((acc, item) => {
+              equipamentos.reduce((acc, item) => {
 
-                  acc[item.marca] =
-                    (acc[item.marca] || 0) + 1
+                acc[item.marca] =
+                  (acc[item.marca] || 0) + 1
 
-                  return acc
+                return acc
 
-                }, {} as Record<string, number>)
+              }, {} as Record<string, number>)
 
-              ).map(([marca, quantidade]) => (
+            ).map(([marca, quantidade]) => (
 
-                <TableRow key={marca}>
+              <TableRow key={marca}>
 
-                  <TableCell>
-                    {marca}
-                  </TableCell>
+                <TableCell>
+                  {marca}
+                </TableCell>
 
                   <TableCell align="right">
                     {quantidade}
                   </TableCell>
 
-                </TableRow>
+              </TableRow>
 
-              ))}
+                    ))}
 
-            </TableBody>
+                </TableBody>
 
-          </Table>
-<Paper
-  sx={{
-    p: 3,
-    borderRadius: 4,
-    mt: 3
-  }}
->
-  <Typography
-    variant="h6"
-    fontWeight={600}
-    mb={2}
-  >
-    Últimas Movimentações
-  </Typography>
+            </Table>
+                    <Paper
+                      sx={{
+                        p: 3,
+                        borderRadius: 4,
+                        mt: 3
+              }}
+                    >
+              <Typography
+                variant="h6"
+                fontWeight={600}
+                mb={2}
+              >
+                Últimas Movimentações
+              </Typography>
 
-  {movimentacoes.map((item) => (
-    <Box
-      key={item.id}
-      sx={{
-        py: 1,
-        borderBottom:
-          '1px solid rgba(255,255,255,.08)'
-      }}
-    >
-      <Typography fontWeight={600}>
-        {item.codigo_interno}
-      </Typography>
+                {movimentacoes.map((item) => (
+                  <Box
+                    key={item.id}
+                    sx={{
+                      py: 1,
+                borderBottom:
+                '1px solid rgba(255,255,255,.08)'
+                }}
+                  >
+                <Typography fontWeight={600}>
+                {item.codigo_interno}
+                </Typography>
 
-      <Typography
-        variant="body2"
-        color="text.secondary"
-      >
-        {item.estado_anterior}
-        {' → '}
-        {item.estado_novo}
-      </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                >
+                  {item.estado_anterior}
+                  {' → '}
+                  {item.estado_novo}
+                </Typography>
 
-      <Typography
-        variant="caption"
-        color="text.secondary"
-      >
-        {item.observacao}
-      </Typography>
-    </Box>
-  ))}
-</Paper>
-        </Paper>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                    >
+                      {item.observacao}
+                    </Typography>
+                  </Box>
+                ))}
+                    </Paper>
+            </Paper>
 
       </Box>
 
-    </Box>
+            </Box>
 
-  )
+      )
 
-}
+      }

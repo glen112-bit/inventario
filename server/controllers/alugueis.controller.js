@@ -119,5 +119,187 @@ export const createAluguel = async (req, res) => {
 
   }
 }
+export const getAluguelById = async (req,res) => {
 
+  const { id } = req.params
 
+  const [aluguel] = await db.query(`
+    SELECT
+      a.*,
+      c.nome as cliente
+    FROM alugueis a
+    LEFT JOIN clientes c
+      ON c.id = a.cliente_id
+    WHERE a.id = ?
+  `,[id])
+
+  const [equipamentos] = await db.query(`
+    SELECT
+      e.equipamento_id,
+      e.codigo_interno,
+      e.marca,
+      e.modelo,
+      e.estado_actual
+    FROM aluguel_itens ai
+    INNER JOIN equipos e
+      ON e.equipamento_id = ai.equipamento_id
+    WHERE ai.aluguel_id = ?
+  `,[id])
+
+  res.json({
+    ...aluguel[0],
+    equipamentos
+  })
+
+}
+export const getAluguelDetalhes = async (req, res) => {
+
+  const { id } = req.params
+
+  try {
+
+    const [aluguel] = await db.query(`
+      SELECT
+        a.*,
+        c.nome AS cliente
+      FROM alugueis a
+      LEFT JOIN clientes c
+      ON c.id = a.cliente_id
+      WHERE a.id = ?
+    `,[id])
+
+    const [equipamentos] = await db.query(`
+      SELECT
+        e.equipamento_id,
+        e.codigo_interno,
+        e.marca,
+        e.modelo,
+        e.estado_actual
+      FROM aluguel_itens ai
+      INNER JOIN equipos e
+        ON e.equipamento_id = ai.equipamento_id
+      WHERE ai.aluguel_id = ?
+    `,[id])
+
+    res.json({
+      ...aluguel[0],
+      equipamentos
+    })
+
+  } catch(error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      error:error.message
+    })
+
+  }
+
+}
+export const deleteAluguel = async (req, res) => {
+  try {
+
+    const { id } = req.params
+
+    await db.query(
+      'DELETE FROM aluguel_itens WHERE aluguel_id = ?',
+      [id]
+    )
+
+    await db.query(
+      'DELETE FROM alugueis WHERE id = ?',
+      [id]
+    )
+
+    res.json({
+      success: true
+    })
+
+  } catch (error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      error: error.message
+    })
+
+  }
+}
+
+export const atualizarAluguel = async (req, res) => {
+  console.log('PARAMS:', req.params)
+  console.log('BODY:', req.body)
+  try {
+
+    const { id } = req.params
+
+    const {
+      cliente_id,
+      fecha_salida,
+      fecha_retorno,
+      observacoes,
+      equipamentos
+    } = req.body
+
+    await db.query(`
+      UPDATE alugueis
+      SET
+        cliente_id = ?,
+        fecha_salida = ?,
+        fecha_retorno = ?,
+        observacoes = ?
+      WHERE id = ?
+    `, [
+      cliente_id,
+      fecha_salida,
+      fecha_retorno,
+      observacoes,
+      id
+    ])
+    const [ equiposAnteriores ] = await db.query(`
+    SELECT equipamento_id
+    from aluguel_itens
+    WHERE aluguel_id = ?
+    `, [id])
+    for(const item of equiposAnteriores) {
+      await db.query(`
+      UPDATE equipos 
+      SET estado_actual = 'disponivel'
+      WHERE equipamento_id = ?
+      `, [item.equipamento_id])
+    }
+    await db.query(`
+    DELETE FROM aluguel_itens
+    WHERE aluguel_id = ?
+    `, [id])
+
+    if(equipamentos?.length) {
+      for(const equipamentoId of equipamentos) {
+        await db.query (`
+        INSERT INTO aluguel_itens(
+        aluguel_id,
+        equipamento_id
+        )
+        VALUES (?, ?)
+        `, [
+          id,
+          equipamentoId
+        ])
+      }
+    }
+
+    res.json({
+      success: true
+    })
+
+  } catch (error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      error: error.message
+    })
+
+  }
+}

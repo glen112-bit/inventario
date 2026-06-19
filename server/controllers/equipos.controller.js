@@ -18,6 +18,20 @@ export const getEquipos = async (req, res) => {
     });
   }
 };
+
+export const getEquipamentoById = async (req,res) => {
+
+  const { id } = req.params
+
+  const [rows] = await db.query(`
+    SELECT *
+    FROM equipos
+    WHERE equipamento_id = ?
+  `,[id])
+
+  res.json(rows[0])
+}
+
 export const sincronizarMarcas = async (req,res) => {
 
   try {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 import {
   Box,
   Paper,
@@ -10,23 +11,71 @@ import {
   DialogContent,
   DialogActions
 } from '@mui/material'
+
+import useClientes from '../../hooks/useClientes'
 import useAlugueis from '../../hooks/useAlugueis'
+import useEquipamentos from '../../hooks/useEquipamentos'
 import useAlugueisKpis from '../../hooks/useAlugueisKpis'
 import useAlugueisFilter from '../../hooks/useAlugueisFilter'
 import AlugueisKpis from '../../components/alugueis/AlugueisKpis'
 import AlugueisTable from '../../components/alugueis/AlugueisTable'
 import AlugueisHeader from '../../components/alugueis/AlugueisHeader'
 import NovoAluguelDialog from '../../components/alugueis/NovoAluguelDialog'
+import DetalhesAluguelDialog from '../../components/alugueis/DetalhesAluguelDialog'
+import EditarAluguelDialog from '../../components/alugueis/EditarAluguelDialog'
 
 export default function AlugueisPage() {
 
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    'http://localhost:3001/api'
   const [ search, setSearch ] = useState('')
   const [ filtroStatus, setFiltroStatus ] = useState('')
   const [ novo, setNovo ] = useState(false)
+  const [ openAluguel, setOpenAluguel ] = useState(false)
+  const [ openDetalhes, setOpenDetalhes ] = useState(false)
+  const [ aluguelSelecionado, setAluguelSelecionado ] = useState<any>(null)
+  const [openEditar, setOpenEditar] = useState(false)
+
+  const abrirDetalhes = async (item:any) => {
+
+    try {
+
+      const response = await axios.get(
+        `${API_URL}/alugueis/${item.id}`
+      )
+      console.log('DETALHE API', response.data)
+      setAluguelSelecionado(response.data)
+      setOpenDetalhes(true)
+    } catch(error) {
+      console.error(error)
+    }
+  }
+  const editarAluguel = async (item:any) => {
+
+    const response = await axios.get(
+      `${API_URL}/alugueis/${item.id}`
+    )
+
+    setAluguelSelecionado(response.data)
+
+    setOpenEditar(true)
+  }
+  const {
+    equipos 
+  } = useEquipamentos()
+
+  const {
+    clientes
+  } = useClientes()
 
   const {
     alugueis,
-    carregarAlugueis
+    carregarAlugueis,
+    atualizarAluguel,
+    criarAluguel,
+    excluirAluguel,
+    finalizarAluguel
   } = useAlugueis()
 
   const {
@@ -38,7 +87,6 @@ export default function AlugueisPage() {
   } = useAlugueisKpis(alugueis)
 
   const {
-
     filtrados
   } = useAlugueisFilter(
     alugueis,
@@ -50,7 +98,7 @@ export default function AlugueisPage() {
     <Box>
       <AlugueisHeader
         onNovo={() => {
-          setOpenNovo(true)
+          setOpenAluguel(true)
         }}
       />
 
@@ -62,7 +110,13 @@ export default function AlugueisPage() {
         cancelados={cancelados}
         onFiltro={setFiltroStatus}
       />
+      <Box
+        display="flex"
+        justifyContent="flex-end"
+        mb={2}
+      >
 
+      </Box>
       <Paper
         sx={{
           p:3,
@@ -77,22 +131,48 @@ export default function AlugueisPage() {
           onChange={(e)=>
             setSearch(
               e.target.value
-            )
+          )
           }
         />
 
         <AlugueisTable
           alugueis={filtrados}
+          onDetalhes={abrirDetalhes}
+          onEditar={editarAluguel}
+          onExcluir={excluirAluguel}
+          onFinalizar={finalizarAluguel}
         />
 
       </Paper>
 
       <NovoAluguelDialog
-        open={novo}
-        onClose={() =>
-          setNovo(false)
-        }
+        open={openAluguel}
+        onClose={() => setOpenAluguel(false)}
+        clientes={clientes}
+        equipamentos={equipos}
+        onSalvar={criarAluguel}
       />
+      {
+        aluguelSelecionado && (
+          <DetalhesAluguelDialog
+            open={openDetalhes}
+            aluguel={aluguelSelecionado}
+            onClose={() => setOpenDetalhes(false)}
+          />
+
+        )
+
+      }
+      {
+        <EditarAluguelDialog
+          open={openEditar}
+          aluguel={aluguelSelecionado}
+          clientes={clientes}
+          equipamentos={equipos}
+          onClose={() => setOpenEditar(false)}
+          onSalvar={atualizarAluguel}
+        />
+      }
     </Box>
   )
 
