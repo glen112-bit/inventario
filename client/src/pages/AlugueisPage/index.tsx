@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../../services/api'
 import {
   Box,
   Paper,
@@ -29,22 +29,22 @@ export default function AlugueisPage() {
   const API_URL =
     import.meta.env.VITE_API_URL ||
     'http://localhost:3001/api'
+
   const [ search, setSearch ] = useState('')
   const [ filtroStatus, setFiltroStatus ] = useState('')
   const [ novo, setNovo ] = useState(false)
   const [ openAluguel, setOpenAluguel ] = useState(false)
   const [ openDetalhes, setOpenDetalhes ] = useState(false)
   const [ aluguelSelecionado, setAluguelSelecionado ] = useState<any>(null)
-  const [openEditar, setOpenEditar] = useState(false)
+  const [ openEditar, setOpenEditar ] = useState(false)
 
   const abrirDetalhes = async (item:any) => {
 
     try {
 
-      const response = await axios.get(
-        `${API_URL}/alugueis/${item.id}`
+      const response = await api.get(
+        `/alugueis/${item.id}`
       )
-      console.log('DETALHE API', response.data)
       setAluguelSelecionado(response.data)
       setOpenDetalhes(true)
     } catch(error) {
@@ -53,8 +53,8 @@ export default function AlugueisPage() {
   }
   const editarAluguel = async (item:any) => {
 
-    const response = await axios.get(
-      `${API_URL}/alugueis/${item.id}`
+    const response = await api.get(
+      `/alugueis/${item.id}`
     )
 
     setAluguelSelecionado(response.data)

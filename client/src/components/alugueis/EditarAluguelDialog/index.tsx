@@ -11,8 +11,17 @@ import {
   Checkbox,
   ListItemText,
   FormControl,
-  InputLabel
+  InputLabel,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  IconButton,
+  Typography,
+  Paper
 } from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState } from 'react'
 
 type Props = {
@@ -45,197 +54,296 @@ export default function EditarAluguelDialog({
 
     if (!aluguel) return
 
-    setForm({
-      cliente_id: aluguel.cliente_id || '',
-      fecha_salida: aluguel.fecha_salida?.substring(0,10) || '',
-      fecha_retorno: aluguel.fecha_retorno?.substring(0,10) || '',
-      observacoes: aluguel.observacoes || '',
-      equipamentos:
-        aluguel.equipamentos?.map(
-          (e:any) => e.equipamento_id
+      setForm({
+        cliente_id: aluguel.cliente_id || '',
+        fecha_salida: aluguel.fecha_salida?.substring(0,10) || '',
+        fecha_retorno: aluguel.fecha_retorno?.substring(0,10) || '',
+        observacoes: aluguel.observacoes || '',
+        equipamentos:
+          aluguel.equipamentos?.map(
+            (e:any) => e.equipamento_id
         ) || []
-    })
+      })
 
   }, [aluguel])
 
+  const equipamentosSelecionados = equipamentos.filter(
+    eq => form.equipamentos.includes(
+      eq.equipamento_id
+    )
+  )
+
   if (!aluguel) return null
+    const removerEquipamento = (
+      equipamentoId:number
+    ) => {
 
-  return (
+      setForm(prev => ({
+        ...prev,
+        equipamentos: prev.equipamentos.filter(
+          id => id !== equipamentoId
+        )
+      }))
 
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="md"
-      fullWidth
-    >
+    }
+    return (
 
-      <DialogTitle>
-        Editar Aluguel #{aluguel.id}
-      </DialogTitle>
+      <Dialog
+        open={open}
+        onClose={onClose}
+        maxWidth="md"
+        fullWidth
+      >
 
-      <DialogContent>
+        <DialogTitle>
+          Editar Aluguel #{aluguel.id}
+        </DialogTitle>
 
-        <Grid container spacing={2} sx={{ mt: 1 }}>
+        <DialogContent>
 
-          <Grid size={{ xs:12 }}>
-            <TextField
-              select
-              fullWidth
-              label="Cliente"
-              value={form.cliente_id}
-              onChange={(e)=>
-                setForm({
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+
+            <Grid size={{ xs:12 }}>
+              <TextField
+                select
+                fullWidth
+                label="Cliente"
+                value={form.cliente_id}
+                onChange={(e)=>
+                  setForm({
                   ...form,
                   cliente_id:e.target.value
                 })
-              }
-            >
-              {clientes.map(cliente => (
-                <MenuItem
-                  key={cliente.id}
-                  value={cliente.id}
-                >
-                  {cliente.nome}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid size={{ xs:12 }}>
-            <FormControl fullWidth>
-
-              <InputLabel>
-                Equipamentos
-              </InputLabel>
-
-              <Select
-                multiple
-                value={form.equipamentos}
-                label="Equipamentos"
-                onChange={(e)=>
-                  setForm({
-                    ...form,
-                    equipamentos:e.target.value as number[]
-                  })
-                }
-                renderValue={(selected)=>
-                  equipamentos
-                    .filter(eq =>
-                      selected.includes(eq.equipamento_id)
-                    )
-                    .map(eq =>
-                      `${eq.marca} ${eq.modelo}`
-                    )
-                    .join(', ')
                 }
               >
-
-                {equipamentos.map(equipamento => (
-
+                {clientes.map(cliente => (
                   <MenuItem
-                    key={equipamento.equipamento_id}
-                    value={equipamento.equipamento_id}
+                    key={cliente.id}
+                    value={cliente.id}
                   >
-
-                    <Checkbox
-                      checked={
-                        form.equipamentos.includes(
-                          equipamento.equipamento_id
-                        )
-                      }
-                    />
-
-                    <ListItemText
-                      primary={`${equipamento.marca} ${equipamento.modelo}`}
-                    />
-
+                    {cliente.nome}
                   </MenuItem>
-
                 ))}
+              </TextField>
+            </Grid>
 
-              </Select>
+            <Grid size={{ xs:12 }}>
 
-            </FormControl>
-          </Grid>
+              <Typography
+                variant="h6"
+                sx={{ mb: 2 }}
+              >
+                Equipamentos do Aluguel
+              </Typography>
 
-          <Grid size={{ xs:12, md:6 }}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Saída"
-              InputLabelProps={{ shrink:true }}
-              value={form.fecha_salida}
-              onChange={(e)=>
-                setForm({
+              <Paper
+                variant="outlined"
+                sx={{ mb: 3 }}
+              >
+
+                <Table size="small">
+
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Código</TableCell>
+                      <TableCell>Marca</TableCell>
+                      <TableCell>Modelo</TableCell>
+                      <TableCell width={80}>
+                        Ações
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+
+                  <TableBody>
+
+                    {equipamentosSelecionados.map(eq => (
+
+                      <TableRow
+                        key={eq.equipamento_id}
+                      >
+
+                        <TableCell>
+                          {eq.codigo_interno}
+                        </TableCell>
+
+                        <TableCell>
+                          {eq.marca}
+                        </TableCell>
+
+                        <TableCell>
+                          {eq.modelo}
+                        </TableCell>
+
+                        <TableCell>
+
+                          <IconButton
+                            color="error"
+                            onClick={() =>
+                              removerEquipamento(
+                                eq.equipamento_id
+                            )
+                            }
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+
+                        </TableCell>
+
+                      </TableRow>
+
+                    ))}
+
+                  </TableBody>
+
+                </Table>
+
+              </Paper>
+
+              <FormControl fullWidth>
+
+                <InputLabel>
+                  Adicionar Equipamentos
+                </InputLabel>
+
+                <Select
+                  multiple
+                  value={form.equipamentos}
+                  label="Adicionar Equipamentos"
+                  onChange={(e)=>
+                    setForm({
+                    ...form,
+                    equipamentos:
+                      e.target.value as number[]
+                  })
+                  }
+                  renderValue={(selected)=>
+                    equipamentos
+                  .filter(eq =>
+                          selected.includes(
+                            eq.equipamento_id
+                  )
+                         )
+                         .map(eq =>
+                              `${eq.codigo_interno} - ${eq.modelo}`
+                             )
+                             .join(', ')
+                  }
+                >
+
+                  {equipamentos
+                    .filter(
+                      eq =>
+                        eq.estado_actual ===
+                        'disponivel'
+                      ||
+                        form.equipamentos.includes(
+                          eq.equipamento_id
+                      )
+                    )
+                    .map(eq => (
+
+                      <MenuItem
+                        key={eq.equipamento_id}
+                        value={eq.equipamento_id}
+                      >
+
+                        <Checkbox
+                          checked={
+                            form.equipamentos.includes(
+                              eq.equipamento_id
+                          )
+                          }
+                        />
+
+                        <ListItemText
+                          primary={`${eq.codigo_interno} - ${eq.marca} ${eq.modelo}`}
+                        />
+
+                      </MenuItem>
+
+                    ))}
+
+                </Select>
+
+              </FormControl>
+
+            </Grid>
+
+            <Grid size={{ xs:12, md:6 }}>
+              <TextField
+                fullWidth
+                type="date"
+                label="Saída"
+                InputLabelProps={{ shrink:true }}
+                value={form.fecha_salida}
+                onChange={(e)=>
+                  setForm({
                   ...form,
                   fecha_salida:e.target.value
                 })
-              }
-            />
-          </Grid>
+                }
+              />
+            </Grid>
 
-          <Grid size={{ xs:12, md:6 }}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Retorno"
-              InputLabelProps={{ shrink:true }}
-              value={form.fecha_retorno}
-              onChange={(e)=>
-                setForm({
+            <Grid size={{ xs:12, md:6 }}>
+              <TextField
+                fullWidth
+                type="date"
+                label="Retorno"
+                InputLabelProps={{ shrink:true }}
+                value={form.fecha_retorno}
+                onChange={(e)=>
+                  setForm({
                   ...form,
                   fecha_retorno:e.target.value
                 })
-              }
-            />
-          </Grid>
+                }
+              />
+            </Grid>
 
-          <Grid size={{ xs:12 }}>
-            <TextField
-              fullWidth
-              multiline
-              rows={3}
-              label="Observações"
-              value={form.observacoes}
-              onChange={(e)=>
-                setForm({
+            <Grid size={{ xs:12 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label="Observações"
+                value={form.observacoes}
+                onChange={(e)=>
+                  setForm({
                   ...form,
                   observacoes:e.target.value
                 })
-              }
-            />
+                }
+              />
+            </Grid>
+
           </Grid>
 
-        </Grid>
+        </DialogContent>
 
-      </DialogContent>
+        <DialogActions>
 
-      <DialogActions>
-
-        <Button onClick={onClose}>
-          Cancelar
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() =>{
-    const dados = {
-      id: aluguel.id,
-      ...form
-    }
-
-    console.log('DADOS A ENVIAR', dados)
-    console.log('ARRAY?', Array.isArray(dados))
-
-    onSalvar(dados)
+          <Button onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() =>{
+              const dados = {
+                id: aluguel.id,
+                ...form
+              }
+              onSalvar(dados)
+              onClose()
             }
-          }
-        >
-          Salvar
-        </Button>
+            }
+          >
+            Salvar
+          </Button>
 
-      </DialogActions>
+        </DialogActions>
 
-    </Dialog>
+      </Dialog>
 
-  )
+    )
 }

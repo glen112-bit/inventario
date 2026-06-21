@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import axios from 'axios'
+import api from '../../services/api'
 import {
   Box,
   Typography,
@@ -30,8 +30,8 @@ export default function ManutencaoDetalhesPage() {
 
     try {
 
-      const response = await axios.get(
-        '/api/inventario'
+      const response = await api.get(
+        '/inventario'
       )
       const equipamentos = response.data || []
 

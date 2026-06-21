@@ -13,6 +13,7 @@ import {
   FormControl,
   InputLabel
 } from '@mui/material'
+import useAlugueis from '../../../hooks/useAlugueis'
 import { useState } from 'react'
 
 type Props = {
@@ -38,7 +39,20 @@ export default function NovoAluguelDialog({
     fecha_retorno:'',
     observacoes:''
   })
+  const {
+    alugueis
+  } = useAlugueis()
+const limparFormulario = () => {
 
+  setForm({
+    cliente_id: '',
+    fecha_salida: '',
+    fecha_retorno: '',
+    observacoes: '',
+    equipamentos: []
+  })
+
+}
   return (
 
     <Dialog
@@ -195,7 +209,10 @@ export default function NovoAluguelDialog({
 
       <DialogActions>
 
-        <Button onClick={onClose}>
+        <Button onClick={() => {
+          limparFormulario()
+          onClose()
+        }}>
           Cancelar
         </Button>
 
@@ -206,19 +223,17 @@ export default function NovoAluguelDialog({
               alert('Seleccione um cliente')
               return
             }
-            if(!form.fecha_salida || !form.fecha_retorno) {
-              alert("Informe Datas")
+            if(!form.fecha_salida ) {
+              alert("Informe Data de Saida")
               return
             }
             if(form.equipamentos.length === 0) {
               alert('Seleccione um equipamento')
               return
             }
-            onSalvar({
-              id: aluguel.id,
-              ...form
-            })
-          }
+            limparFormulario()
+            onClose()
+            }
           }
         >
           Salvar

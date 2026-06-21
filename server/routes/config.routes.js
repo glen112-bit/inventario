@@ -10,7 +10,8 @@ import {
   updateCategoria,
   getLocalizacoes,
   atualizarEstadoEquipamento,
-  getHistoricoEquipamento
+  getHistoricoEquipamento,
+  createCategoria
 } from '../controllers/config.controller.js'
 
 const router = express.Router()
@@ -24,6 +25,7 @@ router.delete('/marcas/:id', deleteMarca)
 // CATEGORIAS
 router.get('/categorias', getCategorias)
 router.put('/categorias/:id', updateCategoria)
+router.post('/categorias', createCategoria)
 // LOCALIZACOES
 router.get('/localizacoes', getLocalizacoes)
 //estados

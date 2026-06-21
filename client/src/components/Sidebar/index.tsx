@@ -7,6 +7,9 @@ import {
   BarChart3,
   Settings,
 } from 'lucide-react'
+import {
+  Button
+} from '@mui/material'
 
 import { NavLink } from 'react-router-dom'
 
@@ -168,7 +171,19 @@ export default function Sidebar() {
           p-4
         "
       >
+<Button
+  color="error"
+  onClick={() => {
 
+    localStorage.removeItem('token')
+    localStorage.removeItem('usuario')
+
+    window.location.href = '/login'
+
+  }}
+>
+  Sair
+</Button>
         <div
           className="
             rounded-xl

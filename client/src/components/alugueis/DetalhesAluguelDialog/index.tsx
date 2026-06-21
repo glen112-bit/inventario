@@ -1,4 +1,4 @@
-
+import React, { useState } from 'react'
 import {
   Dialog,
   DialogTitle,
@@ -33,9 +33,8 @@ export default function DetalhesAluguelDialog({
   aluguel,
 }:Props){
 
-
   // console.log(aluguel)
- // if (!aluguel) return null
+  // if (!aluguel) return null
   return (
 
     <Dialog
@@ -128,31 +127,32 @@ export default function DetalhesAluguelDialog({
                 <TableCell>
                   {equipamento.estado_actual}
                 </TableCell>
+
                 {/*
-<TableCell>
-  <IconButton
-    color="primary"
-    onClick={() => onDetalhes(item)}
-  >
-    <VisibilityIcon />
-  </IconButton>
+                    <TableCell>
+                    <IconButton
+                    color="primary"
+                    onClick={() => onDetalhes(item)}
+                    >
+                    <VisibilityIcon />
+                    </IconButton>
 
-  <IconButton
-    color="warning"
-    onClick={() => onEditar(item)}
-  >
-    <EditIcon />
-  </IconButton>
+                    <IconButton
+                    color="warning"
+                    onClick={() => onEditar(item)}
+                    >
+                    <EditIcon />
+                    </IconButton>
 
-  {item.estado === 'ativo' && (
-    <IconButton
-      color="success"
-      onClick={() => onFinalizar?.(item)}
-    >
-      <CheckCircleIcon />
-    </IconButton>
-  )}
-</TableCell>
+                    {item.estado === 'ativo' && (
+                    <IconButton
+                    color="success"
+                    onClick={() => onFinalizar?.(item)}
+                    >
+                    <CheckCircleIcon />
+                    </IconButton>
+                    )}
+                    </TableCell>
                   */}
               </TableRow>
             ))}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import api from '../../services/api'
 
 import {
   Box,
@@ -47,8 +47,8 @@ export default function AnalyticsPage() {
 
     try {
 
-      const response = await axios.get(
-        '/api/analytics'
+      const response = await api.get(
+        '/analytics'
       )
 
       setStats(response.data)

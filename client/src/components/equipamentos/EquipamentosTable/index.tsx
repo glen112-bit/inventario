@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import QRCode from 'react-qr-code'
+import api from '../../../services/api'
 import {
   Table,
   TableBody,
@@ -22,46 +23,32 @@ import Inventory2Icon from '@mui/icons-material/Inventory2'
 import EditIcon from '@mui/icons-material/Edit'
 
 type Props = {
-  equipamentos:any[]
   categorias:any[]
   localizacoes:any[]
+  equipamentos:any[]
   onEditar:(equipos:any)=>void
 }
-
+type Equipamento = {
+  equipamento_id:number
+  marca:string
+  modelo:string
+  numero_serie:string
+  categoria:string
+  estado_actual:string
+  codigo_interno:string
+  localizacao?:string
+}
 export default function EquipamentosTable({
   equipamentos,
   categorias,
   localizacoes,
   onEditar
 }:Props) {
+
   const [openQr, setOpenQr] = useState(false)
   const [equipamentoSelecionado, setEquipamentoSelecionado] = useState<any>(null)
-
-  const getCategoriaNome = (
-    id:number
-  ) => {
-
-    const categoria =
-      categorias.find(
-        c => c.id === id
-    )
-
-    return categoria?.nombre || '-'
-
-  }
-
-  const getLocalizacaoNome = (
-    id:number
-  ) => {
-
-    const localizacao =
-      localizacoes.find(
-        l => l.id === id
-    )
-
-    return localizacao?.nombre || '-'
-
-  }
+  const [openDetalhes, setOpenDetalhes] = useState(false)
+  const [equipamentosModelo, setEquipamentosModelo] = useState<Equipamento[]>([])
 
   const getEstadoLabel = (
     estado:string
@@ -87,6 +74,22 @@ export default function EquipamentosTable({
     }
 
   }
+  const abrirDetalhes = async (equipamento:any) => {
+    console.log('detalle', equipamento)
+    try {
+
+      const response = await api.get(
+        `/inventario/${equipamento.marca}/${equipamento.modelo}`
+      )
+      console.log('response', response.data)
+      setEquipamentosModelo(
+        response.data
+      )
+      setOpenDetalhes(true)
+    } catch(error) {
+      console.error(error)
+    }
+  }
 
   return (
 
@@ -101,30 +104,20 @@ export default function EquipamentosTable({
             <TableCell>
               Equipamento
             </TableCell>
-
-            <TableCell>
-              Série
-            </TableCell>
-
-            <TableCell>
-              Categoria
-            </TableCell>
-
-            <TableCell>
-              Marca
-            </TableCell>
-
-            <TableCell>
-              Localização
-            </TableCell>
-
+            
             <TableCell>
               Valor
             </TableCell>
 
+
             <TableCell>
-              Status
+             Quantidade 
             </TableCell>
+
+            <TableCell>
+              Disponiveis
+            </TableCell>
+
             <TableCell>
               QR
             </TableCell>
@@ -142,10 +135,10 @@ export default function EquipamentosTable({
             equipos => (
 
               <TableRow
+                key={`${equipos.marca}-${equipos.modelo}`}
                 hover
-                key={
-                  equipos.equipamento_id
-                }
+                sx={{ cursor:'pointer' }}
+                onClick={() => abrirDetalhes(equipos)}
               >
 
                 <TableCell>
@@ -165,35 +158,15 @@ export default function EquipamentosTable({
                     <Typography
                       fontWeight={600}
                     >
-                      {equipos.marca} {equipos.modelo}
+                      {equipos.marca} 
+                      {equipos.modelo}
                     </Typography>
 
                   </Box>
 
                 </TableCell>
-
                 <TableCell>
-                  {equipos.numero_serie}
-                </TableCell>
-
-                <TableCell>
-                  {
-                    getCategoriaNome(
-                      equipos.categoria_id
-                    )
-                  }
-                </TableCell>
-
-                <TableCell>
-                  {equipos.marca}
-                </TableCell>
-
-                <TableCell>
-                  {
-                    getLocalizacaoNome(
-                      equipos.localizacao
-                    )
-                  }
+                  {equipos.categoria}
                 </TableCell>
 
                 <TableCell>
@@ -202,31 +175,26 @@ export default function EquipamentosTable({
                     Number(
                       equipos.valor
                     ).toLocaleString(
-                    'pt-BR',
-                    {
-                      minimumFractionDigits:2
-                    }
+                      'pt-BR',
+                      {
+                        minimumFractionDigits:2
+                      }
                     )
                   }
 
                 </TableCell>
-
                 <TableCell>
-                  <Chip
-                    size="small"
-                    variant="outlined"
-                    label={
-                      getEstadoLabel(
-                        equipos.estado_actual
-                    )
-                    }
-                  />
+                  {equipos.quantidade}
                 </TableCell>
 
+                <TableCell>
+                  {equipos.disponiveis} disponíveis
+                </TableCell>
                 <TableCell align="center">
                   <Box
                     sx={{ cursor: 'pointer' }}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation()
                       setEquipamentoSelecionado(equipos)
                       setOpenQr(true)
                     }}
@@ -245,8 +213,10 @@ export default function EquipamentosTable({
                     size="small"
                     variant="outlined"
                     startIcon={<EditIcon />}
-                    onClick={() =>
+                    onClick={(e) =>{
+                      e.stopPropagation()
                       onEditar(equipos)
+                    }
                     }
                   >
                     Editar
@@ -330,7 +300,95 @@ export default function EquipamentosTable({
         </DialogActions>
 
       </Dialog>
+      <Dialog
+        open={openDetalhes}
+        onClose={() =>
+            setOpenDetalhes(false)
+        }
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>
+          {equipamentosModelo[0]?.marca}
+          {' '}
+          {equipamentosModelo[0]?.modelo}
+          {' '}
+          ({equipamentosModelo.length})
+        </DialogTitle>
+        <DialogContent>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Código</TableCell>
+                <TableCell>Série</TableCell>
+                <TableCell>Categoria</TableCell>
+                <TableCell>Estado</TableCell>
+                <TableCell>Localização</TableCell>
+                <TableCell>Valor</TableCell>  
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {equipamentosModelo.map(
+                equipamento => (
+                  <TableRow
+                    key={ equipamento.equipamento_id }
+                  >
+                    <TableCell>
+                      { equipamento.codigo_interno }
+                    </TableCell>
+                    <TableCell>
+                      { equipamento.numero_serie }
+                    </TableCell>
+                    <TableCell>
+                      {equipamento.categoria}
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        size="small"
+                        label={
+                          getEstadoLabel(
+                            equipamento.estado_actual
+                          )
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      { equipamento.localizacao }
+                    </TableCell>
+                    <TableCell>
+                      R$ {
+                        Number(
+                          equipamento.valor
+                        ).toLocaleString(
+                          'pt-BR',
+                          {
+                            minimumFractionDigits: 2
+                          }
+                        )
+                      }
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
+            </TableBody>
 
+          </Table>
+
+        </DialogContent>
+
+        <DialogActions>
+
+          <Button
+            onClick={() =>
+                setOpenDetalhes(false)
+            }
+          >
+            Fechar
+          </Button>
+
+        </DialogActions>
+
+      </Dialog>
     </TableContainer>
 
   )

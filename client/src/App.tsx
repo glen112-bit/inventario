@@ -13,6 +13,7 @@ import ManutencaoPage from './pages/ManutencaoPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import QRScannerPage from './pages/QRScannerPage'
 import ConfigPage from './pages/ConfigPage'
+import LoginPage from './pages/LoginPage'
 
 import ManutencaoDetalhesPage from './pages/ManutencaoDetalhesPage'
 
@@ -38,11 +39,15 @@ function App() {
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/qr-scanner" element={<QRScannerPage />} />
           <Route path="/config" element={<ConfigPage />} />
+          <Route
+            path="/login"
+            element={<LoginPage />}
+          />
 
-<Route
-  path="/manutencao/detalhes/:tipo"
-  element={<ManutencaoDetalhesPage />}
-/>
+          <Route
+            path="/manutencao/detalhes/:tipo"
+            element={<ManutencaoDetalhesPage />}
+          />
         </Route>
       </Routes>
     </BrowserRouter> 

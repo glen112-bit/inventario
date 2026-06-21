@@ -1,5 +1,8 @@
+import React, { useState } from 'react'
 import {
-  TextField
+  TextField,
+  Button,
+  Autocomplete
 } from '@mui/material'
 import Grid from '@mui/material/Grid'
 
@@ -7,6 +10,9 @@ import CategoriaSelect from '../CategoriaSelect'
 import MarcaSelect from '../MarcaSelect'
 import LocalizacaoSelect from '../LocalizacaoSelect'
 import EstadoSelect from '../EstadoSelect'
+import NovaLocalizacaoDialog from '../../configuracoes/NovaLocalizacaoDialog'
+import NovaCategoriaDialog from '../../configuracoes/NovaCategoriaDialog'
+import useCategorias from '../../../hooks/useCategorias'
 
 type Props = {
   form:any
@@ -23,7 +29,11 @@ export default function NovoEquipamentoForm({
   marcas,
   localizacoes
 }:Props) {
-
+  const[ openNovaLocalizacao, setOpenNovaLocalizacao ] = useState(false)
+  const [ openNovaCategoria, setOpenNovaCategoria] = useState(false)
+// console.log('CATEGORIAS', categorias)
+// console.log('MARCAS', marcas)
+// console.log('LOCALIZACOES', localizacoes)
   return (
 
     <Grid container spacing={2}>
@@ -38,6 +48,9 @@ export default function NovoEquipamentoForm({
               categoria_id:value
             })
           }
+  onNovaCategoria={() =>
+    setOpenNovaCategoria(true)
+  }
         />
       </Grid>
 
@@ -51,7 +64,11 @@ export default function NovoEquipamentoForm({
               marca_id:value
             })
           }
+  onNovaMarca={() =>
+    setOpenNovaMarca(true)
+  }
         />
+
       </Grid>
 
       <Grid size={{ xs:12, md:6 }}>
@@ -67,6 +84,22 @@ export default function NovoEquipamentoForm({
         />
       </Grid>
 
+<NovaLocalizacaoDialog
+  open={openNovaLocalizacao}
+  onClose={() => setOpenNovaLocalizacao(false)}
+  onSalvar={async (nome) => {
+
+    await criarLocalizacao({
+      localizacao: nome
+    })
+
+    await carregarLocalizacoes()
+
+    setOpenNovaLocalizacao(false)
+
+  }}
+/>
+ 
       <Grid size={{ xs:12, md:6 }}>
         <EstadoSelect
           value={form.estado_actual}
@@ -141,6 +174,21 @@ export default function NovoEquipamentoForm({
       <Grid size={{ xs:12, md:6 }}>
         <TextField
           fullWidth
+          type="string"
+          label="Nova Localizacao"
+          value={form.localizacao}
+          onChange={(e)=>
+            setForm({
+              ...form,
+              localizacao: e.target.value
+            })
+          }
+        />
+      </Grid>
+
+      <Grid size={{ xs:12, md:6 }}>
+        <TextField
+          fullWidth
           type="date"
           label="Data Compra"
           InputLabelProps={{
@@ -155,7 +203,21 @@ export default function NovoEquipamentoForm({
           }
         />
       </Grid>
+<NovaCategoriaDialog
+  open={openNovaCategoria}
+  onClose={() =>
+    setOpenNovaCategoria(false)
+  }
+  onSalvar={async(dados) => {
 
+    await criarCategoria(dados)
+
+    await carregarCategorias()
+
+    setOpenNovaCategoria(false)
+
+  }}
+/>
     </Grid>
 
   )

@@ -3,33 +3,28 @@ import db from '../config/db.js'
 export const getStats = async (req, res) => {
 
   try {
-console.log('equipos')
     const [[equipos]] = await db.query(`
       SELECT COUNT(*) total
       FROM equipos
     `)
 
-console.log('disoioniveis')
     const [[disponiveis]] = await db.query(`
       SELECT COUNT(*) total
       FROM equipos
       WHERE estado_actual = 'disponivel'
     `)
 
-console.log('manutencao')
     const [[manutencao]] = await db.query(`
       SELECT COUNT(*) total
       FROM equipos
       WHERE estado_actual = 'manutencao'
     `)
 
-console.log('usuarios')
     const [[usuarios]] = await db.query(`
       SELECT COUNT(*) total
       FROM usuarios
     `)
 
-console.log('equimanut')
     const [equipamentosManutencao] = await db.query(`
       SELECT
         equipamento_id,
@@ -41,7 +36,6 @@ console.log('equimanut')
       LIMIT 10
     `)
 
-console.log('ultimos alug')
     const [ultimosAlugueis] = await db.query(`
       SELECT
         a.id,
@@ -55,19 +49,16 @@ console.log('ultimos alug')
       ORDER BY a.id DESC
       LIMIT 10
     `)
-console.log('alugueis ativos')
     const [[alugueisAtivos]] = await db.query(`
   SELECT COUNT(*) total
   FROM alugueis
   WHERE estado = 'ativo'
 `)
-console.log('devolucoes hoje')
     const [[devolucoesHoje]] = await db.query(`
   SELECT COUNT(*) total
   FROM alugueis
   WHERE DATE(fecha_retorno) = CURDATE()
 `)
-console.log('proximas devolucoes')
     const [proximasDevolucoes] = await db.query(`
   SELECT
     a.id,
@@ -80,13 +71,11 @@ console.log('proximas devolucoes')
   ORDER BY a.fecha_retorno ASC
   LIMIT 10
 `)
-console.log('danificados')
     const [[danificados]] = await db.query(`
   SELECT COUNT(*) total
   FROM equipos
   WHERE estado_actual = 'danificado'
 `)
-console.log('equipamentosMaisAlugados')
 
 const [equipamentosMaisAlugados] = await db.query(`
   SELECT
@@ -106,7 +95,6 @@ const [equipamentosMaisAlugados] = await db.query(`
   ORDER BY total_alugueis DESC
   LIMIT 10
 `)
-console.log('ultimasMovimentacoes')
 
 const [ultimasMovimentacoes] = await db.query(`
   SELECT
@@ -122,7 +110,6 @@ const [ultimasMovimentacoes] = await db.query(`
   ORDER BY h.created_at DESC
   LIMIT 15
 `)
-console.log('ANTES DEL RES.JSON')
     res.json({
   totalEquipos: equipos.total,
   equiposDisponiveis: disponiveis.total,

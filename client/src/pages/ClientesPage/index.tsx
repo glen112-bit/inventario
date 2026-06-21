@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import axios from 'axios'
+import api from '../../services/api'
 import useClientesFilter from '../../hooks/useClientesFilter'
+import useClientes from '../../hooks/useClientes'
+import NovoClienteDialog from '../../components/clientes/NovoClienteDialog'
 
 import {
   Box,
@@ -47,6 +49,11 @@ export default function ClientesPage(){
   const [ clientes,setClientes ]=useState<Cliente[]>([])
   const [ search,setSearch ] = useState('')
   const [ filtroStatus, setFiltroStatus ] = useState('')
+  const [ openNovo, setOpenNovo ] = useState(false)
+
+  const usuario = JSON.parse(
+    localStorage.getItem('usuario') || '{}'
+  )
   const {
     filtrados
   } = useClientesFilter(
@@ -54,31 +61,30 @@ export default function ClientesPage(){
     search,
     filtroStatus
   )
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  'http://localhost:3001/api'
+  const {
+    criarCliente,
+  } = useClientes()
 
-  useEffect(()=>{
+  const carregarClientes = async () => {
 
-    const obtenerClientes=async()=>{
+    try {
 
-      try{
+      const response = await api.get(
+        '/clientes'
+      )
 
-        const response= await axios.get(`${API_URL}/clientes`)
-        setClientes(response.data)
+      setClientes(response.data)
 
-      }catch(error){
+    } catch(error) {
 
-        console.error(error)
-
-      }
+      console.error(error)
 
     }
 
-    obtenerClientes()
-    console.log
+  }
+  useEffect(() => {
+    carregarClientes()
   },[])
-
 
   const totalClientes=clientes.length
 
@@ -115,14 +121,18 @@ const API_URL =
           </Typography>
 
         </Box>
-
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-        >
-          Nuevo Cliente
-        </Button>
-
+        {
+          (usuario.rol === 'admin' ||
+           usuario.rol === 'operador') && (
+             <Button
+               variant="contained"
+               startIcon={<AddIcon />}
+               onClick={() => setOpenNovo(true)}
+             >
+               Nuevo Cliente
+             </Button>
+          )
+        }
       </Box>
 
       <Grid container spacing={3} mb={4}>
@@ -273,7 +283,21 @@ const API_URL =
         </TableContainer>
 
       </Paper>
+      <NovoClienteDialog
+        open={openNovo}
+        onClose={() => setOpenNovo(false)}
+        onSalvar={async (dados) => {
 
+          await criarCliente(dados)
+
+          await carregarClientes(dados)
+
+          setClientes(response.data)
+
+          setOpenNovo(false)
+
+        }}
+      />
     </Box>
 
   )

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import api from '../../services/api'
 
 import {
   Box,
@@ -37,8 +37,8 @@ export default function UsuariosPage(){
 
       try{
 
-        const response=await axios.get(
-          'http://localhost:3001/api/usuarios'
+        const response=await api.get(
+          '/usuarios'
         )
 
         setUsuarios(response.data)

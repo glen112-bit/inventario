@@ -7,7 +7,7 @@ import {
 
 type Props = {
   value: number | string
-  localizacoes: any[]
+  localizacoes: any[] 
   onChange: (value:any) => void
 }
 
@@ -45,10 +45,10 @@ export default function LocalizacaoSelect({
             localizacao => (
 
               <MenuItem
-                key={localizacao.id}
-                value={localizacao.id}
+                key={localizacao.localizacao}
+                value={localizacao.localizacao}
               >
-                {localizacao.nombre}
+                {localizacao.localizacao}
               </MenuItem>
 
             )
