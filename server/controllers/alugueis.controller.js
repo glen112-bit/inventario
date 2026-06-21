@@ -1,9 +1,22 @@
 
 import db from '../config/db.js'
+import {
+  registrarHistoricoEquipamento
+} from './equipos.controller.js'
 
 export const getAlugueis = async (req, res) => {
   try {
+    if(req.user.rol === 'cliente') {
 
+      const [rows] = await db.query(`
+    SELECT *
+    FROM alugueis
+    WHERE cliente_id = ?
+  `, [req.user.cliente_id])
+
+      return res.json(rows)
+
+    }
     const [rows] = await db.query(`
       SELECT
         a.id,
@@ -86,22 +99,14 @@ export const createAluguel = async (req, res) => {
         WHERE equipamento_id = ?
       `, [equipamentoId])
 
-      await db.query(`
-        INSERT INTO historico_equipamentos (
-          equipamento_id,
-          estado_anterior,
-          estado_novo,
-          observacao,
-          usuario_id
-        )
-        VALUES (?, ?, ?, ?, ?)
-      `, [
+      await registrarHistoricoEquipamento(
         equipamentoId,
         'disponivel',
         'alugado',
-        'Equipamento alugado',
+        `Saída para aluguel #${aluguelId}`,
         usuario_id
-      ])
+      )
+
     }
 
     res.status(201).json({
@@ -202,15 +207,39 @@ export const deleteAluguel = async (req, res) => {
 
     const { id } = req.params
 
-    await db.query(
-      'DELETE FROM aluguel_itens WHERE aluguel_id = ?',
-      [id]
-    )
+    const [equipamentos] = await db.query(`
+      SELECT equipamento_id
+      FROM aluguel_itens
+      WHERE aluguel_id = ?
+    `, [id])
 
-    await db.query(
-      'DELETE FROM alugueis WHERE id = ?',
-      [id]
-    )
+    for (const item of equipamentos) {
+
+      await registrarHistoricoEquipamento(
+        item.equipamento_id,
+        'alugado',
+        'disponivel',
+        `Aluguel #${id} excluído`,
+        1
+      )
+
+      await db.query(`
+        UPDATE equipos
+        SET estado_actual = 'disponivel'
+        WHERE equipamento_id = ?
+      `, [item.equipamento_id])
+
+    }
+
+    await db.query(`
+      DELETE FROM aluguel_itens
+      WHERE aluguel_id = ?
+    `, [id])
+
+    await db.query(`
+      DELETE FROM alugueis
+      WHERE id = ?
+    `, [id])
 
     res.json({
       success: true
@@ -228,8 +257,6 @@ export const deleteAluguel = async (req, res) => {
 }
 
 export const atualizarAluguel = async (req, res) => {
-  console.log('PARAMS:', req.params)
-  console.log('BODY:', req.body)
   try {
 
     const { id } = req.params
@@ -239,7 +266,8 @@ export const atualizarAluguel = async (req, res) => {
       fecha_salida,
       fecha_retorno,
       observacoes,
-      equipamentos
+      equipamentos,
+      usuario_id = 1
     } = req.body
 
     await db.query(`
@@ -257,36 +285,83 @@ export const atualizarAluguel = async (req, res) => {
       observacoes,
       id
     ])
-    const [ equiposAnteriores ] = await db.query(`
-    SELECT equipamento_id
-    from aluguel_itens
-    WHERE aluguel_id = ?
-    `, [id])
-    for(const item of equiposAnteriores) {
-      await db.query(`
-      UPDATE equipos 
-      SET estado_actual = 'disponivel'
-      WHERE equipamento_id = ?
-      `, [item.equipamento_id])
-    }
-    await db.query(`
-    DELETE FROM aluguel_itens
-    WHERE aluguel_id = ?
+
+    const [equiposAnteriores] = await db.query(`
+      SELECT equipamento_id
+      FROM aluguel_itens
+      WHERE aluguel_id = ?
     `, [id])
 
-    if(equipamentos?.length) {
-      for(const equipamentoId of equipamentos) {
-        await db.query (`
-        INSERT INTO aluguel_itens(
-        aluguel_id,
-        equipamento_id
+    const idsAnteriores = equiposAnteriores.map(
+      item => item.equipamento_id
+    )
+
+    const idsNuevos = equipamentos || []
+
+    const removidos = idsAnteriores.filter(
+      item => !idsNuevos.includes(item)
+    )
+
+    const adicionados = idsNuevos.filter(
+      item => !idsAnteriores.includes(item)
+    )
+
+    // EQUIPOS REMOVIDOS
+    for (const equipamentoId of removidos) {
+
+      await db.query(`
+        UPDATE equipos
+        SET estado_actual = 'disponivel'
+        WHERE equipamento_id = ?
+      `, [equipamentoId])
+
+      await registrarHistoricoEquipamento(
+        equipamentoId,
+        'alugado',
+        'disponivel',
+        `Removido do aluguel #${id}`,
+        usuario_id
+      )
+
+    }
+
+    // EQUIPOS AGREGADOS
+    for (const equipamentoId of adicionados) {
+
+      await db.query(`
+        UPDATE equipos
+        SET estado_actual = 'alugado'
+        WHERE equipamento_id = ?
+      `, [equipamentoId])
+
+      await registrarHistoricoEquipamento(
+        equipamentoId,
+        'disponivel',
+        'alugado',
+        `Adicionado ao aluguel #${id}`,
+        usuario_id
+      )
+
+    }
+
+    await db.query(`
+      DELETE FROM aluguel_itens
+      WHERE aluguel_id = ?
+    `, [id])
+
+    for (const equipamentoId of idsNuevos) {
+
+      await db.query(`
+        INSERT INTO aluguel_itens (
+          aluguel_id,
+          equipamento_id
         )
         VALUES (?, ?)
-        `, [
-          id,
-          equipamentoId
-        ])
-      }
+      `, [
+        id,
+        equipamentoId
+      ])
+
     }
 
     res.json({

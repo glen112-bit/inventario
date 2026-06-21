@@ -5,35 +5,47 @@ export default function useEquipamentosFilter(
   search:string,
   filtroStatus:string
 ){
+
   const filtrados = useMemo(() => {
     const text = (search || '').toLowerCase()
 
     return equipos.filter(
       e => {
-      const matchBusca =
-       (e.codigo_interno || '') 
+        const matchBusca =
+          (e.codigo_interno || '') 
         .toLowerCase()
         .includes(text)
         ||
-       (e.numero_serie || '')   
+          (e.numero_serie || '')   
         .toLowerCase()
         .includes(text)
         ||
-       (e.marca || '') 
+          (e.marca || '') 
         .toLowerCase()
         .includes(text)
         ||
-       (e.modelo || '') 
+          (e.modelo || '') 
         .toLowerCase()
         .includes(text)
 
-        const matchStatus = 
+        const matchStatus =
           !filtroStatus ||
-          e.estado_actual ===
-          filtroStatus
+          (
+            filtroStatus === 'disponivel' &&
+              Number(e.disponiveis || 0) > 0
+        )||(
+            filtroStatus === 'alugado' &&
+              Number(e.alugados || 0) > 0
+        )||(
+            filtroStatus === 'manutencao' &&
+              Number(e.manutencao || 0) > 0
+        )||(
+            filtroStatus === 'danificado' &&
+              Number(e.danificado || 0) > 0
+        )
 
         return matchBusca &&  matchStatus
-    })
+      })
   },[
     equipos,
     search,

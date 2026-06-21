@@ -1,5 +1,5 @@
 import { useEffect,useState } from 'react'
-import axios from 'axios'
+import api from '../services/api'
 
 export default function useLocalizacoes() {
   const [localizacoes,setLocalizacoes] =
@@ -8,8 +8,8 @@ export default function useLocalizacoes() {
     async () => {
       try {
         const response =
-          await axios.get(
-            'http://localhost:3001/api/config/localizacoes'
+          await api.get(
+            '/config/localizacoes'
           )
         setLocalizacoes(
           response.data
@@ -21,8 +21,31 @@ export default function useLocalizacoes() {
   useEffect(() => {
     carregarLocalizacoes()
   }, [])
+  
+const criarLocalizacao = async (
+  payload:any
+) => {
+
+  try {
+
+    await api.post(
+      '/config/localizacoes',
+      payload
+    )
+
+    await carregarLocalizacoes()
+
+  } catch(error){
+
+    console.error(error)
+    throw error
+
+  }
+
+}
   return {
     localizacoes,
-    carregarLocalizacoes
+    carregarLocalizacoes,
+    criarLocalizacao
   }
 }

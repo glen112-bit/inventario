@@ -1,4 +1,6 @@
 import { useMemo,useState } from 'react'
+import api from '../../services/api'
+
 import useEquipamentoForm from '../../hooks/useEquipamentoForm'
 import useCategorias from '../../hooks/useCategorias'
 import useMarcas from '../../hooks/useMarcas'
@@ -14,6 +16,7 @@ import EquipamentosTable from '../../components/equipamentos/EquipamentosTable'
 import EquipamentosKpis from '../../components/equipamentos/EquipamentosKpis'
 import EstadoDialog from '../../components/equipamentos/EstadoDialog'
 import GruposTable from '../../components/equipamentos/GruposTable'
+
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import HandshakeIcon from '@mui/icons-material/Handshake'
 import BuildIcon from '@mui/icons-material/Build'
@@ -48,6 +51,7 @@ export default function InventarioPage() {
   const [ openNovo,setOpenNovo ] = useState(false)
   const [ search,setSearch ] = useState('')
   const [ filtroStatus, setFiltroStatus ] = useState('')
+
   const {
     filtrados
   } = useEquipamentosFilter(
@@ -58,7 +62,7 @@ export default function InventarioPage() {
   const [ modoVisualizacao,setModoVisualizacao ] =
     useState<'grupos' | 'equipamentos'>(
       'grupos'
-  )
+    )
   const {
     open: estadoDialogOpen,
     estadoAtual,
@@ -87,7 +91,7 @@ export default function InventarioPage() {
   } = useInventarioStats(
     equipos
   )
- 
+
   const{
     codigo_interno,
     numero_serie,
@@ -112,6 +116,7 @@ export default function InventarioPage() {
   const {
     grupos
   } = useGrupos(filtrados)
+
 
 
   return (
@@ -146,7 +151,7 @@ export default function InventarioPage() {
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() =>
-            setOpenNovo(true)
+              setOpenNovo(true)
           }
         >
           Novo Equipamento
@@ -180,7 +185,7 @@ export default function InventarioPage() {
                   : 'outlined'
               }
               onClick={() =>
-                setModoVisualizacao('grupos')
+                  setModoVisualizacao('grupos')
               }
             >
               Resumo
@@ -193,23 +198,23 @@ export default function InventarioPage() {
                   : 'outlined'
               }
               onClick={() =>
-                setModoVisualizacao('equipamentos')
+                  setModoVisualizacao('equipamentos')
               }
             >
               Detalhado
             </Button>
           </Typography>
         </Box>
-          <TextField
-            fullWidth
-            label="Buscar equipamento..."
-            value={search}
-            onChange={(e)=>
+        <TextField
+          fullWidth
+          label="Buscar equipamento..."
+          value={search}
+          onChange={(e)=>
               setSearch(
                 e.target.value
-            )
-            }
-          />
+              )
+          }
+        />
         {
           modoVisualizacao === 'grupos'
             ? (
@@ -231,7 +236,7 @@ export default function InventarioPage() {
       <Dialog
         open={openNovo}
         onClose={() =>
-          setOpenNovo(false)
+            setOpenNovo(false)
         }
         maxWidth="md"
         fullWidth
@@ -257,7 +262,7 @@ export default function InventarioPage() {
 
           <Button
             onClick={() =>
-              setOpenNovo(false)
+                setOpenNovo(false)
             }
           >
             Cancelar
@@ -282,7 +287,7 @@ export default function InventarioPage() {
         setObservacao={setObservacao}
         onClose={fecharEdicaoEstado}
         onSalvar={() =>
-          salvarEstado(alterarEstado)
+            salvarEstado(alterarEstado)
         }
       />
     </Box>

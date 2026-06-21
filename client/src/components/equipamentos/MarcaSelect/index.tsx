@@ -16,7 +16,7 @@ export default function MarcaSelect({
   marcas,
   onChange
 }: Props) {
-
+// console.log(marcas)
   return (
 
     <FormControl
@@ -46,7 +46,7 @@ export default function MarcaSelect({
                 key={marca.id}
                 value={marca.id}
               >
-                {marca.nombre}
+                {marca.nome}
               </MenuItem>
 
             )

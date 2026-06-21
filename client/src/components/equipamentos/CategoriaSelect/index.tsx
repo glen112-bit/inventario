@@ -2,19 +2,23 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  TextField
 } from '@mui/material'
 
 type Props = {
   value: number | string
   categorias: any[]
+  form; any
   onChange: (value: any) => void
+  onNovaCategoria:() => void
 }
 
 export default function CategoriaSelect({
   value,
   categorias,
-  onChange
+  onChange,
+  onNovaCategoria
 }: Props) {
 
   return (
@@ -31,27 +35,41 @@ export default function CategoriaSelect({
       <Select
         value={value}
         label="Categoria"
-        onChange={(e) =>
+        onChange={(e) => {
+          if(e.target.value === '__nova_categoria__'){
+            onNovaCategoria()
+            return
+          }
           onChange(
             e.target.value
           )
+        }
+
         }
       >
 
         {
           categorias.map(
             categoria => (
+              <>
+                <MenuItem
+                  key={categoria.id}
+                  value={categoria.id}
+                >
+                  {categoria.nome}
+                </MenuItem>
 
-              <MenuItem
-                key={categoria.id}
-                value={categoria.id}
-              >
-                {categoria.nombre}
-              </MenuItem>
-
+              </>
             )
+
           )
+
         }
+        <MenuItem
+          value="__nova_categoria__"
+        >
+          ➕ Cadastrar nova categoria
+        </MenuItem>
 
       </Select>
 

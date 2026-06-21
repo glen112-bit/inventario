@@ -119,7 +119,7 @@ export default function EquipamentosKpis({
             <Typography
               variant="h4"
             >
-              {card.valor}
+              {card.valor || 0}
             </Typography>
               </Box>
 

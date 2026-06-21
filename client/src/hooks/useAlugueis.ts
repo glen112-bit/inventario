@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import api from '../services/api'
 
 export default function useAlugueis(){
   const [ alugueis, setAlugueis ] = useState<any[]>([])
 
-  const API_URL =
-    import.meta.env.VITE_API_URL ||
-    'http://localhost:3001/api'
+  // const API_URL =
+    // import.meta.env.VITE_API_URL ||
+    // 'http://localhost:3001/api'
+  // const token = localStorage.getItem('token')
 
 
   const carregarAlugueis = async () => {
     try{
-      const response = await axios.get(`${API_URL}/alugueis`)
+      const response = await api.get(
+        `/alugueis` 
+      )
       setAlugueis(
         Array.isArray(response.data)
           ? response.data
@@ -24,8 +27,8 @@ export default function useAlugueis(){
 
   const criarAluguel = async(payload:any) => {
     try{
-      await axios.post(
-        `${API_URL}/alugueis`,
+      await api.post(
+        `/alugueis`,
         payload
       )
       await carregarAlugueis()
@@ -36,15 +39,15 @@ export default function useAlugueis(){
   }
 
   const atualizarAluguel = async(payload:any ) => {
-  console.log('update', payload)
+    console.log('update', payload)
     try {
-    // console.log('update',payload)
-      const response = await axios.put(
-        `${API_URL}/alugueis/${payload.id}`,
-       payload 
+      // console.log('update',payload)
+      const response = await api.put(
+        `/alugueis/${payload.id}`,
+        payload 
 
       )
-      console.log('RESPONSE', response)
+      // console.log('RESPONSE', response)
       await carregarAlugueis()
     }catch(error){
       console.error(error)
@@ -54,14 +57,14 @@ export default function useAlugueis(){
 
   const excluirAluguel =  async(aluguel:any) => {
     try{
-      await axios.delete(
-        `${API_URL}/alugueis/${aluguel.id}`
+      await api.delete(
+        `/alugueis/${aluguel.id}`
       )
       setAlugueis(prev => 
                   prev.filter(
                     item => item.id !== aluguel.id
-        )
       )
+                 )
     }catch(error){
       console.error(error)
       throw error
@@ -70,18 +73,18 @@ export default function useAlugueis(){
   useEffect(() => {
     carregarAlugueis()
   },[])
-const finalizarAluguel = async (item:any) => {
-  try {
-    await axios.put(
-      `${API_URL}/alugueis/${item.id}/finalizar`
-    )
+  const finalizarAluguel = async (item:any) => {
+    try {
+      await api.put(
+        `/alugueis/${item.id}/finalizar`
+      )
 
-    await carregarAlugueis()
+      await carregarAlugueis()
 
-  } catch (error) {
-    console.error(error)
+    } catch (error) {
+      console.error(error)
+    }
   }
-}
 
   return {
     alugueis,

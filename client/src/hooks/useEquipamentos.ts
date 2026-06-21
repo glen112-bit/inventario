@@ -1,18 +1,20 @@
 import { useEffect,useState } from 'react'
-import axios from 'axios'
+import api from '../services/api'
 
 export default function useEquipamentos() {
 
-  const [equipos,setEquipos] =
-    useState<any[]>([])
+  const [ form, setForm ] = useState()
+  const [ equipos,setEquipos ] = useState<any[]>([])
 
   const carregarEquipamentos =
     async () => {
       try {
         const response =
-          await axios.get(
-            'http://localhost:3001/api/inventario'
+          await api.get(
+            '/inventario'
           )
+
+  // console.log(response.data)
         setEquipos(
           response.data
         )
@@ -24,8 +26,8 @@ export default function useEquipamentos() {
   const criarEquipamento =
     async (payload:any) => {
       try {
-        await axios.post(
-          'http://localhost:3001/api/inventario',
+        await api.post(
+          '/inventario',
           payload
         )
         await carregarEquipamentos()
@@ -42,8 +44,8 @@ export default function useEquipamentos() {
       observacao:string
     ) => {
       try {
-        await axios.put(
-          `http://localhost:3001/api/config/equipamentos/${equipamento_id}/estado`,
+        await api.put(
+          `/config/equipamentos/${equipamento_id}/estado`,
           {
             estado_actual,
             observacao
@@ -68,11 +70,13 @@ export default function useEquipamentos() {
     carregarEquipamentos()
   }, [])
 
+// console.log(equipos)
+
   return {
     equipos,
     setEquipos,
     carregarEquipamentos,
     criarEquipamento,
-    alterarEstado
+    alterarEstado,
   }
 }

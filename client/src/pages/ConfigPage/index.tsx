@@ -38,14 +38,7 @@ export default function ConfiguracoesPage() {
   const [nomeCategoria,setNomeCategoria] = useState('')
   const [descricaoCategoria,setDescricaoCategoria] = useState('')
   const [categoriaSelecionada,setCategoriaSelecionada] = useState<any>(null)
-  // const [marcas, setMarcas] = useState('')
   const [openEquipamento, setOpenEquipamento] = useState(false)
-  // const [marca, setMarca] = useState('')
-  // const [modelo, setModelo] = useState('')
-  // const [estado, setEstado] = useState('')
-  // const [descricao, setDescricao] = useState('')
-  // const [localizacao, setLocalizacao] = useState('')
-  // const [valor, setValor] = useState(0)
   const [aba,setAba] = useState(0)
 
   const {

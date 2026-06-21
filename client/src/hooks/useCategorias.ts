@@ -1,5 +1,5 @@
 import { useEffect,useState } from 'react'
-import axios from 'axios'
+import api from '../services/api'
 
 export default function useCategorias() {
 
@@ -9,8 +9,8 @@ export default function useCategorias() {
   const carregarCategorias = async () => {
       try {
         const response =
-          await axios.get(
-            'http://localhost:3001/api/config/categorias'
+          await api.get(
+            'config/categorias'
           )
         setCategorias(
           response.data
@@ -24,8 +24,8 @@ export default function useCategorias() {
     payload:any
   ) => {
     try {
-      await axios.post(
-        'http://localhost:3001/api/config/categorias',
+      await api.post(
+        'config/categorias',
         payload
       )
       await carregarCategorias()
@@ -40,8 +40,8 @@ export default function useCategorias() {
     payload:any
   ) => {
     try{
-      await axios.put(
-        `http://localhost:3001/api/config/categorias/${id}`,
+      await api.put(
+        `config/categorias/${id}`,
         payload  
       )
       await carregarCategorias()
@@ -53,8 +53,8 @@ export default function useCategorias() {
   const excluirCategoria = 
     async(id:number) => {
     try{
-      await axios.delete(
-        `http://localhost:3001/api/config/categorias/${id}` 
+      await api.delete(
+        `config/categorias/${id}` 
       )
         setCategorias( prev =>
                     prev.filter(

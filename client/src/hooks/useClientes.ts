@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../services/api'
 
 export default function useClientes(){
   const [ clientes, setClientes ] = useState([])
 
   const carregarClientes = async() => {
     try{
-      const response = await axios.get(
-       'http://localhost:3001/api/clientes'
+      const response = await api.get(
+       '/clientes'
       )
       setClientes(
         Array.isArray(response.data)
@@ -22,8 +22,8 @@ export default function useClientes(){
 
   const criarCliente = async(payload:any) => {
     try{
-      await axios.post(
-       'http://localhost:3001/api/clientes',
+      await api.post(
+       '/clientes',
         payload 
       )
       await carregarClientes()
@@ -37,8 +37,8 @@ export default function useClientes(){
     payload:any
   ) => {
     try{
-      await axios.put(
-       `http://localhost:3001/api/clientes/${id}`,
+      await api.put(
+       `/clientes/${id}`,
         payload  
       )
       await carregarClientes()
@@ -50,8 +50,8 @@ export default function useClientes(){
   const excluirCliente = 
     async(id:number) => {
     try{
-      await axios.delete(
-        `http://localhost:3001/api/clientes/${id}` 
+      await api.delete(
+        `/clientes/${id}` 
       )
         setClientes( prev =>
                     prev.filter(

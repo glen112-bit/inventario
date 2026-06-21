@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom";
-import axios from 'axios'
+import api from '../../services/api'
 import Grid from '@mui/material/Grid'
 import {
   Box,
@@ -18,10 +18,6 @@ import KpiCard from '../../components/KpiCard'
 
 export default function DashboardPage() {
 
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  'http://localhost:3001/api'
-  
   const [stats, setStats] = useState<any>({
     totalEquipos: 0,
     equiposDisponiveis: 0,
@@ -46,8 +42,8 @@ const API_URL =
 
     try {
 
-      const res = await axios.get(
-        `${API_URL}/dashboard/stats`
+      const res = await api.get(
+        `/dashboard/stats`
       )
       setStats(res.data)
     } catch (err) {
@@ -150,67 +146,7 @@ const API_URL =
       {/* Conteúdo */}
       <Grid container spacing={6} mt={8}>
 
-        <Grid size={{ xs: 12, md: 6 }}>
 
-          <Paper
-            sx={{
-              p: 3,
-              borderRadius: 4,
-              minHeight: 350,
-              background: '#111827',
-              border: '1px solid rgba(255,255,255,.05)'
-            }}
-          >
-
-            <Typography
-              variant="h6"
-              fontWeight={700}
-              mb={2}
-            >
-              Equipamentos em Manutenção
-            </Typography>
-
-            <Divider sx={{ mb: 2 }} />
-
-            {
-              stats.equipamentosManutencao?.length > 0
-                ? stats.equipamentosManutencao.map(
-                  (item: any) => (
-                    <Box
-                      key={item.equipamento_id}
-                      sx={{
-                        py: 1,
-                        borderBottom:
-                        '1px solid rgba(255,255,255,.08)'
-                      }}
-                    >
-                      <Typography
-                        fontWeight={600}
-                      >
-                        {item.codigo_interno}
-                      </Typography>
-
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                      >
-                        {item.marca} {item.modelo}
-                      </Typography>
-                    </Box>
-                  )
-                )
-                : (
-                  <Typography
-                    color="text.secondary"
-                  >
-                    Nenhum equipamento em manutenção
-                  </Typography>
-                )
-            }
-
-          </Paper>
-
-        </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
 
           <Paper
@@ -347,7 +283,67 @@ const API_URL =
             )}
           </Paper>
         </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
 
+          <Paper
+            sx={{
+              p: 3,
+              borderRadius: 4,
+              minHeight: 350,
+              background: '#111827',
+              border: '1px solid rgba(255,255,255,.05)'
+            }}
+          >
+
+            <Typography
+              variant="h6"
+              fontWeight={700}
+              mb={2}
+            >
+              Equipamentos em Manutenção
+            </Typography>
+
+            <Divider sx={{ mb: 2 }} />
+
+            {
+              stats.equipamentosManutencao?.length > 0
+                ? stats.equipamentosManutencao.map(
+                  (item: any) => (
+                    <Box
+                      key={item.equipamento_id}
+                      sx={{
+                        py: 1,
+                        borderBottom:
+                        '1px solid rgba(255,255,255,.08)'
+                      }}
+                    >
+                      <Typography
+                        fontWeight={600}
+                      >
+                        {item.codigo_interno}
+                      </Typography>
+
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        {item.marca} {item.modelo}
+                      </Typography>
+                    </Box>
+                  )
+                )
+                : (
+                  <Typography
+                    color="text.secondary"
+                  >
+                    Nenhum equipamento em manutenção
+                  </Typography>
+                )
+            }
+
+          </Paper>
+
+        </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper
             sx={{
