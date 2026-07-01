@@ -1,6 +1,9 @@
 // src/components/equipamentos/GruposTable/index.tsx
 
+import useEquipamentos from '../../../hooks/useEquipamentos'
 import {
+  Box,
+  Button,
   Table,
   TableBody,
   TableCell,
@@ -21,20 +24,45 @@ export default function GruposTable({
   categorias
 }:Props){
 
+  const{
+    adicionarUnidade,
+    removerUnidade,
+    carregarEquipamentos
+  } = useEquipamentos()
+
   const getCategoriaNome = (
     categoriaId:number
   ) => {
-
     const categoria =
       categorias.find(
         c => c.id === categoriaId
-      )
-
+    )
     return categoria?.nombre ??
       categoriaId
-
   }
 
+const handleAdicionar = async (
+    grupo:any
+  ) => {
+    try {
+      await adicionarUnidade(grupo)
+      await carregarEquipamentos()
+    } catch(error) {
+      console.error(error)
+    }
+  }
+
+  const handleRemover = async (
+    grupo:any
+  ) => {
+    try {
+      await removerUnidade(grupo)
+      await carregarEquipamentos()
+    } catch(error) {
+      console.error(error)
+    }
+  }
+// console.log(grupos)
   return (
 
     <TableContainer
@@ -53,10 +81,6 @@ export default function GruposTable({
 
             <TableCell>
               Modelo
-            </TableCell>
-
-            <TableCell>
-              Categoria
             </TableCell>
 
             <TableCell align="center">
@@ -79,6 +103,9 @@ export default function GruposTable({
               Danificados
             </TableCell>
 
+            <TableCell align="center">
+            </TableCell>
+
           </TableRow>
 
         </TableHead>
@@ -99,14 +126,6 @@ export default function GruposTable({
 
                 <TableCell>
                   {grupo.modelo}
-                </TableCell>
-
-                <TableCell>
-                  {
-                    getCategoriaNome(
-                      grupo.categoria_id
-                    )
-                  }
                 </TableCell>
 
                 <TableCell align="center">

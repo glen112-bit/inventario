@@ -9,7 +9,6 @@ import {
 type Props = {
   value: number | string
   categorias: any[]
-  form; any
   onChange: (value: any) => void
   onNovaCategoria:() => void
 }
@@ -33,7 +32,7 @@ export default function CategoriaSelect({
       </InputLabel>
 
       <Select
-        value={value}
+        value={value ?? ''}
         label="Categoria"
         onChange={(e) => {
           if(e.target.value === '__nova_categoria__'){
@@ -44,14 +43,11 @@ export default function CategoriaSelect({
             e.target.value
           )
         }
-
         }
       >
 
         {
-          categorias.map(
-            categoria => (
-              <>
+          categorias.map((categoria) => (
                 <MenuItem
                   key={categoria.id}
                   value={categoria.id}
@@ -59,7 +55,6 @@ export default function CategoriaSelect({
                   {categoria.nome}
                 </MenuItem>
 
-              </>
             )
 
           )

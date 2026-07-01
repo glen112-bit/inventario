@@ -65,7 +65,7 @@ export default function DashboardPage() {
             variant="h4"
             fontWeight={700}
           >
-            Dashboard
+           Control de Equipamentos 
           </Typography>
 
           <Typography color="text.secondary">

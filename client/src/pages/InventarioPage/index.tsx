@@ -7,7 +7,7 @@ import useMarcas from '../../hooks/useMarcas'
 import useLocalizacoes from '../../hooks/useLocalizacoes'
 import useEquipamentos from '../../hooks/useEquipamentos'
 import useEdicaoEstado from '../../hooks/useEdicaoEstado'
-import useGrupos from '../../hooks/useGrupos'
+// import useGrupos from '../../hooks/useGrupos'
 import useInventarioStats from '../../hooks/useInventarioStats'
 import useEquipamentosFilter from '../../hooks/useEquipamentosFilter'
 
@@ -40,11 +40,29 @@ import AddIcon from '@mui/icons-material/Add'
 
 export default function InventarioPage() {
 
+const salvarEquipamento = async () => {
+
+  const {valid, errors} = validate()
+  if(!valid){
+    console.log(errors)
+    return
+  }
+
+  const payload = buildPayload()
+
+  console.log("PAYLOAD:", payload)
+
+  await criarEquipamento(payload)
+
+  resetForm()
+
+  setOpenNovo(false)
+
+}
   const {
     equipos,
     carregarEquipamentos,
     criarEquipamento,
-    salvarEquipamento,
     alterarEstado
   } = useEquipamentos()
 
@@ -59,6 +77,8 @@ export default function InventarioPage() {
     search,
     filtroStatus
   )
+  const grupos = filtrados
+
   const [ modoVisualizacao,setModoVisualizacao ] =
     useState<'grupos' | 'equipamentos'>(
       'grupos'
@@ -79,6 +99,7 @@ export default function InventarioPage() {
     setForm,
     resetForm,
     validate,
+    // salvarEquipamento,
     buildPayload
   } = useEquipamentoForm()
 
@@ -113,11 +134,11 @@ export default function InventarioPage() {
     localizacoes
   } = useLocalizacoes()
 
-  const {
-    grupos
-  } = useGrupos(filtrados)
+  // const {
+    // grupos
+  // } = useGrupos(filtrados)
 
-
+// console.log(categorias)
 
   return (
 
