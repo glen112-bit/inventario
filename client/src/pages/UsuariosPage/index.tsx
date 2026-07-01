@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import UsuarioDialog from '../../components/usuarios/UsuarioDialog'
+import useUsuarios from '../../hooks/useUsuarios'
 import api from '../../services/api'
 
 import {
@@ -30,6 +32,10 @@ type Usuario = {
 export default function UsuariosPage(){
 
   const [usuarios,setUsuarios]=useState<Usuario[]>([])
+  const [openNovo, setOpenNovo] = useState(false)
+  const {
+    criarUsuario
+  } = useUsuarios()
 
   useEffect(()=>{
 
@@ -154,8 +160,9 @@ export default function UsuariosPage(){
         <Button
           variant="contained"
           startIcon={<AddIcon />}
+          onClick={() => { setOpenNovo(true)}}
         >
-          Nuevo Usuario
+          Novo Usuario
         </Button>
 
       </Box>
@@ -176,7 +183,11 @@ export default function UsuariosPage(){
         />
 
       </Paper>
-
+<UsuarioDialog
+  open={openNovo}
+  onClose={() => setOpenNovo(false)}
+  onSalvar={criarUsuario}
+/>
     </Box>
 
   )

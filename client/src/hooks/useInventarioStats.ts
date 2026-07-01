@@ -7,7 +7,7 @@ export default function useInventarioStats(
   const stats = useMemo(() => {
     const total = equipos.reduce(
       (acc, item) =>
-        acc + Number(item.quantidade || 0),
+        acc + Number(item.total || 0),
       0
     )
     const disponiveis = equipos.reduce(

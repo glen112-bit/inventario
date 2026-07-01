@@ -15,7 +15,7 @@ import { NavLink } from 'react-router-dom'
 
 const items = [
   {
-    label: 'Dashboard',
+    label: 'Home',
     icon: LayoutDashboard,
     path: '/',
   },

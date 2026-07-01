@@ -1,5 +1,5 @@
 import { useEffect,useState } from 'react'
-import axios from 'axios'
+import api from '../services/api'
 
 export default function useMarcas() {
 
@@ -12,8 +12,8 @@ export default function useMarcas() {
       try {
 
         const response =
-          await axios.get(
-            'http://localhost:3001/api/config/marcas'
+          await api.get(
+            '/config/marcas'
           )
 
         setMarcas(

@@ -1,33 +1,56 @@
 import express from 'express'
 
 import {
-  getEquipos,
   createEquipamento,
   getHistoricoEquipamento,
   registrarHistoricoEquipamento,
   getEquipamentoById,
   getInventarioAgrupado,
-  getEquipamentosModelo
-  
-} from '../controllers/equipos.controller.js'
-import {
-  authMiddleware
-} from '../middleware/auth.middleware.js'
+  getEquipamentosModelo,
+  adicionarUnidade,
+  removerUnidade
 
-import {
-  authorize
-} from '../middleware/role.middleware.js'
+} from '../controllers/equipos.controller.js'
+
+import { authMiddleware } from '../middleware/auth.middleware.js'
+
+import { authorize } from '../middleware/role.middleware.js'
 
 const router = express.Router()
 
-router.get('/inventario', getEquipos)
-router.get('/inventario',authMiddleware, getEquipos)
-router.get('/inventario/:id/historico', getHistoricoEquipamento)
+router.get('/inventario/agrupado',  getInventarioAgrupado)
 
-router.get('/inventario',  getInventarioAgrupado)
+router.get('/inventario/equipamento/:id', getEquipamentoById)
 
 router.get('/inventario/:marca/:modelo', getEquipamentosModelo)
-router.post('/inventario', authMiddleware, authorize('admin'), createEquipamento)
-router.post('/inventario/:id/historico', registrarHistoricoEquipamento)
+
+router.get('/inventario/:id/historico', getHistoricoEquipamento)
+
+router.post(
+'/inventario', 
+  authMiddleware, 
+  authorize('admin'), 
+  createEquipamento
+)
+
+router.post(
+'/inventario/unidade', 
+  authMiddleware, 
+  authorize('admin'), 
+  adicionarUnidade
+)
+
+router.post(
+'/inventario/:id/historico',
+  registrarHistoricoEquipamento
+)
+
+
+router.delete(
+'/inventario/unidade/:id', 
+  authMiddleware, 
+  authorize('admin'), 
+  removerUnidade
+)
 
 export default router

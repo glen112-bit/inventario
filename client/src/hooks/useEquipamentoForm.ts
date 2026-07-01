@@ -3,6 +3,7 @@ import { useState } from 'react'
 const initialState = {
   categoria_id:'',
   marca_id:'',
+  marca:'',
   ubicacion_id:'',
   estado_actual:'disponivel',
   modelo:'',
@@ -68,13 +69,25 @@ export default function useEquipamentoForm() {
     }
 
   }
+const salvarEquipamento = async () => {
 
+  if (!validate()) return
+
+  await criarEquipamento(
+    buildPayload()
+  )
+
+  resetForm()
+  setOpenNovo(false)
+
+}
   return {
     form,
     setForm,
     resetForm,
     updateField,
     validate,
+    salvarEquipamento,
     buildPayload
   }
 

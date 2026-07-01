@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import api from '../services/api'
 
 export default function useUsuarios() {
 
   const [usuarios,setUsuarios] = useState<any[]>([])
+
   const carregarUsuarios =
     async () => {
       try {
         const response =
-          await axios.get(
-            'http://localhost:3001/api/usuarios'
+          await api.get(
+            '/usuarios'
           )
         setUsuarios(
           Array.isArray(response.data)
@@ -24,10 +25,11 @@ export default function useUsuarios() {
   const criarUsuario =
     async(payload:any) => {
       try {
-        await axios.post(
-          'http://localhost:3001/api/usuarios',
+        await api.post(
+          '/usuarios',
           payload
         )
+console.log('PAYLOAD:', payload)
         await carregarUsuarios()
       } catch(error) {
         console.error(error)
@@ -41,8 +43,8 @@ export default function useUsuarios() {
       payload:any
     ) => {
       try {
-        await axios.put(
-          `http://localhost:3001/api/usuarios/${id}`,
+        await api.put(
+          `/usuarios/${id}`,
           payload
         )
         await carregarUsuarios()
@@ -55,8 +57,8 @@ export default function useUsuarios() {
   const excluirUsuario =
     async(id:number) => {
       try {
-        await axios.delete(
-          `http://localhost:3001/api/usuarios/${id}`
+        await api.delete(
+          `/usuarios/${id}`
         )
         setUsuarios(prev =>
           prev.filter(
