@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react'
 import UsuarioDialog from '../../components/usuarios/UsuarioDialog'
+// import UsuariosTable from '../../components/usuarios/UsuariosTable'
 import useUsuarios from '../../hooks/useUsuarios'
 import api from '../../services/api'
-
+import useUsuarioForm from '../../hooks/useUsuarioForm'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
+import IconButton from '@mui/material/IconButton'
 import {
   Box,
   Paper,
@@ -31,104 +35,126 @@ type Usuario = {
 
 export default function UsuariosPage(){
 
-  const [usuarios,setUsuarios]=useState<Usuario[]>([])
-  const [openNovo, setOpenNovo] = useState(false)
+  const [ usuarioSelecionado, setUsuarioSelecionado ] = useState<Usuario | null>(null)
+  const [ openNovo, setOpenNovo ] = useState(false)
+
+
   const {
-    criarUsuario
+    usuarios,
+    criarUsuario,
+    atualizarUsuario,
+    excluirUsuario: removerUsuario,
+    carregarUsuarios,
   } = useUsuarios()
 
-  useEffect(()=>{
 
-    const obtenerUsuarios=async()=>{
+const editarUsuario = (usuario: Usuario) => {
 
-      try{
+  setUsuarioSelecionado(usuario)
 
-        const response=await api.get(
-          '/usuarios'
-        )
+  setOpenNovo(true)
 
-        setUsuarios(response.data)
+  }
 
-      }catch(error){
-
-        console.error(error)
-
-      }
-
-    }
-
-    obtenerUsuarios()
-
-  },[])
+  const excluirUsuario = async (id: number) => {
+    if (!window.confirm(
+      'Deseja excluir Usuario?'
+    )) return
+    await removerUsuario(id)
+    await carregarUsuarios()
+  }
 
   const columns:GridColDef[]=[
+    {
+      field:'nome',
+      headerName:'Usuario',
+      flex:1,
+      renderCell:(params)=>(
+        <Box
+          display="flex"
+          alignItems="center"
+          gap={2}
+        >
+          <Avatar>
+            <PersonIcon/>
+          </Avatar>
+          {params.value}
+        </Box>
+      )
+    },
 
     {
-    field:'nome',
-    headerName:'Usuario',
-    flex:1,
-    renderCell:(params)=>(
-      <Box
-        display="flex"
-        alignItems="center"
-        gap={2}
-      >
-        <Avatar>
-          <PersonIcon/>
-        </Avatar>
-        {params.value}
-      </Box>
-    )
-  },
+      field:'email',
+      headerName:'Email',
+      flex:1.5
+    },
 
-  {
-    field:'email',
-    headerName:'Email',
-    flex:1.5
-  },
 
-  {
-    field:'lugar',
-    headerName:'Lugar',
-    flex:1
-  },
+    {
+      field:'rol',
+      headerName:'Tipo',
+      flex:1,
+      renderCell:(params)=>{
 
-  {
-    field:'tipo_usuario',
-    headerName:'Tipo',
-    flex:1,
-    renderCell:(params)=>{
+        const color=
+          params.value==='admin'
+          ? 'error'
+          : params.value==='subadmin'
+          ? 'warning'
+          : 'primary'
 
-      const color=
-        params.value==='admin'
-      ? 'error'
-      : params.value==='subadmin'
-      ? 'warning'
-      : 'primary'
+        return(
+          <Chip
+            label={params.value}
+            color={color}
+          />
+        )
 
-      return(
+      }
+    },
+
+    {
+      field:'activo',
+      headerName:'Estado',
+      flex:1,
+      renderCell:(params)=>(
         <Chip
-          label={params.value}
-          color={color}
+          label={params.value ? 'Activo':'Inactivo'}
+          color={params.value ? 'success':'default'}
         />
       )
+    },
+    {
+      field: 'acoes',
+      headerName: 'Ações',
+      width: 130,
+      sortable: false,
+      renderCell: (params) => (
 
+        <>
+          <IconButton
+            color="primary"
+            onClick={() => editarUsuario(params.row)}
+          >
+            <EditIcon />
+          </IconButton>
+
+          <IconButton
+            color="error"
+            onClick={() => excluirUsuario(params.row.id)}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </>
+
+      )
     }
-  },
-
-  {
-    field:'activo',
-    headerName:'Estado',
-    flex:1,
-    renderCell:(params)=>(
-      <Chip
-        label={params.value ? 'Activo':'Inactivo'}
-        color={params.value ? 'success':'default'}
-      />
-    )
-  }
   ]
-
+// useEffect(() => {
+//
+  // console.log('usuarioSelecionado:', usuarioSelecionado)
+//
+// }, [usuarioSelecionado])
   return(
 
     <Box>
@@ -160,7 +186,15 @@ export default function UsuariosPage(){
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => { setOpenNovo(true)}}
+          onClick={() => {
+
+            // console.log("DESPUÉS DE RESET:", form)
+
+            setUsuarioSelecionado(null)
+
+            setOpenNovo(true)
+
+          }}
         >
           Novo Usuario
         </Button>
@@ -183,11 +217,21 @@ export default function UsuariosPage(){
         />
 
       </Paper>
-<UsuarioDialog
-  open={openNovo}
-  onClose={() => setOpenNovo(false)}
-  onSalvar={criarUsuario}
-/>
+      
+        <UsuarioDialog
+          open={openNovo}
+          onClose={() => {
+            setOpenNovo(false)
+
+            setUsuarioSelecionado(null)
+
+          }}
+          usuarioSelecionado={usuarioSelecionado}
+          criarUsuario={criarUsuario}
+          atualizarUsuario={atualizarUsuario}
+          carregarUsuarios={carregarUsuarios}
+        />
+      
     </Box>
 
   )
