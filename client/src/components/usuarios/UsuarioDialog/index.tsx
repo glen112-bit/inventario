@@ -16,80 +16,137 @@ import {
 } from '@mui/material'
 import NovoUsuarioForm from '../NovoUsuarioForm'
 import useUsuarioForm from '../../../hooks/useUsuarioForm'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 type Props = {
-  open:boolean
-  onClose:() => void
-  onSalvar:(dados:any)=>void
+  open: boolean
+  onClose: () => void
+  usuarioSelecionado?: any
+
+  criarUsuario: (payload: any) => Promise<void>
+  atualizarUsuario: (id: number, payload: any) => Promise<void>
+  carregarUsuarios: () => Promise<void>
 }
 
 export default function UsuarioDialog({
   open,
   onClose,
-  onSalvar
-}:Props){
-  // console.log(equipamentos)
+  usuarioSelecionado,
+  criarUsuario,
+  atualizarUsuario,
+  carregarUsuarios
+}: Props) {
+
 const {
-   form,
-   setForm,
-   resetForm,
-   validate,
-   buildPayload
-  } = useUsuarioForm()
+    form,
+    setForm,
+    resetForm,
+    buildPayload,
+    validate
+} = useUsuarioForm()
+
+useEffect(() => {
+
+    if (usuarioSelecionado) {
+
+        setForm({
+            nome: usuarioSelecionado.nome,
+            email: usuarioSelecionado.email,
+            telefone: usuarioSelecionado.telefone,
+            password: '',
+            senhaAtual: '',
+            rol: usuarioSelecionado.rol,
+            activo: usuarioSelecionado.activo
+        })
+
+    } else {
+
+        resetForm()
+
+    }
+
+}, [usuarioSelecionado])
 
 
-  const handleSalvar = () => {
 
-  const { valid } = validate()
+const handleSalvar = async () => {
 
-  if (!valid) return
+    const { valid, errors } = validate(
+        !!usuarioSelecionado
+    )
 
-  onSalvar(buildPayload())
+    if (!valid) {
+        console.log(errors)
+        return
+    }
 
-  resetForm()
+    const payload = buildPayload()
 
-  onClose()
-window.location.reload()
+    if (usuarioSelecionado) {
+
+        await atualizarUsuario(
+            usuarioSelecionado.id,
+            payload
+        )
+
+    } else {
+
+        await criarUsuario(payload)
+
+    }
+
+    await carregarUsuarios()
+
+    resetForm()
+
+    onClose()
+
 }
+
   return (
 
-   <Dialog
-    open={open}
-    onClose={() => onClose}
-    maxWidth="md"
-    fullWidth
->
-    <DialogTitle>
-        Novo Usuário
-    </DialogTitle>
+    <Dialog
+      open={ open }
+      onClose={ onClose }
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle>
+        {
+          usuarioSelecionado
+            ?` ${usuarioSelecionado.nome}`
+            : 'Novo Usuário' 
+        }
+      </DialogTitle>
 
-    <DialogContent>
+      <DialogContent>
 
         <NovoUsuarioForm
-            form={form}
-            setForm={setForm}
+          resetForm={resetForm}
+          form={form}
+          setForm={setForm}
+          usuarioSelecionado={usuarioSelecionado}
         />
 
-    </DialogContent>
+      </DialogContent>
 
-    <DialogActions>
+      <DialogActions>
 
         <Button
-            onClick={ onClose }
+          onClick={ onClose }
         >
-            Cancelar
+          Cancelar
         </Button>
 
         <Button
-            variant="contained"
-            onClick={ handleSalvar }
+          variant="contained"
+          onClick={ handleSalvar }
         >
-            Salvar
+          Salvar
         </Button>
 
-    </DialogActions>
-</Dialog>
+      </DialogActions>
+    </Dialog>
   )
 
 }
