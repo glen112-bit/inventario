@@ -32,12 +32,12 @@ const items = [
   {
     label: 'Clientes',
     icon: Users,
-    path: '/clientes',
+    path: '/config/clientes',
   },
   {
     label: 'Usuarios',
     icon: Users,
-    path: '/usuarios',
+    path: '/config/usuarios',
   },
   {
     label: 'Manutencao',

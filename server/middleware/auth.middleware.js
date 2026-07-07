@@ -4,7 +4,6 @@ export const authMiddleware = (req, res, next) => {
 
   const authHeader = req.headers.authorization
 
-  console.log('AUTH HEADER:', authHeader)
 
   if (!authHeader) {
     return res.status(401).json({
@@ -21,7 +20,6 @@ export const authMiddleware = (req, res, next) => {
       process.env.JWT_SECRET
     )
 
-    console.log('TOKEN DECODIFICADO:', decoded)
 
     req.user = decoded
 

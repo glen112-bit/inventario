@@ -14,6 +14,8 @@ import VisibilityIcon from '@mui/icons-material/Visibility'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
+import { gerarPdfAluguel } from '../../../utils/pdf/aluguelPdf'
 
 type Props = {
   alugueis:any[]
@@ -21,6 +23,7 @@ type Props = {
   onEditar:(aluguel:any)=>void
   onExcluir:(aluguel:any)=>void
   onFinalizar?:(aluguel:any)=>void
+  onPdf:(a:any)=>void
 }
 
 export default function AlugueisTable({
@@ -28,7 +31,8 @@ export default function AlugueisTable({
   onDetalhes,
   onEditar,
   onExcluir,
-  onFinalizar
+  onFinalizar,
+  onPdf
 }: Props) {
   // console.log(alugueis)
 
@@ -40,7 +44,17 @@ export default function AlugueisTable({
 
       <Table>
 
-        <TableHead>
+        <TableHead
+          sx={{
+            bgcolor: 'grey.10',
+            '& .MuiTableCell-root': {
+              fontWeight: 700,
+              fontSize: 18,
+              borderBottom: '2px solid',
+              borderColor: 'divider'
+          }
+          }}
+        >
 
           <TableRow>
 
@@ -67,7 +81,9 @@ export default function AlugueisTable({
             <TableCell>
               Equipos
             </TableCell>
-
+            <TableCell>
+              Complementos
+            </TableCell>
             <TableCell>
               Ações
             </TableCell>
@@ -99,7 +115,7 @@ export default function AlugueisTable({
                     ? new Date(
                       item.fecha_salida
                     ).toLocaleDateString(
-                    'pt-BR'
+                      'pt-BR'
                     )
                     : '-'
                 }
@@ -113,7 +129,7 @@ export default function AlugueisTable({
                     ? new Date(
                       item.fecha_retorno
                     ).toLocaleDateString(
-                    'pt-BR'
+                      'pt-BR'
                     )
                     : '-'
                 }
@@ -141,7 +157,9 @@ export default function AlugueisTable({
                 {item.total_equipamentos || 0}
               </TableCell>
               <TableCell>
-
+                {item.total_complementos || 0}
+              </TableCell>
+              <TableCell>
                 <IconButton
                   color="primary"
                   onClick={() => onDetalhes(item)}
@@ -155,15 +173,13 @@ export default function AlugueisTable({
                 >
                   <EditIcon />
                 </IconButton>
+                <IconButton
+                  color="secondary"
+                  onClick={() => onPdf(item)}
+                >
+                  <PictureAsPdfIcon />
+                </IconButton>
 
-                {item.estado === 'ativo' && (
-                  <IconButton
-                    color="success"
-                    onClick={() => onFinalizar?.(item)}
-                  >
-                    <CheckCircleIcon />
-                  </IconButton>
-                )}
 
                 <IconButton
                   color="error"
@@ -176,20 +192,20 @@ export default function AlugueisTable({
                       onExcluir(item)
                     }
                   }}
-                  >
-                  <DeleteIcon />
-                  </IconButton>
+            >
+            <DeleteIcon />
+            </IconButton>
 
-                  </TableCell>
-                  </TableRow>
+            </TableCell>
+            </TableRow>
 
           ))}
 
-          </TableBody>
+    </TableBody>
 
-          </Table>
+    </Table>
 
-          </TableContainer>
+    </TableContainer>
 
   )
 

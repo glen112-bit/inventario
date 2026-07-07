@@ -62,7 +62,7 @@ export default function AlugueisKpis({
 
     <Grid
       container
-      spacing={3}
+      spacing={4}
       mb={4}
     >
 
@@ -70,11 +70,16 @@ export default function AlugueisKpis({
 
         <Grid
           key={card.titulo}
+  sx={{
+    width: '100%',
+    height: '100%',
+    borderRadius: 2
+  }}
           size={{
             xs:12,
             sm:6,
             md:4,
-            lg:2.4
+            lg:3
           }}
         >
 
@@ -86,7 +91,7 @@ export default function AlugueisKpis({
             }
             sx={{
               p:3,
-              borderRadius:4,
+              borderRadius:2,
               cursor:'pointer',
               transition:'0.2s',
               '&:hover':{

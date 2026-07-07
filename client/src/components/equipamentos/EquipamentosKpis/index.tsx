@@ -95,7 +95,7 @@ export default function EquipamentosKpis({
             sx={{
               cursor:'pointer',
               p:3,
-              borderRadius:4,
+              borderRadius:2,
               transition:'0.2s',
               '&:hover':{
               transform:'translateY(-2px)',

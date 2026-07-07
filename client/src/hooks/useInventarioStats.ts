@@ -1,46 +1,32 @@
 import { useMemo } from 'react'
 
 export default function useInventarioStats(
-  equipos:any[]
-){
-  // console.log(equipos)
-  const stats = useMemo(() => {
-    const total = equipos.reduce(
-      (acc, item) =>
-        acc + Number(item.total || 0),
-      0
-    )
-    const disponiveis = equipos.reduce(
-      (acc, item) =>
-        acc + Number(item.disponiveis || 0),
-      0
-    )
-    const alugados = equipos.reduce(
-      (acc, item) =>
-        acc + Number(item.alugados || 0),
-      0
-    )
-    const manutencao = equipos.reduce(
-      (acc, item) =>
-        acc + Number(item.manutencao || 0),
-      0
-    )
-    const danificados = equipos.reduce(
-      (acc, item) =>
-        acc + Number(item.danificados || 0),
-      0
+  grupos: any[]
+) {
+
+  return useMemo(() => {
+
+    return grupos.reduce(
+      (acc, item) => {
+
+        acc.total += Number(item.total || 0)
+        acc.disponiveis += Number(item.disponiveis || 0)
+        acc.alugados += Number(item.alugados || 0)
+        acc.manutencao += Number(item.manutencao || 0)
+        acc.danificados += Number(item.danificados || 0)
+
+        return acc
+
+      },
+      {
+        total: 0,
+        disponiveis: 0,
+        alugados: 0,
+        manutencao: 0,
+        danificados: 0
+      }
     )
 
-    return {
-      total,
-      disponiveis,
-      alugados,
-      manutencao,
-      danificados
-    }
-
-  }, [equipos])
-
-  return stats
+  }, [grupos])
 
 }

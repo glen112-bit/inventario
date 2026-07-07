@@ -11,7 +11,7 @@ export default function useEquipamentos() {
     try {
       const response =
         await api.get(
-          '/inventario/agrupado'
+          '/inventario'
       )
       // console.log(response.data)
       setEquipos(

@@ -192,11 +192,9 @@ export default function ClientesPage(){
               <TableRow>
 
                 <TableCell>Cliente</TableCell>
-                <TableCell>Empresa</TableCell>
                 <TableCell>Email</TableCell>
                 <TableCell>Teléfono</TableCell>
                 <TableCell>Ciudad</TableCell>
-                <TableCell>Estado</TableCell>
 
               </TableRow>
 
@@ -208,40 +206,12 @@ export default function ClientesPage(){
 
                 <TableRow key={cliente.id} hover>
 
-                  <TableCell>
-
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      gap={2}
-                    >
-
-                      <Avatar>
-                        <BusinessIcon />
-                      </Avatar>
-
-                      <Box>
-
-                        <Typography fontWeight={600}>
-                          {cliente.nome}
-                        </Typography>
-
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                        >
-                          ID #{cliente.id}
-                        </Typography>
-
-                      </Box>
-
-                    </Box>
-
-                  </TableCell>
 
                   <TableCell>
-                    {cliente.empresa}
+                      {cliente.nome}
                   </TableCell>
+
+
 
                   <TableCell>
                     {cliente.email}
@@ -253,23 +223,6 @@ export default function ClientesPage(){
 
                   <TableCell>
                     {cliente.cidade}
-                  </TableCell>
-
-                  <TableCell>
-
-                    <Chip
-                      label={
-                        cliente.activo
-                          ? 'Activo'
-                          : 'Inactivo'
-                      }
-                      color={
-                        cliente.activo
-                          ? 'success'
-                          : 'default'
-                      }
-                    />
-
                   </TableCell>
 
                 </TableRow>

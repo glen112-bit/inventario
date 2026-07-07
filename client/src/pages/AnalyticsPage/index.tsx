@@ -73,7 +73,12 @@ export default function AnalyticsPage() {
 
   return (
 
-    <Box>
+    <Box
+  sx={{
+    width: '100%',
+    height: 350
+  }}
+    >
 
       <Typography
         variant="h4"
@@ -87,6 +92,7 @@ export default function AnalyticsPage() {
         container
         spacing={3}
         mb={4}
+
       >
 
         <Grid size={{ xs: 12, md: 3 }}>

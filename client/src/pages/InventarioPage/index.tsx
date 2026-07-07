@@ -1,5 +1,5 @@
-import { useMemo,useState } from 'react'
-import api from '../../services/api'
+import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import useEquipamentoForm from '../../hooks/useEquipamentoForm'
 import useCategorias from '../../hooks/useCategorias'
@@ -7,8 +7,9 @@ import useMarcas from '../../hooks/useMarcas'
 import useLocalizacoes from '../../hooks/useLocalizacoes'
 import useEquipamentos from '../../hooks/useEquipamentos'
 import useEdicaoEstado from '../../hooks/useEdicaoEstado'
-// import useGrupos from '../../hooks/useGrupos'
+import useGrupos from '../../hooks/useGrupos'
 import useInventarioStats from '../../hooks/useInventarioStats'
+import useInventarioAgrupado from '../../hooks/useInventarioAgrupado'
 import useEquipamentosFilter from '../../hooks/useEquipamentosFilter'
 
 import NovoEquipamentoForm from '../../components/equipamentos/NovoEquipamentoForm'
@@ -17,19 +18,12 @@ import EquipamentosKpis from '../../components/equipamentos/EquipamentosKpis'
 import EstadoDialog from '../../components/equipamentos/EstadoDialog'
 import GruposTable from '../../components/equipamentos/GruposTable'
 
-import Inventory2Icon from '@mui/icons-material/Inventory2'
-import HandshakeIcon from '@mui/icons-material/Handshake'
-import BuildIcon from '@mui/icons-material/Build'
-import PeopleIcon from '@mui/icons-material/People'
-
-
 import {
   Box,
   Paper,
   Typography,
   Button,
   TextField,
-  Grid,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -40,25 +34,21 @@ import AddIcon from '@mui/icons-material/Add'
 
 export default function InventarioPage() {
 
-const salvarEquipamento = async () => {
+  const [searchParams] = useSearchParams()
 
-  const {valid, errors} = validate()
-  if(!valid){
-    console.log(errors)
-    return
-  }
+  const [openNovo, setOpenNovo] = useState(false)
+  const [search, setSearch] = useState('')
+  const [filtroStatus, setFiltroStatus] = useState(
+    () => searchParams.get('estado') ?? ''
+  )
 
-  const payload = buildPayload()
+  const [modoVisualizacao, setModoVisualizacao] =
+    useState<'grupos' | 'equipamentos'>('grupos')
+const {
+  grupos,
+  carregarGrupos
+} = useInventarioAgrupado()
 
-  console.log("PAYLOAD:", payload)
-
-  await criarEquipamento(payload)
-
-  resetForm()
-
-  setOpenNovo(false)
-
-}
   const {
     equipos,
     carregarEquipamentos,
@@ -66,23 +56,42 @@ const salvarEquipamento = async () => {
     alterarEstado
   } = useEquipamentos()
 
-  const [ openNovo,setOpenNovo ] = useState(false)
-  const [ search,setSearch ] = useState('')
-  const [ filtroStatus, setFiltroStatus ] = useState('')
+  const { categorias } = useCategorias()
+  const { marcas } = useMarcas()
+  const { localizacoes } = useLocalizacoes()
 
   const {
-    filtrados
-  } = useEquipamentosFilter(
-    equipos,
-    search,
-    filtroStatus
-  )
-  const grupos = filtrados
+    form,
+    setForm,
+    resetForm,
+    validate,
+    buildPayload
+  } = useEquipamentoForm()
 
-  const [ modoVisualizacao,setModoVisualizacao ] =
-    useState<'grupos' | 'equipamentos'>(
-      'grupos'
-    )
+const {
+  filtrados: gruposFiltrados
+} = useEquipamentosFilter(
+  grupos,
+  search,
+  filtroStatus
+)
+
+const {
+  filtrados: equipamentosFiltrados
+} = useEquipamentosFilter(
+  equipos,
+  search,
+  filtroStatus
+) 
+
+const {
+    total,
+    disponiveis,
+    alugados,
+    manutencao,
+    danificados
+  } = useInventarioStats(grupos)
+
   const {
     open: estadoDialogOpen,
     estadoAtual,
@@ -94,91 +103,43 @@ const salvarEquipamento = async () => {
     salvarEstado
   } = useEdicaoEstado()
 
-  const {
-    form,
-    setForm,
-    resetForm,
-    validate,
-    // salvarEquipamento,
-    buildPayload
-  } = useEquipamentoForm()
+  const abrirNovoEquipamento = () => {
+    resetForm()
+    setOpenNovo(true)
+  }
 
-  const {
-    total,
-    disponiveis,
-    alugados,
-    manutencao,
-    danificados
-  } = useInventarioStats(
-    equipos
-  )
+  const fecharNovoEquipamento = () => {
+    resetForm()
+    setOpenNovo(false)
+  }
 
-  const{
-    codigo_interno,
-    numero_serie,
-    marca,
-    modelo
-  } = useEquipamentosFilter(
-    equipos
-  )
 
-  const {
-    categorias
-  } = useCategorias()
-
-  const {
-    marcas
-  } = useMarcas()
-
-  const {
-    localizacoes
-  } = useLocalizacoes()
-
-  // const {
-    // grupos
-  // } = useGrupos(filtrados)
-
-// console.log(categorias)
-
+// console.log(equipos[0])
   return (
-
     <Box>
-
+      {/* Header */}
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
         mb={4}
       >
-
         <Box>
-
           <Typography
             variant="h4"
             fontWeight={700}
           >
             Equipamentos
           </Typography>
-
-          <Typography
-            color="text.secondary"
-          >
+          <Typography color="text.secondary">
             Gestão de equipamentos
           </Typography>
-
         </Box>
 
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() =>
-              setOpenNovo(true)
-          }
-        >
-          Novo Equipamento
-        </Button>
 
       </Box>
+
+      {/* KPIs */}
 
       <EquipamentosKpis
         total={total}
@@ -188,77 +149,85 @@ const salvarEquipamento = async () => {
         danificados={danificados}
         onFiltro={setFiltroStatus}
       />
+
+      {/* Conteúdo */}
+
       <Paper
         sx={{
-          p:3,
-          borderRadius:4
+          p: 3,
+          borderRadius: 2
         }}
       >
+
         <Box
-          mb={3} 
+          display="flex"
+          gap={2}
+          mb={3}
         >
 
-          <Typography >
-            <Button
-              variant={
-                modoVisualizacao === 'grupos'
-                  ? 'contained'
-                  : 'outlined'
-              }
-              onClick={() =>
-                  setModoVisualizacao('grupos')
-              }
-            >
-              Resumo
-            </Button>
+          <Button
+            variant={
+              modoVisualizacao === 'grupos'
+                ? 'contained'
+                : 'outlined'
+            }
+            onClick={() =>
+              setModoVisualizacao('grupos')
+            }
+          >
+            Resumo
+          </Button>
 
-            <Button
-              variant={
-                modoVisualizacao === 'equipamentos'
-                  ? 'contained'
-                  : 'outlined'
-              }
-              onClick={() =>
-                  setModoVisualizacao('equipamentos')
-              }
-            >
-              Detalhado
-            </Button>
-          </Typography>
+          <Button
+            variant={
+              modoVisualizacao === 'equipamentos'
+                ? 'contained'
+                : 'outlined'
+            }
+            onClick={() =>
+              setModoVisualizacao('equipamentos')
+            }
+          >
+            Detalhado
+          </Button>
+
         </Box>
+
         <TextField
           fullWidth
           label="Buscar equipamento..."
           value={search}
-          onChange={(e)=>
-              setSearch(
-                e.target.value
-              )
+          onChange={(e) =>
+            setSearch(e.target.value)
           }
+          sx={{ mb: 3 }}
         />
+
         {
           modoVisualizacao === 'grupos'
             ? (
               <GruposTable
-                grupos={grupos}
+                grupos={gruposFiltrados}
                 categorias={categorias}
               />
             )
             : (
               <EquipamentosTable
-                equipamentos={filtrados}
+                equipamentos={equipamentosFiltrados}
                 categorias={categorias}
                 localizacoes={localizacoes}
                 onEditar={abrirEdicaoEstado}
               />
             )
         }
+
       </Paper>
+
+      {/* Dialog Novo Equipamento */}
+
       <Dialog
         open={openNovo}
-        onClose={() =>
-            setOpenNovo(false)
-        }
+        onClose={fecharNovoEquipamento}
         maxWidth="md"
         fullWidth
       >
@@ -281,24 +250,11 @@ const salvarEquipamento = async () => {
 
         <DialogActions>
 
-          <Button
-            onClick={() =>
-                setOpenNovo(false)
-            }
-          >
-            Cancelar
-          </Button>
-
-          <Button
-            variant="contained"
-            onClick={salvarEquipamento}
-          >
-            Salvar
-          </Button>
-
-        </DialogActions>
+           </DialogActions>
 
       </Dialog>
+
+      {/* Dialog Estado */}
 
       <EstadoDialog
         open={estadoDialogOpen}
@@ -308,11 +264,10 @@ const salvarEquipamento = async () => {
         setObservacao={setObservacao}
         onClose={fecharEdicaoEstado}
         onSalvar={() =>
-            salvarEstado(alterarEstado)
+          salvarEstado(alterarEstado)
         }
       />
+
     </Box>
-
   )
-
 }

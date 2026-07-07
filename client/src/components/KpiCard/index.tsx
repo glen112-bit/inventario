@@ -25,13 +25,18 @@ export default function KpiCard({
         background: '#111827',
         border: '1px solid rgba(255,255,255,.05)',
         cursor: onClick ? 'pointer' : 'default',
-        transition: '.2s',
+        transition: 'all .25s ease',
+
         '&:hover': {
-          transform: 'translateY(-3px)',
-          borderColor: color
-        }
-      }}
-    >
+          transform: 'translateY(-6px)',
+          borderColor: color,
+          boxShadow: `0 10px 25px ${color}40`
+      },
+
+      '&:active': {
+        transform: 'scale(.98)'
+      }
+      }}    >
       <CardContent
         sx={{
           height: '100%',

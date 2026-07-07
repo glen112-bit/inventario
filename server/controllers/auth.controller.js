@@ -3,8 +3,6 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 
 export const login = async (req, res) => {
-  // console.log('ENTRO LOGIN')
-  // console.log('BODY:', req.body)
   try {
 
     const {
@@ -49,11 +47,7 @@ export const login = async (req, res) => {
       cliente_id = clientes[0]?.id || null
 
     }
-// console.log('USUARIO:', usuario)
-// console.log('PASSWORD DB:', usuario.password)
-// console.log('PASSWORD FORM:', password)
-// console.log('JWT_SECRET:', process.env.JWT_SECRET)
-// console.log('JWT_SECRET=', process.env.JWT_SECRET)
+
     const token = jwt.sign(
       {
         id: usuario.id,
