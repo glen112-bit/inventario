@@ -2,40 +2,45 @@ import db from '../config/db.js';
 import QRCode from 'qrcode'
 
 
-export const getEquipamentos = async (req,res) => {
+export const getEquipamentos = async (req, res) => {
 
   try {
 
-    const {
-      marca,
-      modelo
-    } = req.query
-
     const [rows] = await db.query(`
       SELECT
-        equipamento_id,
-        codigo_interno,
-        numero_serie,
-        estado_actual,
-        localizacao,
-        qr_code
-      FROM equipos
-      WHERE marca = ?
-      AND modelo = ?
-      ORDER BY codigo_interno
-    `, [
-      marca,
-      modelo
-    ])
+        e.equipamento_id,
+        e.codigo_interno,
+        e.numero_serie,
+        e.estado_actual,
+        e.localizacao,
+        e.valor,
+        e.fecha_compra,
+        e.qr_code,
+        e.modelo,
+        COALESCE(m.nome, e.marca) AS marca,
+        c.nome AS categoria
+      FROM equipos e
+
+      LEFT JOIN marcas m
+        ON m.id = e.marca_id
+
+      LEFT JOIN categorias c
+        ON c.id = e.categoria_id
+
+      ORDER BY
+        marca,
+        modelo,
+        codigo_interno
+    `)
 
     res.json(rows)
 
-  } catch(error) {
+  } catch (error) {
 
     console.error(error)
 
     res.status(500).json({
-      error:error.message
+      error: error.message
     })
 
   }
@@ -467,7 +472,71 @@ export const adicionarUnidade = async (req, res) => {
 
 }
 
+export const atualizarEstadoEquipamento = async (req, res) => {
 
+  try {
+
+    const { id } = req.params
+
+    const {
+      estado_actual,
+      observacao
+    } = req.body
+
+    const [[equipamento]] = await db.query(`
+      SELECT
+        estado_actual
+      FROM equipos
+      WHERE equipamento_id = ?
+    `, [id])
+
+    if (!equipamento) {
+      return res.status(404).json({
+        error: 'Equipamento não encontrado'
+      })
+    }
+
+    const estadoAnterior = equipamento.estado_actual
+
+    await db.query(`
+      UPDATE equipos
+      SET estado_actual = ?
+      WHERE equipamento_id = ?
+    `, [
+      estado_actual,
+      id
+    ])
+
+    await registrarHistoricoEquipamento(
+      id,
+      estadoAnterior,
+      estado_actual,
+      observacao,
+      req.user?.id || null
+    )
+
+    const [[equipamentoAtualizado]] = await db.query(`
+      SELECT *
+      FROM equipos
+      WHERE equipamento_id = ?
+    `, [id])
+
+    res.json({
+      success: true,
+      equipamento: equipamentoAtualizado
+    })
+
+  } catch (error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      error: error.message
+    })
+
+  }
+
+}
 export const removerUnidade = async ( req, res ) => {
 
   const { id } = req.params

@@ -9,29 +9,84 @@ export const getAlugueis = async (req, res) => {
     if(req.user.rol === 'cliente') {
 
       const [rows] = await db.query(`
-    SELECT *
-    FROM alugueis
-    WHERE cliente_id = ?
+SELECT
+    a.id,
+    a.cliente_id,
+    c.nome AS cliente,
+    a.fecha_salida,
+    a.fecha_retorno,
+    a.estado,
+    a.observacoes,
+    a.usuario_id,
+    a.created_at,
+
+    COUNT(ai.equipamento_id) AS total_equipamentos
+
+FROM alugueis a
+
+LEFT JOIN clientes c
+    ON c.id = a.cliente_id
+
+LEFT JOIN aluguel_itens ai
+    ON ai.aluguel_id = a.id
+
+GROUP BY
+    a.id,
+    a.cliente_id,
+    c.nome,
+    a.fecha_salida,
+    a.fecha_retorno,
+    a.estado,
+    a.observacoes,
+    a.usuario_id,
+    a.created_at
+
+ORDER BY a.id DESC;
   `, [req.user.cliente_id])
 
       return res.json(rows)
 
     }
     const [rows] = await db.query(`
-      SELECT
-        a.id,
-        a.cliente_id,
-        c.nome AS cliente,
-        a.fecha_salida,
-        a.fecha_retorno,
-        a.estado,
-        a.observacoes,
-        a.usuario_id,
-        a.created_at
-      FROM alugueis a
-      LEFT JOIN clientes c
-        ON c.id = a.cliente_id
-      ORDER BY a.id DESC
+SELECT
+    a.id,
+    a.cliente_id,
+    c.nome AS cliente,
+    a.fecha_salida,
+    a.fecha_retorno,
+    a.estado,
+    a.observacoes,
+    a.usuario_id,
+    a.created_at,
+
+    COUNT(DISTINCT ai.equipamento_id) AS total_equipamentos,
+
+    (
+        SELECT COUNT(*)
+        FROM complementos cp
+        WHERE cp.aluguel_id = a.id
+    ) AS total_complementos
+
+FROM alugueis a
+
+LEFT JOIN clientes c
+    ON c.id = a.cliente_id
+
+LEFT JOIN aluguel_itens ai
+    ON ai.aluguel_id = a.id
+
+GROUP BY
+    a.id,
+    a.cliente_id,
+    c.nome,
+    a.fecha_salida,
+    a.fecha_retorno,
+    a.estado,
+    a.observacoes,
+    a.usuario_id,
+    a.created_at
+
+ORDER BY a.id DESC;
     `)
 
     res.json(rows)
@@ -125,13 +180,15 @@ export const createAluguel = async (req, res) => {
   }
 }
 export const getAluguelById = async (req,res) => {
-
+try{
   const { id } = req.params
 
   const [aluguel] = await db.query(`
     SELECT
       a.*,
-      c.nome as cliente
+      c.nome as cliente,
+      c.telefone,
+      c.email
     FROM alugueis a
     LEFT JOIN clientes c
       ON c.id = a.cliente_id
@@ -151,11 +208,60 @@ export const getAluguelById = async (req,res) => {
     WHERE ai.aluguel_id = ?
   `,[id])
 
+  const [complementos] = await db.query(`
+SELECT
+    a.id,
+    a.cliente_id,
+    c.nome AS cliente,
+    a.fecha_salida,
+    a.fecha_retorno,
+    a.estado,
+    a.observacoes,
+    a.usuario_id,
+    a.created_at,
+
+    COUNT(DISTINCT ai.equipamento_id) AS total_equipamentos,
+
+    (
+        SELECT COUNT(*)
+        FROM complementos cp
+        WHERE cp.aluguel_id = a.id
+    ) AS total_complementos
+
+FROM alugueis a
+
+LEFT JOIN clientes c
+    ON c.id = a.cliente_id
+
+LEFT JOIN aluguel_itens ai
+    ON ai.aluguel_id = a.id
+
+GROUP BY
+    a.id,
+    a.cliente_id,
+    c.nome,
+    a.fecha_salida,
+    a.fecha_retorno,
+    a.estado,
+    a.observacoes,
+    a.usuario_id,
+    a.created_at
+
+ORDER BY a.id DESC;
+  `, [id])
+
   res.json({
     ...aluguel[0],
-    equipamentos
+    equipamentos,
+    complementos
   })
 
+}catch(error){
+  console.error(error)
+  res.status(500).json({
+    error: error.message
+    })
+  }
 }
 export const getAluguelDetalhes = async (req, res) => {
 

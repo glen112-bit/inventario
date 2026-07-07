@@ -1,40 +1,129 @@
-import React, { useState } from 'react'
+import { useEffect, useState } from 'react'
+
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
-  Grid,
-  Typography,
-  Paper,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody
+  Button
 } from '@mui/material'
-import EditIcon from '@mui/icons-material/Edit'
-import IconButton from '@mui/material/IconButton'
+
+import DadosAluguel from './DadosAluguel'
+import EquipamentosTable from './EquipamentosTable'
+import ComplementosHeader from './ComplementosHeader'
+import ComplementosList from './ComplementosList'
+import ComplementoDialog from './ComplementoDialog'
+
+import useComplementos from '../../../hooks/useComplementos'
+import useEquipamentosDisponiveis from '../../../hooks/useEquipamentosDisponiveis'
 
 type Props = {
-  open:boolean
-  onClose:() => void
-  aluguel:any
-  alugueis:any[]
-  onDetalhes:(aluguel:any)=>void
-  onEditar:(aluguel:any)=>void
-  onFinalizar?:(aluguel:any)=>void
+  open: boolean
+  aluguel: any
+  onClose: () => void
 }
 
 export default function DetalhesAluguelDialog({
   open,
-  onClose,
   aluguel,
-}:Props){
+  onClose
+}: Props) {
 
-  // console.log(aluguel)
-  // if (!aluguel) return null
+  const {
+    equipamentos
+  } = useEquipamentosDisponiveis()
+
+  const {
+    complementos,
+    criarComplemento,
+    atualizarComplemento,
+    excluirComplemento,
+    finalizarComplemento,
+    carregarComplementos
+  } = useComplementos()
+
+  const [openComplemento, setOpenComplemento] =
+    useState(false)
+
+  const [complementoSelecionado, setComplementoSelecionado] =
+    useState<any>(null)
+
+  useEffect(() => {
+
+    if (open && aluguel) {
+
+      carregarComplementos(aluguel.id)
+
+    }
+
+  }, [open, aluguel])
+
+  const novoComplemento = () => {
+
+    setComplementoSelecionado(null)
+
+    setOpenComplemento(true)
+
+  }
+
+  const editarComplemento = (complemento:any) => {
+
+    setComplementoSelecionado(complemento)
+
+    setOpenComplemento(true)
+
+  }
+
+  const salvarComplemento = async (dados:any) => {
+
+    try {
+
+      if (complementoSelecionado) {
+
+        await atualizarComplemento({
+
+          ...dados,
+
+          id: complementoSelecionado.id,
+
+          aluguel_id: aluguel.id
+
+        })
+
+      } else {
+
+        await criarComplemento({
+
+          ...dados,
+
+          aluguel_id: aluguel.id
+
+        })
+
+      }
+
+      await carregarComplementos(aluguel.id)
+
+      setOpenComplemento(false)
+
+    } catch (error) {
+
+      console.error(error)
+
+    }
+
+  }
+
+  const exportarComplementoPdf = (complemento:any) => {
+
+    console.log('Exportar PDF:', complemento)
+
+    // gerarPdfComplemento(complemento)
+
+  }
+
+  if (!aluguel) return null
+
   return (
 
     <Dialog
@@ -43,133 +132,54 @@ export default function DetalhesAluguelDialog({
       maxWidth="lg"
       fullWidth
     >
+
       <DialogTitle>
-        Detalhes do Aluguel #{aluguel.id}
+        Aluguel #{aluguel.id}
       </DialogTitle>
 
       <DialogContent>
 
-        <Grid container spacing={2} sx={{ mb: 3 }}>
+        <DadosAluguel
+          aluguel={aluguel}
+        />
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Typography>
-              <strong>Cliente:</strong> {aluguel.cliente}
-            </Typography>
-          </Grid>
+        <EquipamentosTable
+          equipamentos={aluguel.equipamentos}
+        />
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Typography>
-              <strong>Estado:</strong> {aluguel.estado}
-            </Typography>
-          </Grid>
+        <ComplementosHeader
+          onNovo={novoComplemento}
+        />
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Typography>
-              <strong>Saída:</strong> {aluguel.fecha_salida}
-            </Typography>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Typography>
-              <strong>Retorno:</strong> {aluguel.fecha_retorno}
-            </Typography>
-          </Grid>
-
-          <Grid size={{ xs: 12 }}>
-            <Typography>
-              <strong>Observações:</strong>
-            </Typography>
-
-            <Paper sx={{ p: 2, mt: 1 }}>
-              {aluguel.observacoes || 'Sem observações'}
-            </Paper>
-          </Grid>
-
-        </Grid>
-
-        <Typography
-          variant="h6"
-          sx={{ mb: 2 }}
-        >
-          Equipamentos
-        </Typography>
-
-        <Table size="small">
-
-          <TableHead>
-            <TableRow>
-              <TableCell>Código</TableCell>
-              <TableCell>Marca</TableCell>
-              <TableCell>Modelo</TableCell>
-              <TableCell>Estado</TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-
-            {aluguel.equipamentos?.map((equipamento: any) => (
-
-              <TableRow
-                key={equipamento.equipamento_id}
-              >
-                <TableCell>
-                  {equipamento.codigo_interno}
-                </TableCell>
-
-                <TableCell>
-                  {equipamento.marca}
-                </TableCell>
-
-                <TableCell>
-                  {equipamento.modelo}
-                </TableCell>
-
-                <TableCell>
-                  {equipamento.estado_actual}
-                </TableCell>
-
-                {/*
-                    <TableCell>
-                    <IconButton
-                    color="primary"
-                    onClick={() => onDetalhes(item)}
-                    >
-                    <VisibilityIcon />
-                    </IconButton>
-
-                    <IconButton
-                    color="warning"
-                    onClick={() => onEditar(item)}
-                    >
-                    <EditIcon />
-                    </IconButton>
-
-                    {item.estado === 'ativo' && (
-                    <IconButton
-                    color="success"
-                    onClick={() => onFinalizar?.(item)}
-                    >
-                    <CheckCircleIcon />
-                    </IconButton>
-                    )}
-                    </TableCell>
-                  */}
-              </TableRow>
-            ))}
-
-          </TableBody>
-
-        </Table>
+        <ComplementosList
+          complementos={complementos}
+          onEditar={editarComplemento}
+          onExcluir={excluirComplemento}
+          onFinalizar={finalizarComplemento}
+          onPdf={exportarComplementoPdf}
+        />
 
       </DialogContent>
 
       <DialogActions>
+
         <Button onClick={onClose}>
           Fechar
         </Button>
+
       </DialogActions>
 
+      <ComplementoDialog
+        open={openComplemento}
+        aluguel={aluguel}
+        complemento={complementoSelecionado}
+        equipamentos={equipamentos}
+        onClose={() => setOpenComplemento(false)}
+        onSalvar={salvarComplemento}
+      />
+
     </Dialog>
+
   )
 
 }

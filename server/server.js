@@ -11,6 +11,7 @@ import manutencaoRoutes from './routes/manutencao.routes.js'
 import analyticsRoutes from './routes/analytics.routes.js'
 import configRoutes from './routes/config.routes.js'
 import authRoutes from './routes/auth.routes.js'
+import complementosRoutes from './routes/complementos.routes.js'
 
 dotenv.config()
 const app = express();
@@ -36,6 +37,7 @@ app.use('/api/analytics', analyticsRoutes)
 app.use('/api/config', configRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api', authRoutes)
+app.use('/api', complementosRoutes)
 
 const PORT = process.env.PORT || 3001
 app.get('/ping', (req,res) => {

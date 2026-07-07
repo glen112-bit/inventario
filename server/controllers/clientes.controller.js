@@ -65,3 +65,83 @@ export const createCliente = async (
   }
 
 }
+export const updateCliente = async (req, res) => {
+
+  try {
+
+    const { id } = req.params
+
+    const {
+      nome,
+      documento,
+      telefone,
+      email,
+      endereco,
+      usuario_id
+    } = req.body
+
+    await db.query(
+      `
+      UPDATE clientes
+      SET
+        nome=?,
+        documento=?,
+        telefone=?,
+        email=?,
+        endereco=?,
+        usuario_id=?
+      WHERE id=?
+      `,
+      [
+        nome,
+        documento,
+        telefone,
+        email,
+        endereco,
+        usuario_id || null,
+        id
+      ]
+    )
+
+    res.json({
+      success: true
+    })
+
+  } catch (error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      error: error.message
+    })
+
+  }
+
+}
+
+export const deleteCliente = async (req, res) => {
+
+  try {
+
+    const { id } = req.params
+
+    await db.query(
+      'DELETE FROM clientes WHERE id=?',
+      [id]
+    )
+
+    res.json({
+      success: true
+    })
+
+  } catch (error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      error: error.message
+    })
+
+  }
+
+}

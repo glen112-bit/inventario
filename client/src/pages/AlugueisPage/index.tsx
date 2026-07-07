@@ -11,10 +11,11 @@ import {
   DialogContent,
   DialogActions
 } from '@mui/material'
-
+import { gerarPdfAluguel } from '../../utils/pdf/aluguelPdf'
 import useClientes from '../../hooks/useClientes'
 import useAlugueis from '../../hooks/useAlugueis'
 import useEquipamentos from '../../hooks/useEquipamentos'
+import useEquipamentosDisponiveis from '../../hooks/useEquipamentosDisponiveis'
 import useAlugueisKpis from '../../hooks/useAlugueisKpis'
 import useAlugueisFilter from '../../hooks/useAlugueisFilter'
 import AlugueisKpis from '../../components/alugueis/AlugueisKpis'
@@ -25,6 +26,11 @@ import DetalhesAluguelDialog from '../../components/alugueis/DetalhesAluguelDial
 import EditarAluguelDialog from '../../components/alugueis/EditarAluguelDialog'
 
 export default function AlugueisPage() {
+
+  const {
+    equipamentos,
+    equipamentosDisponiveis
+  } = useEquipamentosDisponiveis()
 
   const API_URL =
     import.meta.env.VITE_API_URL ||
@@ -52,11 +58,13 @@ export default function AlugueisPage() {
     }
   }
   const editarAluguel = async (item:any) => {
+    // console.log(item)
 
     const response = await api.get(
       `/alugueis/${item.id}`
     )
 
+    // console.log(response.data)
     setAluguelSelecionado(response.data)
 
     setOpenEditar(true)
@@ -73,6 +81,7 @@ export default function AlugueisPage() {
     alugueis,
     carregarAlugueis,
     atualizarAluguel,
+    buscarAluguel,
     criarAluguel,
     excluirAluguel,
     finalizarAluguel
@@ -93,7 +102,17 @@ export default function AlugueisPage() {
     search,
     filtroStatus
   )
+const exportarPdf = async (item: any) => {
+  try {
+    const data = await buscarAluguel(item.id)
+    // console.log(data)
 
+    gerarPdfAluguel(data)
+
+  } catch (error) {
+    console.error(error)
+  }
+}
   return(
     <Box>
       <AlugueisHeader
@@ -102,7 +121,7 @@ export default function AlugueisPage() {
         }}
       />
 
-
+      <Box>
       <AlugueisKpis
         ativos={ativos}
         reservados={reservados}
@@ -110,6 +129,8 @@ export default function AlugueisPage() {
         cancelados={cancelados}
         onFiltro={setFiltroStatus}
       />
+
+      </Box>
       <Box
         display="flex"
         justifyContent="flex-end"
@@ -120,7 +141,7 @@ export default function AlugueisPage() {
       <Paper
         sx={{
           p:3,
-          borderRadius:4
+          borderRadius:2
         }}
       >
 
@@ -141,6 +162,7 @@ export default function AlugueisPage() {
           onEditar={editarAluguel}
           onExcluir={excluirAluguel}
           onFinalizar={finalizarAluguel}
+          onPdf={exportarPdf}
         />
 
       </Paper>
@@ -149,7 +171,7 @@ export default function AlugueisPage() {
         open={openAluguel}
         onClose={() => setOpenAluguel(false)}
         clientes={clientes}
-        equipamentos={equipos}
+        equipamentos={equipamentos}
         onSalvar={criarAluguel}
       />
       {
@@ -168,7 +190,7 @@ export default function AlugueisPage() {
           open={openEditar}
           aluguel={aluguelSelecionado}
           clientes={clientes}
-          equipamentos={equipos}
+          equipamentos={equipamentos}
           onClose={() => setOpenEditar(false)}
           onSalvar={atualizarAluguel}
         />

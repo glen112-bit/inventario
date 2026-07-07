@@ -5,9 +5,11 @@ import {
   getHistoricoEquipamento,
   registrarHistoricoEquipamento,
   getEquipamentoById,
+  getEquipamentos,
   getInventarioAgrupado,
   getEquipamentosModelo,
   adicionarUnidade,
+  atualizarEstadoEquipamento,
   removerUnidade
 
 } from '../controllers/equipos.controller.js'
@@ -17,6 +19,8 @@ import { authMiddleware } from '../middleware/auth.middleware.js'
 import { authorize } from '../middleware/role.middleware.js'
 
 const router = express.Router()
+
+router.get('/inventario', getEquipamentos)
 
 router.get('/inventario/agrupado',  getInventarioAgrupado)
 
@@ -51,6 +55,14 @@ router.delete(
   authMiddleware, 
   authorize('admin'), 
   removerUnidade
+)
+router.put(
+'/equipamentos/:id/estado', 
+  atualizarEstadoEquipamento
+)
+router.get(
+  '/equipamentos/:id/historico',
+  getHistoricoEquipamento
 )
 
 export default router

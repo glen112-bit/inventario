@@ -29,7 +29,7 @@ export default function useUsuarios() {
           '/usuarios',
           payload
         )
-console.log('PAYLOAD:', payload)
+// console.log('PAYLOAD:', payload)
         await carregarUsuarios()
       } catch(error) {
         console.error(error)

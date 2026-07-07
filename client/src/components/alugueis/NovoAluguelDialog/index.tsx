@@ -14,6 +14,7 @@ import {
   InputLabel
 } from '@mui/material'
 import useAlugueis from '../../../hooks/useAlugueis'
+import AluguelForm from '../AluguelForm'
 import { useState } from 'react'
 
 type Props = {
@@ -42,17 +43,17 @@ export default function NovoAluguelDialog({
   const {
     alugueis
   } = useAlugueis()
-const limparFormulario = () => {
+  const limparFormulario = () => {
 
-  setForm({
-    cliente_id: '',
-    fecha_salida: '',
-    fecha_retorno: '',
-    observacoes: '',
-    equipamentos: []
-  })
+    setForm({
+      cliente_id: '',
+      fecha_salida: '',
+      fecha_retorno: '',
+      observacoes: '',
+      equipamentos: []
+    })
 
-}
+  }
   return (
 
     <Dialog
@@ -68,145 +69,14 @@ const limparFormulario = () => {
 
       <DialogContent>
 
-        <Grid container spacing={2} sx={{ mt:1 }}>
-
-          <Grid size={{ xs:12 }}>
-
-            <TextField
-              select
-              fullWidth
-              label="Cliente"
-              value={form.cliente_id}
-              onChange={(e)=>
-                setForm({
-                ...form,
-                cliente_id:e.target.value
-              })
-              }
-            >
-              {clientes.map(cliente => (
-                <MenuItem
-                  key={cliente.id}
-                  value={cliente.id}
-                >
-                  {cliente.nome}
-                </MenuItem>
-              ))}
-            </TextField>
-
-          </Grid>
-          <Grid size={{xs:12}}>
-            <FormControl fullWidth>
-              <InputLabel>Equipamentos</InputLabel>
-
-              <Select
-                multiple
-                value={form.equipamentos}
-                label="Equipamentos"
-                onChange={(e) =>
-                  setForm({
-                  ...form,
-                  equipamentos: e.target.value as number[]
-                })
-                }
-                renderValue={(selected) =>
-                  equipamentos
-                .filter(eq =>
-                        selected.includes(eq.equipamento_id)
-                       )
-                       .map(eq =>
-                            `${eq.marca} ${eq.modelo}`
-                           )
-                           .join(', ')
-                }
-              >
-                {equipamentos
-                  .filter(
-                    e => e.estado_actual === 'disponivel'
-                  )
-                  .map(equipamento => (
-                    <MenuItem
-                      key={equipamento.equipamento_id}
-                      value={equipamento.equipamento_id}
-                    >
-                      <Checkbox
-                        checked={
-                          form.equipamentos.includes(
-                            equipamento.equipamento_id
-                        )
-                        }
-                      />
-
-                      <ListItemText
-                        primary={`${equipamento.marca} ${equipamento.modelo}`}
-                      />
-                    </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid size={{ xs:12, md:6 }}>
-
-            <TextField
-              fullWidth
-              type="date"
-              label="Saída"
-              InputLabelProps={{
-                shrink:true
-              }}
-              value={form.fecha_salida}
-              onChange={(e)=>
-                setForm({
-                ...form,
-                fecha_salida:e.target.value
-              })
-              }
-            />
-
-          </Grid>
-
-          <Grid size={{ xs:12, md:6 }}>
-
-            <TextField
-              fullWidth
-              type="date"
-              label="Retorno"
-              InputLabelProps={{
-                shrink:true
-              }}
-              value={form.fecha_retorno}
-              onChange={(e)=>
-                setForm({
-                ...form,
-                fecha_retorno:e.target.value
-              })
-              }
-            />
-
-          </Grid>
-
-          <Grid size={{ xs:12 }}>
-
-            <TextField
-              fullWidth
-              multiline
-              rows={3}
-              label="Observações"
-              value={form.observacoes}
-              onChange={(e)=>
-                setForm({
-                ...form,
-                observacoes:e.target.value
-              })
-              }
-            />
-
-          </Grid>
-
-        </Grid>
+        <AluguelForm
+          form={form}
+          setForm={setForm}
+          clientes={clientes}
+          equipamentos={equipamentos}
+        />
 
       </DialogContent>
-
       <DialogActions>
 
         <Button onClick={() => {
@@ -218,23 +88,30 @@ const limparFormulario = () => {
 
         <Button
           variant="contained"
-          onClick={() => {
-            if(!form.cliente_id){
-              alert('Seleccione um cliente')
-              return
-            }
-            if(!form.fecha_salida ) {
-              alert("Informe Data de Saida")
-              return
-            }
-            if(form.equipamentos.length === 0) {
-              alert('Seleccione um equipamento')
-              return
-            }
-            limparFormulario()
-            onClose()
-            }
-          }
+onClick={async () => {
+
+  if (!form.cliente_id) {
+    alert('Seleccione um cliente')
+    return
+  }
+
+  if (!form.fecha_salida) {
+    alert('Informe Data de Saída')
+    return
+  }
+
+  if (form.equipamentos.length === 0) {
+    alert('Seleccione um equipamento')
+    return
+  }
+
+  await onSalvar(form)
+
+  limparFormulario()
+
+  onClose()
+
+}}
         >
           Salvar
         </Button>

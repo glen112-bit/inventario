@@ -75,7 +75,7 @@ export default function EquipamentosTable({
 
   }
   const abrirDetalhes = async (equipamento:any) => {
-    console.log('detalle', equipamento)
+    // console.log('detalle', equipamento)
     try {
 
       const response = await api.get(

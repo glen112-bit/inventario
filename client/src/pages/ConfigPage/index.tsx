@@ -1,157 +1,20 @@
-import { useState } from 'react'
+import { Box, Typography, Grid } from '@mui/material'
 
-import {
-  Box,
-  Typography,
-  Tabs,
-  Tab,
-  Button,
-  Paper,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions
-} from '@mui/material'
+import SettingsCard from '../../components/configuracoes/Config/SettingsCard'
 
+import PeopleIcon from '@mui/icons-material/People'
+import Inventory2Icon from '@mui/icons-material/Inventory2'
+import CategoryIcon from '@mui/icons-material/Category'
+import BusinessIcon from '@mui/icons-material/Business'
+import PlaceIcon from '@mui/icons-material/Place'
+import GroupIcon from '@mui/icons-material/Group'
+import SettingsIcon from '@mui/icons-material/Settings'
 
-import NovoEquipamentoForm from '../../components/equipamentos/NovoEquipamentoForm'
-import ClientesTable from '../../components/configuracoes/ClientesTable'
-import CategoriasTable from '../../components/configuracoes/CategoriasTable'
-import MarcasTable from '../../components/configuracoes/MarcasTable'
-import UsuariosTable from '../../components/configuracoes/UsuariosTable'
-import EquipamentosTable from '../../components/configuracoes/EquipamentosTable'
-import CategoriaDialog from '../../components/configuracoes/CategoriaDialog'
-
-import useClientes from '../../hooks/useClientes'
-import useCategorias from '../../hooks/useCategorias'
-import useClientesFilter from '../../hooks/useClientesFilter'
-import useEquipamentos from '../../hooks/useEquipamentos'
-import useEquipamentosFilter from '../../hooks/useEquipamentosFilter'
-import useEquipamentoForm from '../../hooks/useEquipamentoForm'
-import useLocalizacoes from '../../hooks/useLocalizacoes'
-import useUsuarios from '../../hooks/useUsuarios'
-import useMarcas from '../../hooks/useMarcas'
+import { useNavigate } from 'react-router-dom'
 
 export default function ConfiguracoesPage() {
 
-  const [openCategoria,setOpenCategoria] = useState(false)
-  const [nomeCategoria,setNomeCategoria] = useState('')
-  const [descricaoCategoria,setDescricaoCategoria] = useState('')
-  const [categoriaSelecionada,setCategoriaSelecionada] = useState<any>(null)
-  const [openEquipamento, setOpenEquipamento] = useState(false)
-  const [aba,setAba] = useState(0)
-
-  const {
-    localizacoes
-  } = useLocalizacoes()
-
-  const { 
-    marcas 
-  } = useMarcas()
-
-  const {
-    clientes,
-    criarCliente,
-    atualizarCliente,
-    excluirCliente
-  } = useClientes()
-
-  const {
-    categorias,
-    criarCategoria,
-    atualizarCategoria
-  } = useCategorias()
-
-  const {
-    usuarios,
-    criarUsuario,
-    atualizarUsuario,
-    excluirUsuario
-  } = useUsuarios()
-
-  const {
-    equipos,
-    setEquipos,
-    carregarEquipamentos,
-    criarEquipamento,
-    salvarEquipamento,
-    alterarEstado
-  } = useEquipamentos()
-
-  const {
-    form,
-    setForm,
-    resetForm,
-    validate,
-    buildPayload
-  } = useEquipamentoForm()
-
-  const salvarCategoria = async () => {
-    try {
-      if(categoriaSelecionada){
-        await atualizarCategoria(
-          categoriaSelecionada.id,
-          {
-            nome: nomeCategoria,
-            descricao: descricaoCategoria
-          }
-        )
-      } else {
-        await criarCategoria({
-          nome: nomeCategoria,
-          descricao: descricaoCategoria
-        })
-      }
-      setOpenCategoria(false)
-      setNomeCategoria('')
-      setDescricaoCategoria('')
-      setCategoriaSelecionada(null)
-    } catch(error) {
-      console.error(error)
-    }
-  }
-  const editarCategoria = ( categoria:any) => {
-    setCategoriaSelecionada(
-      categoria
-    )
-    setNomeCategoria(
-      categoria.nome
-    )
-
-    setDescricaoCategoria(
-      categoria.descricao || ''
-    )
-    setOpenCategoria(true)
-  }
-  const handleEditar = (equipo: any) => {
-    console.log('Editar:', equipo)
-  }
-
-  const salvarNovoEquipamento = async () => {
-
-    try {
-
-      if (!validate()) {
-        return
-      }
-
-      await criarEquipamento(
-        buildPayload()
-      )
-
-      resetForm()
-
-      setOpenEquipamento(false)
-
-      await carregarEquipamentos()
-
-    } catch (error) {
-
-      console.error(error)
-
-    }
-
-  }
+  const navigate = useNavigate()
 
   return (
 
@@ -160,148 +23,79 @@ export default function ConfiguracoesPage() {
       <Typography
         variant="h4"
         fontWeight={700}
-        mb={3}
+        mb={4}
       >
         Configurações
       </Typography>
 
-      <Paper
-        sx={{
-          borderRadius:1,
-          overflow:'hidden'
-        }}
-      >
+      <Grid container spacing={3}>
 
-        <Tabs
-          value={aba}
-          onChange={(_,value)=>
-            setAba(value)
-          }
-          variant="fullWidth"
-        >
-          <Tab label="Clientes" />
-          <Tab label="Categorias" />
-          <Tab label="Usuários" />
-          <Tab label="Equipamentos" />
-        </Tabs>
-
-      </Paper>
-
-      <Box mt={3}>
-
-        {aba === 0 &&
-        <ClientesTable clientes = {clientes} />
-        }
-
-        {aba === 1 &&
-          <CategoriasTable 
-            categorias = {categorias} 
-            onEditar = { editarCategoria }
+        <Grid size={{ xs:12, md:4 }}>
+          <SettingsCard
+            title="Usuários"
+            description="Gerenciar usuários e permissões"
+            icon={<PeopleIcon fontSize="large" />}
+            onClick={() => navigate('/config/usuarios')}
           />
-        }
+        </Grid>
 
-        {aba === 2 &&
-          <UsuariosTable 
-            usuarios = {usuarios}
-            criarUsuario = { criarUsuario }
-            atualizarUsuario = { atualizarUsuario }
-            excluirUsuario = { excluirUsuario }
+        <Grid size={{ xs:12, md:4 }}>
+          <SettingsCard
+            title="Clientes"
+            description="Gerenciar clientes"
+            icon={<GroupIcon fontSize="large" />}
+            onClick={() => navigate('/config/clientes')}
           />
-        }
-        {aba === 3 && (
-          <>
-            <Box
-              display="flex"
-              justifyContent="flex-end"
-              mb={2}
-            >
-              <Button
-                variant="contained"
-                onClick={() => {
-                  setOpenEquipamento(true)
-                }}
-              >
-                Novo Equipamento
-              </Button>
-            </Box>
+        </Grid>
 
-            <EquipamentosTable
-              equipos={equipos}
-              onEditar={handleEditar}
-              localizacoes={localizacoes}
-            />
-          </>
-        )}
-      </Box>
-      <CategoriaDialog
-        open={openCategoria}
-        nome={nomeCategoria}
-        descricao={descricaoCategoria}
-        setNome={setNomeCategoria}
-        setDescricao={setDescricaoCategoria}
-        onClose={() => setOpenCategoria(false)}
-        onSalvar={salvarCategoria}
-        editando={!!categoriaSelecionada}
-      />
-      <Dialog
-        open={openEquipamento}
-        onClose={() => setOpenEquipamento(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          Novo Equipamento
-        </DialogTitle>
-
-        <DialogContent>
-
-          <NovoEquipamentoForm
-            form={form}
-            setForm={setForm}
-            categorias={categorias}
-            marcas={marcas}
-            localizacoes={localizacoes}
+        <Grid size={{ xs:12, md:4 }}>
+          <SettingsCard
+            title="Equipamentos"
+            description="Cadastro de equipamentos"
+            icon={<Inventory2Icon fontSize="large" />}
+            onClick={() => navigate('/config/equipamentos')}
           />
+        </Grid>
 
-        </DialogContent>
+        <Grid size={{ xs:12, md:4 }}>
+          <SettingsCard
+            title="Categorias"
+            description="Categorias do inventário"
+            icon={<CategoryIcon fontSize="large" />}
+            onClick={() => navigate('/config/categorias')}
+          />
+        </Grid>
 
-        <DialogActions>
+        <Grid size={{ xs:12, md:4 }}>
+          <SettingsCard
+            title="Marcas"
+            description="Marcas cadastradas"
+            icon={<BusinessIcon fontSize="large" />}
+            onClick={() => navigate('/config/marcas')}
+          />
+        </Grid>
 
-          <Button
-            onClick={() => setOpenEquipamento(false)}
-          >
-            Cancelar
-          </Button>
+        <Grid size={{ xs:12, md:4 }}>
+          <SettingsCard
+            title="Localizações"
+            description="Locais de armazenamento"
+            icon={<PlaceIcon fontSize="large" />}
+            onClick={() => navigate('/config/localizacoes')}
+          />
+        </Grid>
 
-          <Button
-            variant="contained"
-            onClick={salvarNovoEquipamento}
-          >
-            Salvar
-          </Button>
+        <Grid size={{ xs:12, md:4 }}>
+          <SettingsCard
+            title="Sistema"
+            description="Parâmetros gerais"
+            icon={<SettingsIcon fontSize="large" />}
+            onClick={() => navigate('/config/sistema')}
+          />
+        </Grid>
 
-        </DialogActions>
+      </Grid>
 
-      </Dialog>
-
-      <DialogActions>
-
-        <Button
-          onClick={() => setOpenEquipamento(false)}
-        >
-          Cancelar
-        </Button>
-
-        <Button
-          variant="contained"
-          onClick={salvarNovoEquipamento}
-        >
-          Salvar
-        </Button>
-
-      </DialogActions>
     </Box>
-
 
   )
 

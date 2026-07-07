@@ -18,6 +18,7 @@ import KpiCard from '../../components/KpiCard'
 
 export default function DashboardPage() {
 
+  const navigate = useNavigate();
   const [stats, setStats] = useState<any>({
     totalEquipos: 0,
     equiposDisponiveis: 0,
@@ -65,7 +66,7 @@ export default function DashboardPage() {
             variant="h4"
             fontWeight={700}
           >
-           Control de Equipamentos 
+            Control de Equipamentos 
           </Typography>
 
           <Typography color="text.secondary">
@@ -86,6 +87,7 @@ export default function DashboardPage() {
             value={stats.totalEquipos || 0}
             icon={<Inventory2Icon />}
             color="#3b82f6"
+            onClick={() => navigate('/inventario')}
           />
         </Grid>
 
@@ -95,6 +97,9 @@ export default function DashboardPage() {
             value={stats.equiposDisponiveis || 0}
             icon={<HandshakeIcon />}
             color="#10b981"
+            onClick={() =>
+              navigate('/inventario?estado=disponivel')
+            }
           />
         </Grid>
 
@@ -104,6 +109,9 @@ export default function DashboardPage() {
             value={stats.equiposManutencao || 0}
             icon={<BuildIcon />}
             color="#f59e0b"
+            onClick={() =>
+              navigate('/inventario?estado=manutencao')
+            }
           />
         </Grid>
 
@@ -113,6 +121,7 @@ export default function DashboardPage() {
             value={stats.usuarios || 0}
             icon={<PeopleIcon />}
             color="#8b5cf6"
+            onClick={() => navigate('/usuarios')}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
@@ -121,6 +130,7 @@ export default function DashboardPage() {
             value={stats.alugueisAtivos || 0}
             icon={<HandshakeIcon />}
             color="#22c55e"
+            onClick={() => navigate('/alugueis')}
           />
         </Grid>
 
@@ -130,6 +140,9 @@ export default function DashboardPage() {
             value={stats.equipamentosDanificados || 0}
             icon={<BuildIcon />}
             color="#ef4444"
+            onClick={() =>
+              navigate('/equipamentos?estado=danificado')
+            }
           />
         </Grid>
 
@@ -139,6 +152,7 @@ export default function DashboardPage() {
             value={stats.devolucoesHoje || 0}
             icon={<Inventory2Icon />}
             color="#f59e0b"
+            onClick={() => navigate('/devolucoes')}
           />
         </Grid>
       </Grid>
@@ -176,7 +190,7 @@ export default function DashboardPage() {
                       sx={{
                         py: 1,
                         borderBottom:
-                        '1px solid rgba(255,255,255,.08)'
+                          '1px solid rgba(255,255,255,.08)'
                       }}
                     >
                       <Typography
@@ -314,7 +328,7 @@ export default function DashboardPage() {
                       sx={{
                         py: 1,
                         borderBottom:
-                        '1px solid rgba(255,255,255,.08)'
+                          '1px solid rgba(255,255,255,.08)'
                       }}
                     >
                       <Typography
@@ -403,72 +417,72 @@ export default function DashboardPage() {
           >
 
             <Grid size={{ xs: 12 }}>
-  <Paper
-    sx={{
-      p: 3,
-      borderRadius: 3,
-      height: '100%'
-    }}
-  >
-    <Typography
-      variant="h6"
-      fontWeight={700}
-      mb={2}
-    >
-      Últimas Movimentações
-    </Typography>
+              <Paper
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  height: '100%'
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  fontWeight={700}
+                  mb={2}
+                >
+                  Últimas Movimentações
+                </Typography>
 
-    <Divider sx={{ mb: 2 }} />
+                <Divider sx={{ mb: 2 }} />
 
-    {stats.ultimasMovimentacoes?.length > 0 ? (
-      stats.ultimasMovimentacoes.map((item: any) => (
-        <Box
-          key={item.id}
-          sx={{
-            py: 1,
-            borderBottom:
-              '1px solid rgba(255,255,255,.08)'
-          }}
-        >
-          <Typography fontWeight={600}>
-            {item.codigo_interno}
-          </Typography>
+                {stats.ultimasMovimentacoes?.length > 0 ? (
+                  stats.ultimasMovimentacoes.map((item: any) => (
+                    <Box
+                      key={item.id}
+                      sx={{
+                        py: 1,
+                        borderBottom:
+                          '1px solid rgba(255,255,255,.08)'
+                      }}
+                    >
+                      <Typography fontWeight={600}>
+                        {item.codigo_interno}
+                      </Typography>
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-          >
-            {item.estado_anterior}
-            {' → '}
-            {item.estado_novo}
-          </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        {item.estado_anterior}
+                        {' → '}
+                        {item.estado_novo}
+                      </Typography>
 
-          {item.observacao && (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-            >
-              {item.observacao}
-            </Typography>
-          )}
+                      {item.observacao && (
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                        >
+                          {item.observacao}
+                        </Typography>
+                      )}
 
-          <Typography
-            variant="caption"
-            color="text.secondary"
-          >
-            {new Date(
-              item.created_at
-            ).toLocaleString('pt-BR')}
-          </Typography>
-        </Box>
-      ))
-    ) : (
-      <Typography color="text.secondary">
-        Nenhuma movimentação encontrada
-      </Typography>
-    )}
-  </Paper>
-</Grid>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                      >
+                        {new Date(
+                          item.created_at
+                        ).toLocaleString('pt-BR')}
+                      </Typography>
+                    </Box>
+                  ))
+                ) : (
+                  <Typography color="text.secondary">
+                    Nenhuma movimentação encontrada
+                  </Typography>
+                )}
+              </Paper>
+            </Grid>
           </Paper>
         </Grid>
 

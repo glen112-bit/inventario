@@ -4,17 +4,12 @@ import api from '../services/api'
 export default function useAlugueis(){
   const [ alugueis, setAlugueis ] = useState<any[]>([])
 
-  // const API_URL =
-    // import.meta.env.VITE_API_URL ||
-    // 'http://localhost:3001/api'
-  // const token = localStorage.getItem('token')
-
-
   const carregarAlugueis = async () => {
     try{
       const response = await api.get(
         `/alugueis` 
       )
+      console.log(JSON.stringify(response.data, null, 2))
       setAlugueis(
         Array.isArray(response.data)
           ? response.data
@@ -22,6 +17,17 @@ export default function useAlugueis(){
       )
     }catch(error){
       console.error(error)
+    }
+    // console.log(alugueis)
+  }
+  const buscarAluguel = async(id:number) => {
+    try{
+      const {data} = await api.get(`/alugueis/${id}`)
+      // console.log(data)
+      return data
+    } catch (error) {
+      console.error(error)
+      throw error
     }
   }
 
@@ -39,7 +45,7 @@ export default function useAlugueis(){
   }
 
   const atualizarAluguel = async(payload:any ) => {
-    console.log('update', payload)
+    // console.log('update', payload)
     try {
       // console.log('update',payload)
       const response = await api.put(
@@ -73,17 +79,18 @@ export default function useAlugueis(){
   useEffect(() => {
     carregarAlugueis()
   },[])
+
   const finalizarAluguel = async (item:any) => {
     try {
-      await api.put(
-        `/alugueis/${item.id}/finalizar`
-      )
-
+      await api.put(`/alugueis/${item.id}/finalizar`)
       await carregarAlugueis()
 
     } catch (error) {
       console.error(error)
     }
+    // useEffect(() => {
+    // carregarAlugueis()
+    // },[])
   }
 
   return {
@@ -91,6 +98,7 @@ export default function useAlugueis(){
     setAlugueis,
     carregarAlugueis,
     criarAluguel,
+    buscarAluguel,
     atualizarAluguel,
     excluirAluguel,
     finalizarAluguel

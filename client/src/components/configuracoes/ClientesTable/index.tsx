@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Paper,
   Table,
@@ -6,101 +7,184 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Button,
-  Chip
+  IconButton,
+  Chip,
+  Stack
 } from '@mui/material'
 
 import EditIcon from '@mui/icons-material/Edit'
-
-type Cliente = {
-  id:number
-  nome:string
-  documento:string
-  telefone:string
-  email:string
-  cidade:string
-  ativo:boolean
-}
+import DeleteIcon from '@mui/icons-material/Delete'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 
 type Props = {
-  clientes:Cliente[]
-  onEditar?:(cliente:Cliente)=>void
+  clientes: any[]
+  onEditar?: (cliente: any) => void
+  onExcluir?: (cliente: any) => void
+  onDetalhes?: (cliente: any) => void
 }
 
 export default function ClientesTable({
   clientes,
-  onEditar
-}:Props){
+  onEditar,
+  onExcluir,
+  onDetalhes
+}: Props) {
+
+const [ openDetalhes, setOpenDetalhes ] = useState(false)
+const [ clienteSelecionado, setClienteSelecionado ] = useState<any>(null)
+
+const abrirDetalhes = (cliente:any) => {
+
+    setClienteSelecionado(cliente)
+
+    setOpenDetalhes(true)
+
+}
+  const formatarData = (data?: string) => {
+
+    if (!data) return '-'
+
+    return new Date(data).toLocaleDateString(
+      'pt-BR'
+    )
+
+  }
+
   return (
 
     <Paper
       sx={{
-        borderRadius:1,
-        border:1,
+        borderRadius: 3,
+        overflow: 'hidden'
       }}
     >
-      <TableContainer
-        component={Paper}
-        sx={{
-        overflow:'hiden'
-        }}
-      >
+
+      <TableContainer>
+
         <Table>
+
           <TableHead>
-            <TableRow
-              // sx={{
-                // '& td': {
-                  // borderBottom: 'none'
-              // },
-              // borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-              // }}
-            >
+
+            <TableRow>
+
               <TableCell>
-                Nome
+               Cliente 
               </TableCell>
+
               <TableCell>
-               docuemto 
+                Telefone
               </TableCell>
+
               <TableCell>
-                 Email
+                Email
               </TableCell>
+
               <TableCell>
-               Telefone 
+               Endereco 
               </TableCell>
+
               <TableCell>
-                Endereco
+                Cadastro
               </TableCell>
-              <TableCell>
-                Status
+
+              <TableCell align="center">
+                Ações
               </TableCell>
+
             </TableRow>
+
           </TableHead>
+
           <TableBody>
-            {clientes.map(cliente => (
+
+            {clientes.map((cliente) => (
+
               <TableRow
                 hover
                 key={cliente.id}
               >
-                 <TableCell>
+
+                <TableCell>
                   {cliente.nome}
                 </TableCell>
+
                 <TableCell>
-                  {cliente.documento}
+                  {cliente.telefone || '-'}
                 </TableCell>
+
                 <TableCell>
-                  {cliente.email}
+                  {cliente.email || '-'}
                 </TableCell>
+
                 <TableCell>
-                  {cliente.telefome}
+                  {cliente.endereco || '-'}
                 </TableCell>
+
                 <TableCell>
-                  {cliente.endereco}
+                  {formatarData(
+                    cliente.created_at
+                  )}
                 </TableCell>
+
+                <TableCell align="center">
+
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    justifyContent="center"
+                  >
+
+                    <IconButton
+                      color="primary"
+                      onClick={() =>
+                        onDetalhes?.(cliente)
+                      }
+                    >
+                      <VisibilityIcon />
+                    </IconButton>
+
+                    <IconButton
+                      color="warning"
+                      onClick={() =>
+                        onEditar?.(cliente)
+                      }
+                    >
+                      <EditIcon />
+                    </IconButton>
+
+                    <IconButton
+                      color="error"
+                      onClick={() => {
+
+                        if (
+                          window.confirm(
+                            `Excluir ${cliente.nome}?`
+                          )
+                        ) {
+                          onExcluir?.(cliente)
+                        }
+
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+
+                  </Stack>
+
+                </TableCell>
+
               </TableRow>
+
             ))}
+
           </TableBody>
+
         </Table>
+
       </TableContainer>
+
     </Paper>
+
   )
+
 }
