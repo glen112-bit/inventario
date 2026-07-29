@@ -87,7 +87,7 @@ export default function UsuariosTable({
                   {usuario.telefone}
                 </TableCell>
                 <TableCell>
-                  {usuario.rol_id}
+                  {usuario.rol}
                 </TableCell>
                 <TableCell>
                   <Chip

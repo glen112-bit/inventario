@@ -34,8 +34,10 @@ export default function UsuarioDialog({
   const [form, setForm] = useState({
     nome: '',
     email: '',
-    senha: '',
-    perfil: 'usuario'
+    telefone: '',
+    password: '',
+    rol: 'operador',
+    activo: true
   })
 
   useEffect(() => {
@@ -45,8 +47,10 @@ export default function UsuarioDialog({
       setForm({
         nome: usuario.nome || '',
         email: usuario.email || '',
-        senha: '',
-        perfil: usuario.perfil || 'usuario'
+        telefone: usuario.telefone || '',
+        password: '',
+        rol: usuario.rol || 'usuario',
+        activo: usuario.activo ?? true
       })
 
     } else {
@@ -62,8 +66,10 @@ export default function UsuarioDialog({
     setForm({
       nome: '',
       email: '',
-      senha: '',
-      perfil: 'usuario'
+      telefone: '',
+      password: '',
+      rol: 'operador',
+      activo: true
     })
 
   }
@@ -80,7 +86,7 @@ export default function UsuarioDialog({
       return
     }
 
-    if (!usuario && !form.senha.trim()) {
+    if (!usuario && !form.password.trim()) {
       alert('Informe a senha.')
       return
     }
@@ -157,7 +163,7 @@ export default function UsuarioDialog({
                   ? 'Nova Senha (opcional)'
                   : 'Senha'
               }
-              value={form.senha}
+              value={form.password}
               onChange={(e) =>
                 setForm({
                   ...form,
@@ -174,22 +180,22 @@ export default function UsuarioDialog({
               select
               fullWidth
               label="Perfil"
-              value={form.perfil}
+              value={form.rol}
               onChange={(e) =>
                 setForm({
                   ...form,
-                  perfil: e.target.value
+                  rol: e.target.value
                 })
               }
             >
 
-              {PERFIS.map((perfil) => (
+              {PERFIS.map((rol) => (
 
                 <MenuItem
-                  key={perfil}
-                  value={perfil}
+                  key={rol}
+                  value={rol}
                 >
-                  {perfil}
+                  {rol}
                 </MenuItem>
 
               ))}

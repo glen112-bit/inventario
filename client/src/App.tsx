@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import PrivateRoute from './components/PrivateRoute'
 
 import DashboardLayout from './components/DashboardLayout'
 
@@ -32,6 +33,7 @@ function App() {
           path="/login"
           element={<LoginPage />}
         />
+        <Route element={<PrivateRoute />}>
 
         {/* Layout principal */}
         <Route element={<DashboardLayout />}>
@@ -116,6 +118,7 @@ function App() {
               element={<SistemaPage />}
             />
 
+          </Route>
           </Route>
 
         </Route>

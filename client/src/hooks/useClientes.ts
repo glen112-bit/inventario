@@ -47,22 +47,23 @@ export default function useClientes(){
       throw error
     }
   }
-  const excluirCliente = 
-    async(id:number) => {
-    try{
-      await api.delete(
-        `/clientes/${id}` 
-      )
-        setClientes( prev =>
-                    prev.filter(
-                      item => item.id !== id 
-        )
-      )
-    }catch(error){
-      console.error(error)
-      throw error
-    }
-  }
+const excluirCliente = async (valor: any) => {
+
+  const id =
+    typeof valor === 'object'
+      ? valor.id
+      : valor
+
+  console.log('ID final:', id)
+
+  await api.delete(`/clientes/${id}`)
+
+  setClientes(prev =>
+    prev.filter(item => item.id !== id)
+  )
+}
+
+
   useEffect(() => {
     carregarClientes()
   },[])

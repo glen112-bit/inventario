@@ -12,7 +12,7 @@ export default function useEquipamentosPage() {
   const {
     equipos,
     criarEquipamento,
-    salvarEquipamento,
+    atualizarEquipamento,
     excluirEquipamento,
     alterarEstadoEquipamento
   } = useEquipamentos()
@@ -39,29 +39,29 @@ export default function useEquipamentosPage() {
 
     return (equipos ?? []).filter((eq:any)=>
 
-      (eq.codigo_interno ?? '')
-        .toLowerCase()
-        .includes(texto)
+    (eq.codigo_interno ?? '')
+    .toLowerCase()
+    .includes(texto)
 
-      ||
+    ||
 
       (eq.numero_serie ?? '')
-        .toLowerCase()
-        .includes(texto)
+    .toLowerCase()
+    .includes(texto)
 
-      ||
+    ||
 
       (eq.modelo ?? '')
-        .toLowerCase()
-        .includes(texto)
+    .toLowerCase()
+    .includes(texto)
 
-      ||
+    ||
 
       (eq.marca ?? '')
-        .toLowerCase()
-        .includes(texto)
+    .toLowerCase()
+    .includes(texto)
 
-    )
+                                 )
 
   },[equipos,search])
 
@@ -125,13 +125,10 @@ export default function useEquipamentosPage() {
 
       if(equipamentoSelecionado){
 
-        await salvarEquipamento({
-
+        await atualizarEquipamento({
           ...dados,
-
           equipamento_id:
             equipamentoSelecionado.equipamento_id
-
         })
 
       }else{

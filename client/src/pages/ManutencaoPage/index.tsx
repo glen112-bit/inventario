@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import api from '../../services/api'
 import { useNavigate } from 'react-router-dom'
 
@@ -11,10 +11,10 @@ import {
   Chip,
   Grid,
   Table,
-  TableBody,
-  TableCell,
   TableHead,
-  TableRow
+  TableRow,
+  TableBody,
+  TableCell
 } from '@mui/material'
 
 import BuildIcon from '@mui/icons-material/Build'
@@ -39,37 +39,48 @@ type EquipamentoManutencao = {
   valor: number
   fecha_compra: string
 }
-
+type Movimentacao = {
+  id: number
+  codigo_interno: string
+  estado_anterior: string
+  estado_novo: string
+  observacao: string
+}
 export default function ManutencaoPage() {
 
   const [equipamentos, setEquipamentos] = useState<EquipamentoManutencao[]>([])
   const [filtro, setFiltro] = useState('todos')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
-  const [movimentacoes, setMovimentacoes] = useState([])
+  const [movimentacoes, setMovimentacoes] =   useState<Movimentacao[]>([])
 
   const navigate = useNavigate()
 
   useEffect(() => {
+
     const carregar = async () => {
-      try{
-        const response = await api.get(
-          `/manutencao`
-        )
-        setEquipamentos(
-          Array.isArray(response.data)
-            ? response.data
-            : []
-        )
-      }catch(error){
+
+      try {
+
+        const [equip, mov] = await Promise.all([
+          api.get('/manutencao'),
+          api.get('/movimentacoes')
+        ])
+
+        setEquipamentos(equip.data)
+        setMovimentacoes(mov.data)
+
+      } catch (error) {
         console.error(error)
       } finally {
         setLoading(false)
       }
+
     }
+
     carregar()
 
-  },[])
+  }, [])
 
   const filtrados = equipamentos.filter(item => 
                                         `${item.codigo_interno} ${item.marca} ${item.modelo}`
@@ -146,23 +157,29 @@ export default function ManutencaoPage() {
       field: 'estado_actual',
       headerName: 'Status',
       flex: 1,
-      renderCell: () => (
+      renderCell: (params) => (
         <Chip
-          label="Manutenção"
-          color="error"
+          label={params.value}
+          color={
+            params.value === 'manutencao' ||
+            params.value === 'mantenimiento'
+              ? 'error'
+              : 'success'
+          }
           size="small"
         />
       )
     }
   ]
 
-  const rows = filtrados.map(item => ({
+  const rows = dadosExibidos.map(item => ({
     id: item.equipamento_id,
     ...item
   }))
 
   const foraOperacao = equipamentos.filter(
-    item => item.estado_actual === 'manutencao'
+    item => item.estado_actual === 'manutencao'||
+      item.estado_actual === 'mantenimiento'
   ).length
 
   return (

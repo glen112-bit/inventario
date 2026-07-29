@@ -1,17 +1,50 @@
 import db from '../config/db.js'
 
-export const getClientes = async ( req, res ) => {
+export const getClientes = async (req, res) => {
+  console.log('getClientes')
   try {
-    const [ rows ] = await db.query(
-      'SELECT * FROM clientes'
-    )
+
+    const [rows] = await db.query(`
+      SELECT
+        c.*,
+
+        COUNT(DISTINCT a.id) AS total_alugueis,
+
+        COUNT(DISTINCT ai.equipamento_id) AS total_equipamentos,
+
+        (
+          SELECT COUNT(*)
+          FROM complementos cp
+          WHERE cp.aluguel_id IN (
+            SELECT id
+            FROM alugueis
+            WHERE cliente_id = c.id
+          )
+        ) AS total_complementos
+
+      FROM clientes c
+
+      LEFT JOIN alugueis a
+        ON a.cliente_id = c.id
+
+      LEFT JOIN aluguel_itens ai
+        ON ai.aluguel_id = a.id
+
+      GROUP BY c.id
+
+      ORDER BY c.nome
+    `)
+
     res.json(rows)
-  } catch(error) {
+
+  } catch (error) {
 
     console.error(error)
+
     res.status(500).json({
-      error: error.message 
+      error: error.message
     })
+
   }
 }
 export const createCliente = async (
@@ -121,6 +154,11 @@ export const updateCliente = async (req, res) => {
 
 export const deleteCliente = async (req, res) => {
 
+  console.log('================ DELETE CLIENTE ================')
+  console.log('req.params =', req.params)
+  console.log('req.params.id =', req.params.id)
+  console.log('typeof id =', typeof req.params.id)
+  console.log('originalUrl =', req.originalUrl)
   try {
 
     const { id } = req.params

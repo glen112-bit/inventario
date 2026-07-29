@@ -53,7 +53,9 @@ export default function LoginPage() {
       navigate('/')
 
     } catch(error:any) {
-
+  console.log('LOGIN ERROR:', error)
+  console.log('RESPONSE:', error.response)
+  console.log('DATA:', error.response?.data)
       alert(
         error.response?.data?.error ||
           'Erro ao fazer login'

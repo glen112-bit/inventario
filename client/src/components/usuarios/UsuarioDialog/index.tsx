@@ -71,19 +71,19 @@ useEffect(() => {
 
 const handleSalvar = async () => {
 
-    const { valid, errors } = validate(
-        !!usuarioSelecionado
-    )
+    const { valid, errors } = validate(!!usuarioSelecionado);
 
     if (!valid) {
         console.log(errors)
         return
     }
 
-    const payload = buildPayload()
+const payload = buildPayload()
+
+console.log('FORM:', form)
+console.log('PAYLOAD:', payload)
 
     if (usuarioSelecionado) {
-
         await atualizarUsuario(
             usuarioSelecionado.id,
             payload
