@@ -21,7 +21,7 @@ app.use(cors({
   // origin: process.env.FRONTEND_URL,
   origin:[
        'http://localhost:5173',
-    'https://inventario.suaempresa.com' 
+    'https://Stock.controll.com' 
   ],
   credentials: true
 }));
@@ -33,6 +33,7 @@ app.use('/api', equiposRoutes);
 app.use('/api', usuariosRoutes)
 app.use('/api', clientesRoutes)
 app.use('/api', manutencaoRoutes)
+console.log('Analytics router cargado');
 app.use('/api/analytics', analyticsRoutes)
 app.use('/api/config', configRoutes)
 app.use('/api/dashboard', dashboardRoutes)

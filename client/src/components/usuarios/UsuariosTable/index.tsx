@@ -92,6 +92,13 @@ export default function UsuariosTable({
                   />
                 </TableCell>
 
+               <TableCell align="center">
+                  <Chip
+                    label={usuario.rol}
+                    size="small"
+                  />
+                </TableCell>
+
                 <TableCell align="center">
                   <Chip
                     label={

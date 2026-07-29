@@ -16,6 +16,8 @@ const pool = mysql.createPool({
 });
 try {
   const conn = await pool.getConnection()
+const [rows] = await conn.query('SELECT DATABASE() AS db')
+console.log('BASE DE DATOS:', rows[0].db)
   console.log('✅ MySQL conectado')
   conn.release()
 } catch (err) {

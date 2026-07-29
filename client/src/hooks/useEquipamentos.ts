@@ -3,20 +3,16 @@ import api from '../services/api'
 
 export default function useEquipamentos() {
 
-  const [ form, setForm ] = useState()
+  // const [ form, setForm ] = useState()
   const [ equipos,setEquipos ] = useState<any[]>([])
 
   const carregarEquipamentos =
     async () => {
     try {
-      const response =
-        await api.get(
-          '/inventario'
-      )
+      const response = await api.get('/inventario')
       // console.log(response.data)
-      setEquipos(
-        response.data
-      )
+      setEquipos(response.data)
+
     } catch(error) {
       console.error(error)
     }
@@ -24,20 +20,48 @@ export default function useEquipamentos() {
 
   const criarEquipamento =
     async (payload:any) => {
-    console.log('payload: ', payload)
+    // console.log('payload: ', payload)
     try {
-      await api.post(
-        '/inventario',
+      await api.post('/inventario', payload)
+
+      await carregarEquipamentos()
+
+    } catch(error) {
+
+      console.error(error)
+      throw error
+
+    }
+  }
+  const atualizarEquipamento = async (payloa: any) => {
+    try{
+      await api.put(
+        `/inventario/${payload.equipamento_id}`,
         payload
       )
       await carregarEquipamentos()
-    } catch(error) {
+    } catch (error) {
       console.error(error)
       throw error
     }
   }
 
-  const alterarEstado =
+  const excluirEquipamento = async( equipamento_id: number ) => {
+   try{
+    await api.delete(`/inventario/&{equipamento_id}`)
+    setEquipos(
+      prev =>
+        prev.filter(
+          item => item.equipamento_id !== equipamento_id
+      )
+    )
+  } catch (error) {
+    console.error(error)
+    throw error
+    }
+  }
+
+  const alterarEstadoEquipamento =
     async (
       equipamento_id:number,
       estado_actual:string,
@@ -68,10 +92,6 @@ export default function useEquipamentos() {
       throw error
     }
   }
-  useEffect(() => {
-    carregarEquipamentos()
-  }, [])
-
 
 
   const adicionarUnidade = async (
@@ -95,16 +115,19 @@ export default function useEquipamentos() {
       throw error
     }
   }
-
+  useEffect(() => {
+    carregarEquipamentos()
+  },[])
   // console.log(equipos)
 
   return {
     equipos,
-    setEquipos,
     carregarEquipamentos,
     criarEquipamento,
-    alterarEstado,
+    atualizarEquipamento,
+    alterarEstadoEquipamento,
     adicionarUnidade,
+    excluirEquipamento
     // removerUnidade
   }
 }

@@ -49,19 +49,6 @@ export default function EquipamentosToolbar({
           )
         }}
       />
-
-      <Button
-        variant="contained"
-        startIcon={<AddIcon />}
-        onClick={onNovo}
-        sx={{
-          height: 56,
-          px: 4
-        }}
-      >
-        Novo Equipamento
-      </Button>
-
     </Box>
 
   )
