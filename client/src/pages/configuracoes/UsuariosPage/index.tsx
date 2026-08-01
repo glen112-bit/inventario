@@ -34,9 +34,11 @@ export default function UsuariosPage() {
 
     const text = search.toLowerCase()
 
-    return usuarios.filter((u:any) =>
-      (u.nome ?? '').toLowerCase().includes(text) ||
-      (u.email ?? '').toLowerCase().includes(text)
+    return usuarios.filter(
+      (u:any) =>
+        (u.nome ?? '').toLowerCase().includes(text) 
+      ||
+        (u.email ?? '').toLowerCase().includes(text)
     )
 
   }, [usuarios, search])
@@ -147,7 +149,10 @@ export default function UsuariosPage() {
       <UsuarioDialog
         open={open}
         usuario={usuarioSelecionado}
-        onClose={()=>setOpen(false)}
+        onClose={()=>{
+          setOpen(false)
+          setUsuarioSelecionado(null)
+        }}
         onSalvar={salvarUsuario}
       />
 

@@ -9,6 +9,7 @@ export default function useInventarioAgrupado() {
       const { data } = await api.get(
         '/inventario/agrupado'
       )
+
       setGrupos(data)
     } catch (error) {
       console.error(error)

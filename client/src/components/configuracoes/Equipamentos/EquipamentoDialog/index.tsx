@@ -52,40 +52,34 @@ export default function EquipamentoDialog({
 
   })
 
-  useEffect(() => {
+useEffect(() => {
+
+    if (!open) return;
 
     if (equipamento) {
-
-      setForm({
-
-        codigo_interno: equipamento.codigo_interno || '',
-        numero_serie: equipamento.numero_serie || '',
-
-        categoria_id: equipamento.categoria_id || '',
-        marca_id: equipamento.marca_id || '',
-        localizacao: equipamento.localizacao || '',
-
-        modelo: equipamento.modelo || '',
-        descricao: equipamento.descripcion || equipamento.descricao || '',
-
-        valor: equipamento.valor || '',
-        fecha_compra: equipamento.fecha_compra
-          ? equipamento.fecha_compra.substring(0, 10)
-          : '',
-
-        estado_actual: equipamento.estado_actual || 'disponivel',
-
-        observacoes: equipamento.observacoes || ''
-
-      })
+        setForm({
+            codigo_interno: equipamento.codigo_interno ?? '',
+            numero_serie: equipamento.numero_serie ?? '',
+            categoria_id: equipamento.categoria_id ?? '',
+            marca_id: equipamento.marca_id ?? '',
+            localizacao: equipamento.localizacao ?? '',
+            modelo: equipamento.modelo ?? '',
+            descricao: equipamento.descripcion ?? equipamento.descricao ?? '',
+            valor: equipamento.valor ?? '',
+            fecha_compra: equipamento.fecha_compra
+                ? equipamento.fecha_compra.substring(0, 10)
+                : '',
+            estado_actual: equipamento.estado_actual ?? 'disponivel',
+            observacoes: equipamento.observacoes ?? ''
+        });
 
     } else {
 
-      limparFormulario()
+        limparFormulario();
 
     }
 
-  }, [equipamento, open])
+}, [equipamento, open]);
 
   const limparFormulario = () => {
 
@@ -130,21 +124,7 @@ export default function EquipamentoDialog({
 
     }
 
-    if (!form.categoria_id) {
 
-      alert('Selecione uma categoria.')
-
-      return
-
-    }
-
-    if (!form.marca_id) {
-
-      alert('Selecione uma marca.')
-
-      return
-
-    }
 
     onSalvar(form)
 
@@ -343,7 +323,6 @@ export default function EquipamentoDialog({
           <Grid size={{ xs: 12, md: 4 }}>
 
             <TextField
-              select
               fullWidth
               label="Localização"
               value={form.localizacao}

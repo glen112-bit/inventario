@@ -1,6 +1,7 @@
 import express from 'express'
 import { 
   getUsuarios,
+  registerUser,
   getUsuarioById,
   createUsuario,
   updateUsuario,
@@ -40,5 +41,9 @@ Router.delete(
   authMiddleware,
   authorize('admin', 'operador'),
   deleteUsuario
+)
+Router.post(
+  '/registrar',
+  registerUser
 )
 export default Router

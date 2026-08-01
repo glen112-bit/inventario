@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import {
   TextField,
   Button,
@@ -8,10 +8,20 @@ import {
 
 import Grid from '@mui/material/Grid'
 
+interface UsuarioForm {
+  nome: string
+  email: string
+  telefone: string
+  password: string
+  confirmarSenha: string
+  senhaAtual: string
+  rol: string
+  activo: number
+}
 type Props = {
-  form: any
-  setForm: any
-  resetForm: void
+  form:UsuarioForm 
+  setForm: React.Dispatch<React.SetStateAction<UsuarioForm>>
+  resetForm: () => void
   usuarioSelecionado?: any
 }
 
@@ -21,13 +31,14 @@ export default function NovoUsuarioForm({
   resetForm,
   usuarioSelecionado
 }:Props) {
-console.log(form)
+  // console.log(form)
   // const [confirmarSenha, setConfirmarSenha] = useState('')
   const senhasDiferentes =
     form.confirmarSenha?.length > 0 &&
     form.password !== form.confirmarSenha
 
 
+console.log("FORM:", form)
 
   return (
 
@@ -39,10 +50,10 @@ console.log(form)
           label=" Novo Nome"
           value={form.nome}
           onChange={(e)=>
-              setForm({
-                ...form,
-                nome:e.target.value
-              })
+            setForm({
+            ...form,
+            nome:e.target.value
+          })
           }
         />
       </Grid>
@@ -53,10 +64,10 @@ console.log(form)
           label="Novo E-mail"
           value={form.email}
           onChange={(e)=>
-              setForm({
-                ...form,
-                email:e.target.value
-              })
+            setForm({
+            ...form,
+            email:e.target.value
+          })
           }
         />
       </Grid>
@@ -67,15 +78,16 @@ console.log(form)
           label="Novo Telefone"
           autoComplete="new-password"
           value={form.telefone}
-          onChange={(e)=>
-              setForm({
-                ...form,
-                telefone:e.target.value
-              })
-          }
+ onChange={(e) => {
+    console.log("onChange:", e.target.value);
+
+    setForm((prev) => ({
+      ...prev,
+      password: e.target.value,
+    }));
+  }}
         />
       </Grid>
-
       <Grid size={{ xs:12, md:6 }}>
         <TextField
           fullWidth
@@ -83,10 +95,10 @@ console.log(form)
           label="Nova Senha"
           value={form.password}
           onChange={(e)=>
-              setForm({
-                ...form,
-                password:e.target.value
-              })
+            setForm({
+            ...form,
+            password:e.target.value
+          })
           }
         />
       </Grid>
@@ -104,10 +116,10 @@ console.log(form)
               : ''
           }
           onChange={(e)=>
-              setForm({
-                ...form,
-                confirmarSenha: e.target.value
-              })
+            setForm({
+            ...form,
+            confirmarSenha: e.target.value
+          })
           }
         />
       </Grid>
@@ -120,10 +132,10 @@ console.log(form)
           label="Perfil"
           value={form.rol}
           onChange={(e)=>
-              setForm({
-                ...form,
-                rol:e.target.value
-              })
+            setForm({
+            ...form,
+            rol:e.target.value
+          })
           }
         >
           <MenuItem value="admin">
@@ -144,17 +156,37 @@ console.log(form)
             label="Senha atual para confirmar"
             value={form.senhaAtual}
             onChange={(e) =>
-            setForm({
+              setForm({
               ...form,
-                senhaAtual: e.target.value
+              senhaAtual: e.target.value
             })
             }
-        />
-          </Grid>
+          />
+          <TextField
+            select
+            fullWidth
+            label="Estado"
+            value={form.activo}
+            onChange={(e)=>
+              setForm({
+              ...form,
+              activo:Number(e.target.value)
+            })
+            }
+          >
+            <MenuItem value={1}>
+              Ativo
+            </MenuItem>
 
-      )}
+            <MenuItem value={0}>
+              Inativo
+            </MenuItem>
+          </TextField>
 
         </Grid>
+      )}
+
+    </Grid>
 
   )
 

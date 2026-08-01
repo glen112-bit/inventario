@@ -64,15 +64,6 @@ export default function EquipamentosTable({
 
   }
 
-  const getLocalizacao = (id: any) => {
-
-    const local = localizacoes.find(
-      l => l.id == id
-    )
-
-    return local?.nome || '-'
-
-  }
 
   return (
 
@@ -168,9 +159,9 @@ export default function EquipamentosTable({
 
                 <TableCell>
 
-                  {getLocalizacao(
+                  {
                     equipamento.localizacao
-                  )}
+                  }
 
                 </TableCell>
 
@@ -228,20 +219,8 @@ export default function EquipamentosTable({
 
                     </Tooltip>
 
-                    <Tooltip title="Alterar Estado">
 
-                      <IconButton
-                        color="secondary"
-                        onClick={() =>
-                          onEstado?.(
-                            equipamento
-                          )
-                        }
-                      >
-                        <AutorenewIcon />
-                      </IconButton>
 
-                    </Tooltip>
 
                     <Tooltip title="Histórico">
 

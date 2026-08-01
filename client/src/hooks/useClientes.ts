@@ -58,6 +58,7 @@ const excluirCliente = async (valor: any) => {
 
   await api.delete(`/clientes/${id}`)
 
+  await carregarClientes()
   setClientes(prev =>
     prev.filter(item => item.id !== id)
   )

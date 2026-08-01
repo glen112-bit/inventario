@@ -1,13 +1,21 @@
 import { useMemo } from 'react'
 
 export default function useEquipamentosFilter(
-  equipos: any[],
+  equipos: any,
   search: string,
   filtroStatus: string
 ) {
+
+  const lista = Array.isArray(equipos)
+    ? equipos
+    : []
+
   const filtrados = useMemo(() => {
+
     const text = search.toLowerCase()
-    return equipos.filter((e) => {
+
+    return lista.filter((e) => {
+
       const matchBusca =
         (e.codigo_interno ?? '').toLowerCase().includes(text) ||
         (e.numero_serie ?? '').toLowerCase().includes(text) ||
@@ -15,14 +23,12 @@ export default function useEquipamentosFilter(
         (e.modelo ?? '').toLowerCase().includes(text)
 
       let matchStatus = true
+
       if (filtroStatus) {
-        // Equipos individuales
+
         if (e.estado_actual) {
-          matchStatus =
-            e.estado_actual === filtroStatus
-        }
-        // Grupos del resumen
-        else {
+          matchStatus = e.estado_actual === filtroStatus
+        } else {
           switch (filtroStatus) {
             case 'disponivel':
               matchStatus = Number(e.disponiveis) > 0
@@ -36,16 +42,17 @@ export default function useEquipamentosFilter(
             case 'danificados':
               matchStatus = Number(e.danificados) > 0
               break
-            default:
-              matchStatus = true
           }
         }
+
       }
+
       return matchBusca && matchStatus
+
     })
-  }, [equipos, search, filtroStatus])
-  return {
-    filtrados
-  }
+
+  }, [lista, search, filtroStatus])
+
+  return { filtrados }
 
 }

@@ -42,7 +42,6 @@ export default function useUsuarios() {
 
   const criarUsuario = async (payload:any) => {
     try {
-
       await api.post(
         '/usuarios',
         payload
@@ -63,9 +62,6 @@ export default function useUsuarios() {
     payload:any
   ) => {
     try {
-  console.log("ENVIANDO:" );
-  console.trace();
-  console.log(payload);
 
       await api.put(
         `/usuarios/${id}`,
@@ -126,28 +122,21 @@ export default function useUsuarios() {
     }
   }
 
-  const excluirUsuario = async (
-    id:number
-  ) => {
-    try {
+  const excluirUsuario = async (valor: any) => {
 
-      await api.delete(
-        `/usuarios/${id}`
-      )
+  const id =
+    typeof valor === 'object'
+      ? valor.id
+      : valor
 
-      setUsuarios(prev =>
-        prev.filter(
-          usuario => usuario.id !== id
-        )
-      )
+  await api.delete(`/usuarios/${id}`)
 
-    } catch (error) {
+  setUsuarios(prev =>
+    prev.filter(item => item.id !== id)
+  )
+  await carregarUsuarios()
+}
 
-      console.error(error)
-      throw error
-
-    }
-  }
 
   useEffect(() => {
 
@@ -158,21 +147,12 @@ export default function useUsuarios() {
   return {
 
     usuarios,
-
     carregarUsuarios,
-
     buscarUsuario,
-
     criarUsuario,
-
     atualizarUsuario,
-
     alterarSenha,
-
     alterarStatus,
-
     excluirUsuario
-
   }
-
 }

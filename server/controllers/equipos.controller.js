@@ -47,7 +47,7 @@ export const getEquipamentos = async (req, res) => {
 
 }
 
-export const getEquipamentoById = async (req,res) => {
+export const getEquipamentoById = async (req, res) => {
 
   const { id } = req.params
 
@@ -66,7 +66,6 @@ export const getEquipamentoById = async (req,res) => {
 
   res.json(equipamento)
 }
-
 
 export const getInventarioAgrupado = async (req, res) => {
 
@@ -108,7 +107,7 @@ GROUP BY
 
 }
 
-export const getEquipamentosModelo = async (req,res) => {
+export const getEquipamentosModelo = async (req, res) => {
   try {
 
     const {
@@ -196,7 +195,7 @@ export const sincronizarMarcas = async (req, res) => {
 
 }
 
-export const createEquipamento = async (req,res) => {
+export const createEquipamento = async (req, res) => {
 
   try {
 console.log('BODY:', req.body)
@@ -292,6 +291,78 @@ VALUES (?,?,?,?,?,?,?,?,?,?)
   }
 }
 
+export const editarEquipamento = async (req, res) => {
+  console.log('>>> editarEquipamento ejecutado', req.params.id);
+console.log('BODY:', req.body);
+  try {
+
+    const { id } = req.params;
+
+    const {
+      codigo_interno,
+      numero_serie,
+      modelo,
+      categoria_id,
+      marca_id,
+      estado_actual,
+      descripcion,
+      valor,
+      fecha_compra,
+      localizacao
+    } = req.body;
+
+    await db.query(`
+      UPDATE equipos
+      SET
+        codigo_interno = ?,
+        numero_serie = ?,
+        modelo = ?,
+        categoria_id = ?,
+        marca_id = ?,
+        estado_actual = ?,
+        descripcion = ?,
+        valor = ?,
+        fecha_compra = ?,
+        localizacao = ?
+      WHERE equipamento_id = ?
+    `, [
+      codigo_interno,
+      numero_serie,
+      modelo,
+      categoria_id,
+      marca_id,
+      estado_actual,
+      descripcion,
+      valor,
+      fecha_compra,
+      localizacao,
+      id
+    ]);
+
+    const [[equipamento]] = await db.query(`
+      SELECT *
+      FROM equipos
+      WHERE equipamento_id = ?
+    `, [id]);
+
+    res.json({
+      success: true,
+      equipamento
+    });
+
+  } catch (error) {
+    console.error('error editar equipo');
+    console.error(error);
+
+    res.status(500).json({
+      error: error.message
+    });
+  }
+};
+
+
+
+
 export const registrarHistoricoEquipamento = async (
   equipamentoId,
   estadoAnterior,
@@ -351,10 +422,6 @@ export const adicionarUnidade = async (req, res) => {
 
   try {
 
-    console.log('--------------------')
-    console.log('Adicionar Unidade')
-    console.log('BODY:', req.body)
-
     const {
       marca,
       modelo
@@ -371,7 +438,6 @@ export const adicionarUnidade = async (req, res) => {
       modelo
     ])
 
-    console.log('EQUIPAMENTO:', equipamento)
 
     if (!equipamento) {
       return res.status(404).json({

@@ -28,6 +28,7 @@ import EquipamentosToolbar from '../../../components/configuracoes/Equipamentos/
 import EquipamentoHistoricoDialog from '../../../components/configuracoes/Equipamentos/EquipamentoHistoricoDialog'
 
 import EquipamentoEstadoDialog from '../../../components/configuracoes/Equipamentos/EquipamentoEstadoDialog'
+
 export default function EquipamentosPage() {
 
   const page = useEquipamentosPage()
@@ -36,12 +37,13 @@ export default function EquipamentosPage() {
   return (
 
     <>
-      <EquipamentosHeader />
+      <EquipamentosHeader
+        onNovo={page.novoEquipamento}
+      />
 
       <EquipamentosToolbar
         search={page.search}
         setSearch={page.setSearch}
-        onNovo={page.novoEquipamento}
       />
       <Paper
         sx={{

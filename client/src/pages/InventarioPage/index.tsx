@@ -36,7 +36,6 @@ export default function InventarioPage() {
 
   const [searchParams] = useSearchParams()
 
-  const [openNovo, setOpenNovo] = useState(false)
   const [search, setSearch] = useState('')
   const [filtroStatus, setFiltroStatus] = useState(
     () => searchParams.get('estado') ?? ''
@@ -49,12 +48,12 @@ const {
   carregarGrupos
 } = useInventarioAgrupado()
 
-  const {
-    equipos,
-    carregarEquipamentos,
-    criarEquipamento,
-    alterarEstado
-  } = useEquipamentos()
+const {
+  equipos,
+  carregarEquipamentos,
+  criarEquipamento,
+  alterarEstadoEquipamento
+} = useEquipamentos()
 
   const { categorias } = useCategorias()
   const { marcas } = useMarcas()
@@ -82,7 +81,7 @@ const {
   equipos,
   search,
   filtroStatus
-) 
+)
 
 const {
     total,
@@ -103,18 +102,8 @@ const {
     salvarEstado
   } = useEdicaoEstado()
 
-  const abrirNovoEquipamento = () => {
-    resetForm()
-    setOpenNovo(true)
-  }
-
-  const fecharNovoEquipamento = () => {
-    resetForm()
-    setOpenNovo(false)
-  }
 
 
-// console.log(equipos[0])
   return (
     <Box>
       {/* Header */}
@@ -223,37 +212,6 @@ const {
 
       </Paper>
 
-      {/* Dialog Novo Equipamento */}
-
-      <Dialog
-        open={openNovo}
-        onClose={fecharNovoEquipamento}
-        maxWidth="md"
-        fullWidth
-      >
-
-        <DialogTitle>
-          Novo Equipamento
-        </DialogTitle>
-
-        <DialogContent>
-
-          <NovoEquipamentoForm
-            form={form}
-            setForm={setForm}
-            categorias={categorias}
-            marcas={marcas}
-            localizacoes={localizacoes}
-          />
-
-        </DialogContent>
-
-        <DialogActions>
-
-           </DialogActions>
-
-      </Dialog>
-
       {/* Dialog Estado */}
 
       <EstadoDialog
@@ -264,7 +222,7 @@ const {
         setObservacao={setObservacao}
         onClose={fecharEdicaoEstado}
         onSalvar={() =>
-          salvarEstado(alterarEstado)
+          salvarEstado(alterarEstadoEquipamento)
         }
       />
 

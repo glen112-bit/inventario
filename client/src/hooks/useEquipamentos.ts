@@ -10,7 +10,7 @@ export default function useEquipamentos() {
     async () => {
     try {
       const response = await api.get('/inventario')
-      // console.log(response.data)
+
       setEquipos(response.data)
 
     } catch(error) {
@@ -33,7 +33,19 @@ export default function useEquipamentos() {
 
     }
   }
-  const atualizarEquipamento = async (payloa: any) => {
+
+const obterEquipamento = async (equipamento_id: number) => {
+  try {
+    const { data } = await api.get(`/inventario/${equipamento_id}`);
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+
+  const atualizarEquipamento = async (payload: any) => {
     try{
       await api.put(
         `/inventario/${payload.equipamento_id}`,
@@ -48,7 +60,7 @@ export default function useEquipamentos() {
 
   const excluirEquipamento = async( equipamento_id: number ) => {
    try{
-    await api.delete(`/inventario/&{equipamento_id}`)
+    await api.delete(`/inventario/${equipamento_id}`)
     setEquipos(
       prev =>
         prev.filter(
@@ -127,7 +139,8 @@ export default function useEquipamentos() {
     atualizarEquipamento,
     alterarEstadoEquipamento,
     adicionarUnidade,
-    excluirEquipamento
+    excluirEquipamento,
+    obterEquipamento
     // removerUnidade
   }
 }

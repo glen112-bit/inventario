@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import UsuarioDialog from '../../components/usuarios/UsuarioDialog'
+// import NovoUsuarioForm from '../../components/usuarios/NovoUsuarioForm'
 // import UsuariosTable from '../../components/usuarios/UsuariosTable'
 import useUsuarios from '../../hooks/useUsuarios'
 import api from '../../services/api'
-import useUsuarioForm from '../../hooks/useUsuarioForm'
+// import useUsuarioForm from '../../hooks/useUsuarioForm'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import IconButton from '@mui/material/IconButton'
@@ -64,6 +65,7 @@ const editarUsuario = (usuario: Usuario) => {
     )) return
     await removerUsuario(id)
     await carregarUsuarios()
+    window.reload
   }
 
   const columns:GridColDef[]=[

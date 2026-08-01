@@ -11,13 +11,11 @@ import SearchIcon from '@mui/icons-material/Search'
 type Props = {
   search: string
   setSearch: (value: string) => void
-  onNovo: () => void
 }
 
 export default function EquipamentosToolbar({
   search,
   setSearch,
-  onNovo
 }: Props) {
 
   return (

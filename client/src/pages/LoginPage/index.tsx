@@ -19,11 +19,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const API_URL =
-    import.meta.env.VITE_API_URL ||
-    'http://localhost:3001/api'
-  // console.log('API_URL=', API_URL)
-
   const fazerLogin = async () => {
 
     try {
@@ -37,7 +32,6 @@ export default function LoginPage() {
           password 
         }
       )
-      // console.log('response', response.data)
       localStorage.setItem(
         'token',
         response.data.token
@@ -53,9 +47,7 @@ export default function LoginPage() {
       navigate('/')
 
     } catch(error:any) {
-  console.log('LOGIN ERROR:', error)
-  console.log('RESPONSE:', error.response)
-  console.log('DATA:', error.response?.data)
+
       alert(
         error.response?.data?.error ||
           'Erro ao fazer login'
@@ -126,6 +118,15 @@ export default function LoginPage() {
           onClick={fazerLogin}
         >
           Entrar
+        </Button>
+        <Button
+        fullWidth
+        variant="contained"
+          sx={{ mt:2 }}
+          disabled={loading}
+          onClick={(e) => navigate('/registrar')}
+        >
+          Registrar
         </Button>
 
         </Paper>

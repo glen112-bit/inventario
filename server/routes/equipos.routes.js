@@ -2,6 +2,7 @@ import express from 'express'
 
 import {
   createEquipamento,
+  editarEquipamento,
   getHistoricoEquipamento,
   registrarHistoricoEquipamento,
   getEquipamentoById,
@@ -20,15 +21,17 @@ import { authorize } from '../middleware/role.middleware.js'
 
 const router = express.Router()
 
-router.get('/inventario', getEquipamentos)
+router.get('/inventario', getEquipamentos);
 
-router.get('/inventario/agrupado',  getInventarioAgrupado)
+router.get('/inventario/agrupado', getInventarioAgrupado);
 
-router.get('/inventario/equipamento/:id', getEquipamentoById)
+router.get('/inventario/equipamento/:id', getEquipamentoById);
 
-router.get('/inventario/:marca/:modelo', getEquipamentosModelo)
+router.get('/inventario/:marca/:modelo', getEquipamentosModelo);
 
-router.get('/inventario/:id/historico', getHistoricoEquipamento)
+router.get('/inventario/:id/historico', getHistoricoEquipamento);
+
+router.get('/inventario/:id', getEquipamentoById);
 
 router.post(
 '/inventario', 
@@ -60,6 +63,13 @@ router.put(
 '/equipamentos/:id/estado', 
   atualizarEstadoEquipamento
 )
+router.put(
+  '/inventario/:id',
+  authMiddleware,
+  authorize('admin'),
+  editarEquipamento
+)
+
 router.get(
   '/equipamentos/:id/historico',
   getHistoricoEquipamento

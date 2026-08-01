@@ -46,7 +46,7 @@ const {
 } = useUsuarioForm()
 
 useEffect(() => {
-
+ console.log("useEffect ejecutado", usuarioSelecionado)
     if (usuarioSelecionado) {
 
         setForm({
@@ -54,15 +54,14 @@ useEffect(() => {
             email: usuarioSelecionado.email,
             telefone: usuarioSelecionado.telefone,
             password: '',
+            confirmarSenha: '',
             senhaAtual: '',
             rol: usuarioSelecionado.rol,
             activo: usuarioSelecionado.activo
         })
 
     } else {
-
         resetForm()
-
     }
 
 }, [usuarioSelecionado])
@@ -80,8 +79,8 @@ const handleSalvar = async () => {
 
 const payload = buildPayload()
 
-console.log('FORM:', form)
-console.log('PAYLOAD:', payload)
+// console.log('FORM:', form)
+// console.log('PAYLOAD:', payload)
 
     if (usuarioSelecionado) {
         await atualizarUsuario(
@@ -119,17 +118,18 @@ console.log('PAYLOAD:', payload)
         }
       </DialogTitle>
 
+        {/*
       <DialogContent>
-
+ 
         <NovoUsuarioForm
           resetForm={resetForm}
           form={form}
           setForm={setForm}
           usuarioSelecionado={usuarioSelecionado}
         />
-
       </DialogContent>
 
+*/}
       <DialogActions>
 
         <Button

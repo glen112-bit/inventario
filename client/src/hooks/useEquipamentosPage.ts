@@ -14,7 +14,8 @@ export default function useEquipamentosPage() {
     criarEquipamento,
     atualizarEquipamento,
     excluirEquipamento,
-    alterarEstadoEquipamento
+    alterarEstadoEquipamento,
+    obterEquipamento
   } = useEquipamentos()
 
   const { categorias } = useCategorias()
@@ -42,27 +43,19 @@ export default function useEquipamentosPage() {
     (eq.codigo_interno ?? '')
     .toLowerCase()
     .includes(texto)
-
     ||
-
       (eq.numero_serie ?? '')
     .toLowerCase()
     .includes(texto)
-
     ||
-
       (eq.modelo ?? '')
     .toLowerCase()
     .includes(texto)
-
     ||
-
       (eq.marca ?? '')
     .toLowerCase()
     .includes(texto)
-
-                                 )
-
+     )
   },[equipos,search])
 
   const novoEquipamento = () => {
@@ -73,102 +66,74 @@ export default function useEquipamentosPage() {
 
   }
 
-  const editarEquipamento = (equipamento:any) => {
+const editarEquipamento = async (equipamento: any) => {
+  try {
 
-    setEquipamentoSelecionado(equipamento)
+    const dados = await obterEquipamento(
+      equipamento.equipamento_id
+    );
 
-    setOpen(true)
+    setEquipamentoSelecionado(dados);
 
+    setOpen(true);
+
+  } catch (error) {
+    console.error(error);
+    alert('Não foi possível carregar os dados do equipamento.');
   }
+};
 
   const abrirDetalhes = (equipamento:any) => {
-
     setEquipamentoSelecionado(equipamento)
-
     setOpenDetalhes(true)
-
   }
 
   const abrirEstado = (equipamento:any) => {
-
     setEquipamentoSelecionado(equipamento)
-
     setOpenEstado(true)
-
   }
 
   const abrirHistorico = async(equipamento:any) => {
-
     try{
-
       const response = await api.get(
         `/equipamentos/${equipamento.equipamento_id}/historico`
       )
-
       setHistorico(response.data)
-
       setEquipamentoSelecionado(equipamento)
-
       setOpenHistorico(true)
-
     }catch(error){
-
       console.error(error)
-
     }
-
   }
 
   const salvar = async(dados:any)=>{
-
     try{
-
       if(equipamentoSelecionado){
-
         await atualizarEquipamento({
           ...dados,
           equipamento_id:
             equipamentoSelecionado.equipamento_id
         })
-
       }else{
-
         await criarEquipamento(dados)
-
       }
-
       setOpen(false)
-
     }catch(error){
-
       console.error(error)
-
     }
-
   }
 
   const alterarEstado = async(dados:any)=>{
-
     try{
-
       await alterarEstadoEquipamento(
-
         dados.equipamento_id,
-
         dados.estado_actual,
-
         dados.observacao
-
       )
-
       setOpenEstado(false)
-
     }catch(error){
-
       console.error(error)
-
     }
-
   }
 
   return {
@@ -176,44 +141,27 @@ export default function useEquipamentosPage() {
     categorias,
     marcas,
     localizacoes,
-
     search,
     setSearch,
-
     open,
     setOpen,
-
     openDetalhes,
     setOpenDetalhes,
-
     openHistorico,
     setOpenHistorico,
-
     openEstado,
     setOpenEstado,
-
     equipamentoSelecionado,
-
     historico,
-
     equipamentosFiltrados,
-
     novoEquipamento,
-
     editarEquipamento,
-
     abrirDetalhes,
-
     abrirHistorico,
-
     abrirEstado,
-
     salvar,
-
     alterarEstado,
-
-    excluirEquipamento
-
+    excluirEquipamento,
+    obterEquipamento
   }
-
 }

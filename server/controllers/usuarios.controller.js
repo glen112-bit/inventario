@@ -17,6 +17,85 @@ export const getUsuarios = async ( req, res ) => {
   }
 }
 
+export const registerUser = async (req, res) => {
+  try {
+    const {
+      nome,
+      email,
+      telefone,
+      password,
+      rol = 'usuario'
+    } = req.body;
+    if (!nome || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nome, e-mail e senha são obrigatórios.'
+      });
+    }
+    // Verificar si el correo ya existe
+    const [existe] = await db.query(
+      'SELECT id FROM usuarios WHERE email = ?',
+      [email]
+    );
+    if (existe.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: 'Este e-mail já está cadastrado.'
+      });
+    }
+    // Encriptar contraseña
+    const senhaHash = await bcrypt.hash(password, 10);
+    const [result] = await db.query(
+      `
+      INSERT INTO usuarios (
+        nome,
+        email,
+        telefone,
+        password,
+        rol,
+        activo
+      )
+      VALUES (?, ?, ?, ?, ?, ?)
+      `,
+      [
+        nome,
+        email,
+        telefone || null,
+        senhaHash,
+        rol,
+        1
+      ]
+    );
+
+    const [[usuario]] = await db.query(
+      `
+      SELECT
+        id,
+        nome,
+        email,
+        telefone,
+        rol,
+        activo,
+        created_at
+      FROM usuarios
+      WHERE id = ?
+      `,
+      [result.insertId]
+    );
+    return res.status(201).json({
+      success: true,
+      message: 'Usuário registrado com sucesso.',
+      usuario
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
 export const createUsuario = async (req, res) => {
   try{
     const {

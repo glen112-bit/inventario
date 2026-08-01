@@ -11,6 +11,7 @@ import ManutencaoDetalhesPage from './pages/ManutencaoDetalhesPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import QRScannerPage from './pages/QRScannerPage'
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 
 import ConfigPage from './pages/ConfigPage'
 
@@ -27,7 +28,10 @@ function App() {
     <BrowserRouter>
 
       <Routes>
-
+        <Route
+          path="/registrar"
+          element={<RegisterPage />}
+        />
         {/* Login sem Dashboard */}
         <Route
           path="/login"
@@ -35,90 +39,90 @@ function App() {
         />
         <Route element={<PrivateRoute />}>
 
-        {/* Layout principal */}
-        <Route element={<DashboardLayout />}>
+          {/* Layout principal */}
+          <Route element={<DashboardLayout />}>
 
-          {/* Dashboard */}
-          <Route
-            path="/"
-            element={<DashboardPage />}
-          />
-
-          {/* Operação */}
-          <Route
-            path="/inventario"
-            element={<InventarioPage />}
-          />
-
-          <Route
-            path="/alugueis"
-            element={<AlugueisPage />}
-          />
-
-          <Route
-            path="/manutencao"
-            element={<ManutencaoPage />}
-          />
-
-          <Route
-            path="/manutencao/detalhes/:tipo"
-            element={<ManutencaoDetalhesPage />}
-          />
-
-          <Route
-            path="/analytics"
-            element={<AnalyticsPage />}
-          />
-
-          <Route
-            path="/qr-scanner"
-            element={<QRScannerPage />}
-          />
-
-          {/* Configurações */}
-          <Route path="/config">
-
+            {/* Dashboard */}
             <Route
-              index
-              element={<ConfigPage />}
+              path="/"
+              element={<DashboardPage />}
+            />
+
+            {/* Operação */}
+            <Route
+              path="/inventario"
+              element={<InventarioPage />}
             />
 
             <Route
-              path="clientes"
-              element={<ClientesPage />}
+              path="/alugueis"
+              element={<AlugueisPage />}
             />
 
             <Route
-              path="usuarios"
-              element={<UsuariosPage />}
+              path="/manutencao"
+              element={<ManutencaoPage />}
             />
 
             <Route
-              path="equipamentos"
-              element={<EquipamentosPage />}
+              path="/manutencao/detalhes/:tipo"
+              element={<ManutencaoDetalhesPage />}
             />
 
             <Route
-              path="categorias"
-              element={<CategoriasPage />}
+              path="/analytics"
+              element={<AnalyticsPage />}
             />
 
             <Route
-              path="marcas"
-              element={<MarcasPage />}
+              path="/qr-scanner"
+              element={<QRScannerPage />}
             />
 
-            <Route
-              path="localizacoes"
-              element={<LocalizacoesPage />}
-            />
+            {/* Configurações */}
+            <Route path="/config">
 
-            <Route
-              path="sistema"
-              element={<SistemaPage />}
-            />
+              <Route
+                index
+                element={<ConfigPage />}
+              />
 
-          </Route>
+              <Route
+                path="clientes"
+                element={<ClientesPage />}
+              />
+
+              <Route
+                path="usuarios"
+                element={<UsuariosPage />}
+              />
+
+              <Route
+                path="equipamentos"
+                element={<EquipamentosPage />}
+              />
+
+              <Route
+                path="categorias"
+                element={<CategoriasPage />}
+              />
+
+              <Route
+                path="marcas"
+                element={<MarcasPage />}
+              />
+
+              <Route
+                path="localizacoes"
+                element={<LocalizacoesPage />}
+              />
+
+              <Route
+                path="sistema"
+                element={<SistemaPage />}
+              />
+
+            </Route>
           </Route>
 
         </Route>

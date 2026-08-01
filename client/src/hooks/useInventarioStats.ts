@@ -1,12 +1,13 @@
 import { useMemo } from 'react'
 
-export default function useInventarioStats(
-  grupos: any[]
-) {
+export default function useInventarioStats(grupos: any) {
+
+
+  const lista = Array.isArray(grupos) ? grupos : []
 
   return useMemo(() => {
 
-    return grupos.reduce(
+    return lista.reduce(
       (acc, item) => {
 
         acc.total += Number(item.total || 0)
@@ -27,6 +28,6 @@ export default function useInventarioStats(
       }
     )
 
-  }, [grupos])
+  }, [lista])
 
 }

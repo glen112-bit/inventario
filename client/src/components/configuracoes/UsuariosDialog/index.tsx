@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import InputMask from 'react-input-mask';
 
 import {
   Dialog,
@@ -36,6 +37,7 @@ export default function UsuarioDialog({
     email: '',
     telefone: '',
     password: '',
+    confirmarPassword: '',
     rol: 'operador',
     activo: true
   })
@@ -49,6 +51,7 @@ export default function UsuarioDialog({
         email: usuario.email || '',
         telefone: usuario.telefone || '',
         password: '',
+        confirmarPassword: '',
         rol: usuario.rol || 'usuario',
         activo: usuario.activo ?? true
       })
@@ -68,6 +71,7 @@ export default function UsuarioDialog({
       email: '',
       telefone: '',
       password: '',
+      confirmarPassword: '',
       rol: 'operador',
       activo: true
     })
@@ -90,13 +94,32 @@ export default function UsuarioDialog({
       alert('Informe a senha.')
       return
     }
-
+    if (
+      form.password !== form.confirmarPassword
+    ) {
+      alert('As senhas não coincidem.')
+      return
+    }
     onSalvar(form)
 
     limparFormulario()
 
   }
+  const formatarTelefone = (valor: string) => {
+    const numeros = valor.replace(/\D/g, '').slice(0, 11)
 
+    if (numeros.length <= 10) {
+      return numeros.replace(
+        /(\d{2})(\d{4})(\d{0,4})/,
+        '($1) $2-$3'
+      )
+    }
+
+    return numeros.replace(
+      /(\d{2})(\d{5})(\d{0,4})/,
+      '($1) $2-$3'
+    )
+  }
   return (
 
     <Dialog
@@ -128,9 +151,9 @@ export default function UsuarioDialog({
               value={form.nome}
               onChange={(e) =>
                 setForm({
-                  ...form,
-                  nome: e.target.value
-                })
+                ...form,
+                nome: e.target.value
+              })
               }
             />
 
@@ -145,14 +168,36 @@ export default function UsuarioDialog({
               value={form.email}
               onChange={(e) =>
                 setForm({
-                  ...form,
-                  email: e.target.value
-                })
+                ...form,
+                email: e.target.value
+              })
               }
             />
 
           </Grid>
 
+          <Grid size={{ xs: 12 }}>
+
+            <InputMask
+              mask="(99) 99999-9999"
+              value={form.telefone}
+              onChange={(e) =>
+                setForm(prev => ({
+                ...prev,
+                telefone: e.target.value
+              }))
+              }
+            >
+              {(inputProps: any) => (
+                <TextField
+                  {...inputProps}
+                  fullWidth
+                  label="Telefone"
+                />
+              )}
+            </InputMask>
+
+          </Grid>
           <Grid size={{ xs: 12 }}>
 
             <TextField
@@ -166,14 +211,39 @@ export default function UsuarioDialog({
               value={form.password}
               onChange={(e) =>
                 setForm({
-                  ...form,
-                  senha: e.target.value
-                })
+                ...form,
+                password: e.target.value
+              })
               }
             />
 
           </Grid>
+          <Grid size={{ xs: 12 }}>
 
+            <TextField
+              fullWidth
+              type="password"
+              label="Confirmar Senha"
+              value={form.confirmarPassword}
+              error={
+                form.confirmarPassword.length > 0 &&
+                form.password !== form.confirmarPassword
+              }
+              helperText={
+                form.confirmarPassword.length > 0 &&
+                form.password !== form.confirmarPassword
+                  ? 'As senhas não coincidem'
+                  : ''
+              }
+              onChange={(e) =>
+                setForm({
+                ...form,
+                confirmarPassword: e.target.value
+              })
+              }
+            />
+
+          </Grid>
           <Grid size={{ xs: 12 }}>
 
             <TextField
@@ -183,9 +253,9 @@ export default function UsuarioDialog({
               value={form.rol}
               onChange={(e) =>
                 setForm({
-                  ...form,
-                  rol: e.target.value
-                })
+                ...form,
+                rol: e.target.value
+              })
               }
             >
 

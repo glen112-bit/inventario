@@ -52,7 +52,7 @@ export default function ManutencaoPage() {
   const [filtro, setFiltro] = useState('todos')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
-  const [movimentacoes, setMovimentacoes] =   useState<Movimentacao[]>([])
+  // const [movimentacoes, setMovimentacoes] =   useState<Movimentacao[]>([])
 
   const navigate = useNavigate()
 
@@ -62,13 +62,11 @@ export default function ManutencaoPage() {
 
       try {
 
-        const [equip, mov] = await Promise.all([
+        const [equip] = await Promise.all([
           api.get('/manutencao'),
-          api.get('/movimentacoes')
+          // api.get('/movimentacoes')
         ])
-
         setEquipamentos(equip.data)
-        setMovimentacoes(mov.data)
 
       } catch (error) {
         console.error(error)
@@ -366,52 +364,6 @@ export default function ManutencaoPage() {
             </TableBody>
 
           </Table>
-          <Paper
-            sx={{
-              p: 3,
-              borderRadius: 4,
-              mt: 3
-            }}
-          >
-            <Typography
-              variant="h6"
-              fontWeight={600}
-              mb={2}
-            >
-              Últimas Movimentações
-            </Typography>
-
-            {movimentacoes.map((item) => (
-              <Box
-                key={item.id}
-                sx={{
-                  py: 1,
-                  borderBottom:
-                    '1px solid rgba(255,255,255,.08)'
-                }}
-              >
-                <Typography fontWeight={600}>
-                  {item.codigo_interno}
-                </Typography>
-
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                >
-                  {item.estado_anterior}
-                  {' → '}
-                  {item.estado_novo}
-                </Typography>
-
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                >
-                  {item.observacao}
-                </Typography>
-              </Box>
-            ))}
-          </Paper>
         </Paper>
 
       </Box>
