@@ -7,11 +7,32 @@ import {
   deleteCliente
 } from '../controllers/clientes.controller.js'
 
+import { authMiddleware } from '../middleware/auth.middleware.js'
+
 const router = express.Router()
 
-router.get('/clientes', getClientes)
-router.post('/clientes', createCliente)
-router.put('/clientes/:id', updateCliente)
-router.delete('/clientes/:id', deleteCliente)
+router.get(
+  '/clientes',
+  authMiddleware,
+  getClientes
+)
+
+router.post(
+  '/clientes',
+  authMiddleware,
+  createCliente
+)
+
+router.put(
+  '/clientes/:id',
+  authMiddleware,
+  updateCliente
+)
+
+router.delete(
+  '/clientes/:id',
+  authMiddleware,
+  deleteCliente
+)
 
 export default router

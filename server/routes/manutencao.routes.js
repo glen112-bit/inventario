@@ -8,16 +8,38 @@ import {
   deleteManutencao
 } from '../controllers/manutencao.controller.js'
 
+import { authMiddleware } from '../middleware/auth.middleware.js'
+
 const router = express.Router()
 
-router.get('/manutencao', getManutencoes)
+router.get(
+  '/manutencao',
+  authMiddleware,
+  getManutencoes
+)
 
-router.get('/manutencao/:id', getManutencao)
+router.get(
+  '/manutencao/:id',
+  authMiddleware,
+  getManutencao
+)
 
-router.post('/manutencao', createManutencao)
+router.post(
+  '/manutencao',
+  authMiddleware,
+  createManutencao
+)
 
-router.put('/manutencao/:id', updateManutencao)
+router.put(
+  '/manutencao/:id',
+  authMiddleware,
+  updateManutencao
+)
 
-router.delete('/manutencao/:id', deleteManutencao)
+router.delete(
+  '/manutencao/:id',
+  authMiddleware,
+  deleteManutencao
+)
 
 export default router

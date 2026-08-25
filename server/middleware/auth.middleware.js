@@ -1,31 +1,48 @@
 import jwt from 'jsonwebtoken'
 
-export const authMiddleware = ( req, res, next ) => {
-  
-  try{
+export const authMiddleware = (req, res, next) => {
+
+  try {
+
     const authHeader = req.headers.authorization
 
-    if(!authHeader) {
+    if (!authHeader) {
+
       return res.status(401).json({
-        error: 'Token nao Informado'
+        error: 'Token não informado'
       })
+
     }
 
     const token = authHeader.replace('Bearer ', '')
-    req.user = jwt.verify(token, process.env.JWT_SECRET)
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    )
+
+    console.log('AUTH USER:', decoded)
+
+    req.user = decoded
+
     next()
 
-  } catch(error) {
+  } catch (error) {
 
-    if(error.mame === 'TokenExpiredError') {
+    console.error('AUTH ERROR:', error)
+
+    if (error.name === 'TokenExpiredError') {
+
       return res.status(401).json({
-        error: 'Token Expirado'
+        error: 'Token expirado'
       })
+
     }
 
     return res.status(401).json({
-      error: 'Token Invalido'
+      error: 'Token inválido'
     })
-    
+
   }
+
 }

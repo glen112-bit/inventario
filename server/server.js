@@ -12,6 +12,10 @@ import analyticsRoutes from './routes/analytics.routes.js'
 import configRoutes from './routes/config.routes.js'
 import authRoutes from './routes/auth.routes.js'
 import complementosRoutes from './routes/complementos.routes.js'
+import operacoesRoutes from './routes/operacoes.routes.js'
+import setupRoutes from './routes/setup.routes.js'
+// import pedidosRoutes from './routes/pedidos.routes.js'
+
 
 dotenv.config()
 const app = express();
@@ -25,7 +29,6 @@ app.use(cors({
   ],
   credentials: true
 }));
-console.log('FRONTEND_URL:', process.env.FRONTEND_URL)
 app.use(express.json());
 
 app.use('/api', alugueisRoutes);
@@ -33,12 +36,15 @@ app.use('/api', equiposRoutes);
 app.use('/api', usuariosRoutes)
 app.use('/api', clientesRoutes)
 app.use('/api', manutencaoRoutes)
-console.log('Analytics router cargado');
 app.use('/api/analytics', analyticsRoutes)
 app.use('/api/config', configRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api', authRoutes)
 app.use('/api', complementosRoutes)
+app.use('/api', operacoesRoutes)
+app.use('/api', setupRoutes)
+// app.use('/api/pedidos', pedidosRoutes)
+
 
 const PORT = process.env.PORT || 3001
 app.get('/ping', (req,res) => {

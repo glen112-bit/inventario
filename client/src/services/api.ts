@@ -29,14 +29,35 @@ api.interceptors.response.use(
   response => response,
 
   error => {
+
+    console.error('API ERROR')
+    console.error('STATUS:', error.response?.status)
+    console.error('DATA:', error.response?.data)
+    console.error('URL:', error.config?.url)
+
     if(error.response?.status === 401) {
+
       localStorage.removeItem('token')
       localStorage.removeItem('usuario')
 
       window.location.href = '/login'
     }
+
     return Promise.reject(error)
   }
 )
+// api.interceptors.response.use(
+  // response => response,
+//
+  // error => {
+    // if(error.response?.status === 401) {
+      // localStorage.removeItem('token')
+      // localStorage.removeItem('usuario')
+//
+      // window.location.href = '/login'
+    // }
+    // return Promise.reject(error)
+  // }
+// )
 
 export default api

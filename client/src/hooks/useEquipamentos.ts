@@ -6,17 +6,51 @@ export default function useEquipamentos() {
   // const [ form, setForm ] = useState()
   const [ equipos,setEquipos ] = useState<any[]>([])
 
-  const carregarEquipamentos =
-    async () => {
-    try {
-      const response = await api.get('/inventario')
+const carregarEquipamentos = async () => {
+  try {
 
-      setEquipos(response.data)
+    // console.log('========== CARREGANDO EQUIPAMENTOS ==========')
 
-    } catch(error) {
-      console.error(error)
-    }
+    const response = await api.get('/inventario')
+
+    // console.log(
+      // 'STATUS INVENTARIO:',
+      // response.status
+    // )
+//
+    // console.log(
+      // 'INVENTARIO DATA:',
+      // response.data
+    // )
+//
+    // console.log(
+      // 'QUANTIDADE:',
+      // Array.isArray(response.data)
+        // ? response.data.length
+        // : 'NAO E ARRAY'
+    // )
+
+    setEquipos(response.data)
+
+  } catch (error: any) {
+
+    console.error(
+      'ERRO INVENTARIO:',
+      error
+    )
+
+    console.error(
+      'STATUS:',
+      error.response?.status
+    )
+
+    console.error(
+      'DATA:',
+      error.response?.data
+    )
+
   }
+}
 
   const criarEquipamento =
     async (payload:any) => {

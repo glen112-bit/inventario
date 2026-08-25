@@ -1,52 +1,113 @@
-
 import bcrypt from 'bcryptjs'
 import db from '../config/db.js'
 
-export const getUsuarios = async ( req, res ) => {
-  try {
-    const [ rows ] = await db.query(
-      'SELECT * FROM usuarios'
-    )
-    res.json(rows)
-  } catch(error) {
 
-    console.error(error)
+// =====================================================
+// GET USUARIOS
+// =====================================================
+
+export const getUsuarios = async (req, res) => {
+
+  try {
+
+    const organizacaoId = req.user?.organizacao_id
+
+    let query = `
+      SELECT
+        id,
+        nome,
+        email,
+        telefone,
+        rol,
+        activo,
+        organizacao_id,
+        created_at
+      FROM usuarios
+    `
+
+    const params = []
+
+    // Si el usuario pertenece a una organización,
+    // solamente devuelve usuarios de esa organización.
+    if (organizacaoId) {
+      query += `
+        WHERE organizacao_id = ?
+      `
+      params.push(organizacaoId)
+    }
+
+    query += `
+      ORDER BY nome
+    `
+
+    const [rows] = await db.query(
+      query,
+      params
+    )
+
+    res.json(rows)
+
+  } catch (error) {
+
+    console.error(
+      'ERRO GET USUARIOS:',
+      error
+    )
+
     res.status(500).json({
-      error: error.message 
+      error: error.message
     })
+
   }
+
 }
 
+
+// =====================================================
+// REGISTRO
+// =====================================================
+
 export const registerUser = async (req, res) => {
+
   try {
+
     const {
       nome,
       email,
       telefone,
-      password,
-      rol = 'usuario'
-    } = req.body;
+      password
+    } = req.body
+
     if (!nome || !email || !password) {
+
       return res.status(400).json({
         success: false,
         message: 'Nome, e-mail e senha são obrigatórios.'
-      });
+      })
+
     }
-    // Verificar si el correo ya existe
-    const [existe] = await db.query(
-      'SELECT id FROM usuarios WHERE email = ?',
-      [email]
-    );
+
+    const [existe] = await db.query(`
+      SELECT id
+      FROM usuarios
+      WHERE email = ?
+    `, [email])
+
     if (existe.length > 0) {
+
       return res.status(409).json({
         success: false,
         message: 'Este e-mail já está cadastrado.'
-      });
+      })
+
     }
-    // Encriptar contraseña
-    const senhaHash = await bcrypt.hash(password, 10);
-    const [result] = await db.query(
-      `
+
+    const senhaHash = await bcrypt.hash(
+      password,
+      10
+    )
+
+    const [result] = await db.query(`
       INSERT INTO usuarios (
         nome,
         email,
@@ -56,369 +117,14 @@ export const registerUser = async (req, res) => {
         activo
       )
       VALUES (?, ?, ?, ?, ?, ?)
-      `,
-      [
-        nome,
-        email,
-        telefone || null,
-        senhaHash,
-        rol,
-        1
-      ]
-    );
-
-    const [[usuario]] = await db.query(
-      `
-      SELECT
-        id,
-        nome,
-        email,
-        telefone,
-        rol,
-        activo,
-        created_at
-      FROM usuarios
-      WHERE id = ?
-      `,
-      [result.insertId]
-    );
-    return res.status(201).json({
-      success: true,
-      message: 'Usuário registrado com sucesso.',
-      usuario
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-};
-
-export const createUsuario = async (req, res) => {
-  try{
-    const {
-      nome,
-      email,
-      telefone,
-      password, 
-      rol,
-      activo = true
-    } = req.body
-    const [existe] = await db.query(
-      `
-      SELECT id
-      FROM usuarios
-      WHERE email = ?
-      `, [email])
-
-    if(existe.length > 0 ) {
-      return res.status(400).json({
-        error: 'Ja existe Usuario com esse e-mail'
-      })
-    }
-
-    const senhaHash = await bcrypt.hash(password, 10)
-
-    const [result] = await db.query(
-      `
-        INSERT INTO usuarios (
-        nome,
-        email,
-        telefone,
-        password,
-        rol,
-        activo
-        )
-        VALUES (?, ?, ?, ?, ?, ?)
-        `, [
-          nome,
-          email,
-          telefone,
-          senhaHash,
-          rol,
-          true 
-        ])
-
-    const [[usuario]] = await db.query(
-      `
-          SELECT
-          id,
-          nome,
-          email,
-          telefone,
-          rol,
-          activo
-          FROM usuarios
-          WHERE id = ?
-          `, [result.insertId])
-    res.status(201).json({
-      succes: true,
-      usuario
-    })
-  }catch (error) {
-    console.error(error)
-    res.status(500).json({
-      error: error.message
-    })
-  }
-}
-
-export const updateUsuario = async (req, res) => {
-  console.log("=================================");
-  console.log("METHOD:", req.method);
-  console.log("URL:", req.originalUrl);
-  console.log("HEADERS:", req.headers["content-type"]);
-  console.log("BODY:", req.body);
-  if (!req.body) {
-    return res.status(400).json({
-      error: "Request sem body"
-    });
-  }
-  try {
-
-    const { id } = req.params
-
-
-    const {
-      nome,
-      email,
-      telefone,
-      rol,
-      activo,
-      // senhaAtual
-    } = req.body
-console.log('BODY COMPLETO:')
-console.log(req.body)
-
-console.log({
-  nome,
-  email,
-  telefone,
-  rol,
-  activo,
-  id
-})
-   const [result] = await db.query(`
-  UPDATE usuarios
-  SET
-    nome = ?,
-    email = ?,
-    telefone = ?,
-    rol = ?,
-    activo = ?
-  WHERE id = ?
-`, [
-  nome,
-  email,
-  telefone,
-  rol,
-  activo,
-  id
-])
-
-console.log(result)
-console.log("UPDATE OK");
-    const [[usuario]] = await db.query(
-      `
-      SELECT
-      id,
-      nome,
-      email,
-      telefone,
-      rol,
-      activo
-      FROM usuarios
-      WHERE id = ?
-      `,
-      [id]
-    )
-    console.log(usuario)
-    res.json({
-      success: true,
-      usuario
-    })
- } catch (error) {
-
-  console.error('========== ERROR UPDATE USUARIO ==========')
-  console.error(error)
-  console.error(error.stack)
-
-  res.status(500).json({
-    error: error.message
-  })
-
-}
-}
-    // Buscar la contraseña actual del usuario
-    // const adminId = req.user.id
-//
-    // const [rows] = await db.query(`
-  // SELECT password
-  // FROM usuarios
-  // WHERE id = ?
-// `, [adminId])
-//
-    // console.log(rows)
-    // console.log(senhaAtual)
-//
-    // const senhaCorreta = await bcrypt.compare(
-      // senhaAtual,
-      // rows[0].password
-    // )
-//
-    // if (!senhaCorreta) {
-//
-      // return res.status(401).json({
-        // message: "Senha incorreta"
-      // })
-//
-    // }
-    // await db.query(
-      // `
-      // UPDATE usuarios
-      // SET
-      // nome=?,
-      // email=?,
-      // telefone=?,
-      // rol=?,
-      // activo=?
-      // WHERE id=?
-      // `,[
-        // nome,
-        // email,
-        // telefone,
-        // rol,
-        // activo,
-        // id
-      // ])
-//
-    // const [[usuario]] = await db.query(
-      // `
-        // SELECT
-        // id,
-        // nome,
-        // email,
-        // telefone,
-        // rol,
-        // activo
-        // FROM usuarios
-        // WHERE id = ?
-        // `, [id])
-//
-    // res.json({
-      // success: true,
-      // usuario
-    // })
-//
-  // } catch (error) {
-//
-    // console.error(error)
-//
-    // res.status(500).json({
-      // error: error.message
-    // })
-//
-  // }
-
-// }
-
-
-export const alterarStatus = async (req, res) => {
-
-  try {
-
-    const { id } = req.params
-
-    const { activo } = req.body
-
-    await db.query(`
-      UPDATE usuarios
-      SET activo = ?
-      WHERE id = ?
     `, [
-      activo,
-      id
+      nome,
+      email,
+      telefone || null,
+      senhaHash,
+      'usuario',
+      1
     ])
-
-    res.json({
-      success: true
-    })
-
-  } catch (error) {
-
-    console.error(error)
-
-    res.status(500).json({
-      error: error.message
-    })
-
-  }
-
-}
-export const alterarSenha = async(req,res)=>{
-
-  try{
-
-    const { id } = req.params
-
-    const { password } = req.body
-
-    const hash = await bcrypt.hash(password,10)
-
-    await db.query(`
-            UPDATE usuarios
-            SET password = ?
-            WHERE id = ?
-        `,[hash,id])
-
-    res.json({
-      success:true
-    })
-
-  }catch(error){
-
-    console.error(error)
-
-    res.status(500).json({
-      error:error.message
-    })
-
-  }
-
-}
-export const deleteUsuario = async (req,res) => {
-
-  try {
-
-    const { id } = req.params
-
-    await db.query(
-      'DELETE FROM usuarios WHERE id = ?',
-      [id]
-    )
-
-    res.json({
-      success: true
-    })
-
-  } catch(error) {
-
-    console.error(error)
-
-    res.status(500).json({
-      error: error.message
-    })
-
-  }
-
-}
-export const getUsuarioById = async (req,res)=>{
-
-  try{
-
-    const { id } = req.params
 
     const [[usuario]] = await db.query(`
       SELECT
@@ -428,27 +134,537 @@ export const getUsuarioById = async (req,res)=>{
         telefone,
         rol,
         activo,
+        organizacao_id,
         created_at
       FROM usuarios
       WHERE id = ?
-    `,[id])
+    `, [result.insertId])
 
-    if(!usuario){
+    res.status(201).json({
+      success: true,
+      message: 'Usuário registrado com sucesso.',
+      usuario
+    })
+
+  } catch (error) {
+
+    console.error(
+      'ERRO REGISTER USER:',
+      error
+    )
+
+    res.status(500).json({
+      success: false,
+      error: error.message
+    })
+
+  }
+
+}
+
+
+// =====================================================
+// CREATE USUARIO
+// =====================================================
+
+export const createUsuario = async (req, res) => {
+
+  try {
+
+    const {
+      nome,
+      email,
+      telefone,
+      password,
+      rol = 'tecnico',
+      activo = true
+    } = req.body
+
+    if (!nome || !email || !password) {
+
+      return res.status(400).json({
+        error: 'Nome, e-mail e senha são obrigatórios'
+      })
+
+    }
+
+    const [existe] = await db.query(`
+      SELECT id
+      FROM usuarios
+      WHERE email = ?
+    `, [email])
+
+    if (existe.length > 0) {
+
+      return res.status(400).json({
+        error: 'Já existe um usuário com esse e-mail'
+      })
+
+    }
+
+    const organizacaoId =
+      req.user?.organizacao_id || null
+
+    const senhaHash = await bcrypt.hash(
+      password,
+      10
+    )
+
+    const [result] = await db.query(`
+      INSERT INTO usuarios (
+        nome,
+        email,
+        telefone,
+        password,
+        rol,
+        activo,
+        organizacao_id
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `, [
+      nome,
+      email,
+      telefone || null,
+      senhaHash,
+      rol,
+      activo ? 1 : 0,
+      organizacaoId
+    ])
+
+    const [[usuario]] = await db.query(`
+      SELECT
+        id,
+        nome,
+        email,
+        telefone,
+        rol,
+        activo,
+        organizacao_id,
+        created_at
+      FROM usuarios
+      WHERE id = ?
+    `, [result.insertId])
+
+    res.status(201).json({
+      success: true,
+      usuario
+    })
+
+  } catch (error) {
+
+    console.error(
+      'ERRO CREATE USUARIO:',
+      error
+    )
+
+    res.status(500).json({
+      error: error.message
+    })
+
+  }
+
+}
+
+
+// =====================================================
+// UPDATE USUARIO
+// =====================================================
+
+export const updateUsuario = async (req, res) => {
+
+  try {
+
+    const { id } = req.params
+
+    const {
+      nome,
+      email,
+      telefone,
+      rol,
+      activo
+    } = req.body
+
+    const organizacaoId =
+      req.user?.organizacao_id
+
+    let result
+
+    if (organizacaoId) {
+
+      ;[result] = await db.query(`
+        UPDATE usuarios
+        SET
+          nome = ?,
+          email = ?,
+          telefone = ?,
+          rol = ?,
+          activo = ?
+        WHERE id = ?
+        AND organizacao_id = ?
+      `, [
+        nome,
+        email,
+        telefone,
+        rol,
+        activo ? 1 : 0,
+        id,
+        organizacaoId
+      ])
+
+    } else {
+
+      ;[result] = await db.query(`
+        UPDATE usuarios
+        SET
+          nome = ?,
+          email = ?,
+          telefone = ?,
+          rol = ?,
+          activo = ?
+        WHERE id = ?
+      `, [
+        nome,
+        email,
+        telefone,
+        rol,
+        activo ? 1 : 0,
+        id
+      ])
+
+    }
+
+    if (result.affectedRows === 0) {
 
       return res.status(404).json({
-        error:'Usuário não encontrado'
+        error: 'Usuário não encontrado'
+      })
+
+    }
+
+    const [[usuario]] = await db.query(`
+      SELECT
+        id,
+        nome,
+        email,
+        telefone,
+        rol,
+        activo,
+        organizacao_id,
+        created_at
+      FROM usuarios
+      WHERE id = ?
+    `, [id])
+
+    res.json({
+      success: true,
+      usuario
+    })
+
+  } catch (error) {
+
+    console.error(
+      'ERRO UPDATE USUARIO:',
+      error
+    )
+
+    res.status(500).json({
+      error: error.message
+    })
+
+  }
+
+}
+
+
+// =====================================================
+// ALTERAR STATUS
+// =====================================================
+
+export const alterarStatus = async (req, res) => {
+
+  try {
+
+    const { id } = req.params
+    const { activo } = req.body
+
+    const organizacaoId =
+      req.user?.organizacao_id
+
+    if (activo === undefined) {
+
+      return res.status(400).json({
+        error: 'O campo activo é obrigatório'
+      })
+
+    }
+
+    let result
+
+    if (organizacaoId) {
+
+      ;[result] = await db.query(`
+        UPDATE usuarios
+        SET activo = ?
+        WHERE id = ?
+        AND organizacao_id = ?
+      `, [
+        activo ? 1 : 0,
+        id,
+        organizacaoId
+      ])
+
+    } else {
+
+      ;[result] = await db.query(`
+        UPDATE usuarios
+        SET activo = ?
+        WHERE id = ?
+      `, [
+        activo ? 1 : 0,
+        id
+      ])
+
+    }
+
+    if (result.affectedRows === 0) {
+
+      return res.status(404).json({
+        error: 'Usuário não encontrado'
+      })
+
+    }
+
+    res.json({
+      success: true
+    })
+
+  } catch (error) {
+
+    console.error(
+      'ERRO ALTERAR STATUS:',
+      error
+    )
+
+    res.status(500).json({
+      error: error.message
+    })
+
+  }
+
+}
+
+
+// =====================================================
+// ALTERAR SENHA
+// =====================================================
+
+export const alterarSenha = async (req, res) => {
+
+  try {
+
+    const { id } = req.params
+    const { password } = req.body
+
+    const organizacaoId =
+      req.user?.organizacao_id
+
+    if (!password) {
+
+      return res.status(400).json({
+        error: 'A nova senha é obrigatória'
+      })
+
+    }
+
+    const hash = await bcrypt.hash(
+      password,
+      10
+    )
+
+    let result
+
+    if (organizacaoId) {
+
+      ;[result] = await db.query(`
+        UPDATE usuarios
+        SET password = ?
+        WHERE id = ?
+        AND organizacao_id = ?
+      `, [
+        hash,
+        id,
+        organizacaoId
+      ])
+
+    } else {
+
+      ;[result] = await db.query(`
+        UPDATE usuarios
+        SET password = ?
+        WHERE id = ?
+      `, [
+        hash,
+        id
+      ])
+
+    }
+
+    if (result.affectedRows === 0) {
+
+      return res.status(404).json({
+        error: 'Usuário não encontrado'
+      })
+
+    }
+
+    res.json({
+      success: true,
+      message: 'Senha alterada com sucesso'
+    })
+
+  } catch (error) {
+
+    console.error(
+      'ERRO ALTERAR SENHA:',
+      error
+    )
+
+    res.status(500).json({
+      error: error.message
+    })
+
+  }
+
+}
+
+
+// =====================================================
+// DELETE USUARIO
+// =====================================================
+
+export const deleteUsuario = async (req, res) => {
+
+  try {
+
+    const { id } = req.params
+
+    const organizacaoId =
+      req.user?.organizacao_id
+
+    let result
+
+    if (organizacaoId) {
+
+      ;[result] = await db.query(`
+        DELETE FROM usuarios
+        WHERE id = ?
+        AND organizacao_id = ?
+      `, [
+        id,
+        organizacaoId
+      ])
+
+    } else {
+
+      ;[result] = await db.query(`
+        DELETE FROM usuarios
+        WHERE id = ?
+      `, [id])
+
+    }
+
+    if (result.affectedRows === 0) {
+
+      return res.status(404).json({
+        error: 'Usuário não encontrado'
+      })
+
+    }
+
+    res.json({
+      success: true,
+      message: 'Usuário excluído com sucesso'
+    })
+
+  } catch (error) {
+
+    console.error(
+      'ERRO DELETE USUARIO:',
+      error
+    )
+
+    res.status(500).json({
+      error: error.message
+    })
+
+  }
+
+}
+
+
+// =====================================================
+// GET USUARIO BY ID
+// =====================================================
+
+export const getUsuarioById = async (req, res) => {
+
+  try {
+
+    const { id } = req.params
+
+    const organizacaoId =
+      req.user?.organizacao_id
+
+    let query = `
+      SELECT
+        id,
+        nome,
+        email,
+        telefone,
+        rol,
+        activo,
+        organizacao_id,
+        created_at
+      FROM usuarios
+      WHERE id = ?
+    `
+
+    const params = [id]
+
+    if (organizacaoId) {
+
+      query += `
+        AND organizacao_id = ?
+      `
+
+      params.push(organizacaoId)
+
+    }
+
+    const [[usuario]] = await db.query(
+      query,
+      params
+    )
+
+    if (!usuario) {
+
+      return res.status(404).json({
+        error: 'Usuário não encontrado'
       })
 
     }
 
     res.json(usuario)
 
-  }catch(error){
+  } catch (error) {
 
-    console.error(error)
+    console.error(
+      'ERRO GET USUARIO:',
+      error
+    )
 
     res.status(500).json({
-      error:error.message
+      error: error.message
     })
 
   }

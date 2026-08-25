@@ -1,13 +1,21 @@
 import db from '../config/db.js'
 
-// =====================
+
+// =====================================================
+// ORGANIZAÇÃO DO USUÁRIO
+// =====================================================
+
+const getOrganizacaoId = (req) => {
+  return req.user?.organizacao_id || null
+}
+
+
+// =====================================================
 // GET MARCAS
-// =====================
+// =====================================================
 
 export const getMarcas = async (req, res) => {
-
   try {
-
     const [rows] = await db.query(`
       SELECT *
       FROM marcas
@@ -17,24 +25,21 @@ export const getMarcas = async (req, res) => {
     res.json(rows)
 
   } catch (error) {
-
-    console.error(error)
+    console.error('ERRO GET MARCAS:', error)
 
     res.status(500).json({
       error: error.message
     })
-
   }
-
 }
-// =====================
+
+
+// =====================================================
 // GET CATEGORIAS
-// =====================
+// =====================================================
 
 export const getCategorias = async (req, res) => {
-
   try {
-
     const [rows] = await db.query(`
       SELECT *
       FROM categorias
@@ -44,77 +49,110 @@ export const getCategorias = async (req, res) => {
     res.json(rows)
 
   } catch (error) {
-
-    console.error(error)
+    console.error('ERRO GET CATEGORIAS:', error)
 
     res.status(500).json({
       error: error.message
     })
-
   }
-
 }
-// =====================
-// UPDATE CATEGORIAS
-//
-export const updateCategoria = async (
-  req,
-  res
-) => {
 
-  const { id } = req.params
 
-  const {
-    nome,
-    descricao
-  } = req.body
+// =====================================================
+// UPDATE CATEGORIA
+// =====================================================
+
+export const updateCategoria = async (req, res) => {
 
   try {
 
-    await db.query(
-      `
+    const { id } = req.params
+
+    const {
+      nome,
+      descricao
+    } = req.body
+
+    const organizacaoId = getOrganizacaoId(req)
+
+    if (!organizacaoId) {
+      return res.status(403).json({
+        error: 'Usuário não está associado a uma organização.'
+      })
+    }
+
+    const [result] = await db.query(`
       UPDATE categorias
+
       SET
         nome = ?,
         descricao = ?
+
       WHERE id = ?
-      `,
-      [
-        nome,
-        descricao,
-        id
-      ]
-    )
+
+        AND organizacao_id = ?
+    `, [
+      nome,
+      descricao,
+      id,
+      organizacaoId
+    ])
+
+    if (result.affectedRows === 0) {
+
+      return res.status(404).json({
+        error: 'Categoria não encontrada.'
+      })
+
+    }
 
     res.json({
       success: true,
       message: 'Categoria atualizada'
     })
 
-  } catch(error) {
+  } catch (error) {
 
     console.error(error)
 
     res.status(500).json({
       success: false,
-      message: 'Erro ao atualizar categoria'
+      message: error.message
     })
 
   }
 
 }
-// =====================
-// GET LOCALIZACOES
-// =====================
+
+
+// =====================================================
+// GET LOCALIZAÇÕES
+// =====================================================
 
 export const getLocalizacoes = async (req, res) => {
 
   try {
 
+    const organizacaoId = getOrganizacaoId(req)
+
+    if (!organizacaoId) {
+      return res.status(403).json({
+        error: 'Usuário não está associado a uma organização.'
+      })
+    }
+
     const [rows] = await db.query(`
-      SELECT localizacao
+      SELECT DISTINCT
+        localizacao
+
       FROM equipos
-    `)
+
+      WHERE organizacao_id = ?
+
+      ORDER BY localizacao
+    `, [
+      organizacaoId
+    ])
 
     res.json(rows)
 
@@ -129,9 +167,11 @@ export const getLocalizacoes = async (req, res) => {
   }
 
 }
-// =====================
+
+
+// =====================================================
 // CREATE MARCA
-// =====================
+// =====================================================
 
 export const createMarca = async (req, res) => {
 
@@ -139,18 +179,40 @@ export const createMarca = async (req, res) => {
 
     const { nome } = req.body
 
+    const organizacaoId = getOrganizacaoId(req)
+
+    if (!organizacaoId) {
+      return res.status(403).json({
+        error: 'Usuário não está associado a uma organização.'
+      })
+    }
+
+    if (!nome?.trim()) {
+      return res.status(400).json({
+        error: 'Nome da marca é obrigatório.'
+      })
+    }
+
     const [result] = await db.query(`
       INSERT INTO marcas (
-        nome
+        nome,
+        organizacao_id
       )
-      VALUES (?)
+
+      VALUES (?, ?)
     `, [
-      nome
+      nome.trim(),
+      organizacaoId
     ])
 
     res.status(201).json({
+
+      success: true,
+
       id: result.insertId,
+
       message: 'Marca criada com sucesso'
+
     })
 
   } catch (error) {
@@ -165,25 +227,48 @@ export const createMarca = async (req, res) => {
 
 }
 
-// =====================
+
+// =====================================================
 // UPDATE MARCA
-// =====================
+// =====================================================
 
 export const updateMarca = async (req, res) => {
 
   try {
 
     const { id } = req.params
+
     const { nome } = req.body
 
-    await db.query(`
+    const organizacaoId = getOrganizacaoId(req)
+
+    if (!organizacaoId) {
+      return res.status(403).json({
+        error: 'Usuário não está associado a uma organização.'
+      })
+    }
+
+    const [result] = await db.query(`
       UPDATE marcas
+
       SET nome = ?
+
       WHERE id = ?
+
+        AND organizacao_id = ?
     `, [
       nome,
-      id
+      id,
+      organizacaoId
     ])
+
+    if (result.affectedRows === 0) {
+
+      return res.status(404).json({
+        error: 'Marca não encontrada.'
+      })
+
+    }
 
     res.json({
       success: true,
@@ -202,9 +287,10 @@ export const updateMarca = async (req, res) => {
 
 }
 
-// =====================
+
+// =====================================================
 // DELETE MARCA
-// =====================
+// =====================================================
 
 export const deleteMarca = async (req, res) => {
 
@@ -212,12 +298,32 @@ export const deleteMarca = async (req, res) => {
 
     const { id } = req.params
 
-    await db.query(`
+    const organizacaoId = getOrganizacaoId(req)
+
+    if (!organizacaoId) {
+      return res.status(403).json({
+        error: 'Usuário não está associado a uma organização.'
+      })
+    }
+
+    const [result] = await db.query(`
       DELETE FROM marcas
+
       WHERE id = ?
+
+        AND organizacao_id = ?
     `, [
-      id
+      id,
+      organizacaoId
     ])
+
+    if (result.affectedRows === 0) {
+
+      return res.status(404).json({
+        error: 'Marca não encontrada.'
+      })
+
+    }
 
     res.json({
       success: true,
@@ -236,9 +342,17 @@ export const deleteMarca = async (req, res) => {
 
 }
 
-export const atualizarEstadoEquipamento = async (req,res) => {
 
-    try {
+// =====================================================
+// ATUALIZAR ESTADO EQUIPAMENTO
+// =====================================================
+
+export const atualizarEstadoEquipamento = async (
+  req,
+  res
+) => {
+
+  try {
 
     const { id } = req.params
 
@@ -247,83 +361,230 @@ export const atualizarEstadoEquipamento = async (req,res) => {
       observacao
     } = req.body
 
-    await db.query(`
+    const organizacaoId = getOrganizacaoId(req)
+
+    const usuarioId = req.user?.id
+
+    if (!organizacaoId) {
+      return res.status(403).json({
+        error: 'Usuário não está associado a uma organização.'
+      })
+    }
+
+    const [result] = await db.query(`
       UPDATE equipos
+
       SET estado_actual = ?
+
       WHERE equipamento_id = ?
-    `,[
+
+        AND organizacao_id = ?
+    `, [
       estado_actual,
-      id
+      id,
+      organizacaoId
     ])
 
+    if (result.affectedRows === 0) {
+
+      return res.status(404).json({
+        error: 'Equipamento não encontrado.'
+      })
+
+    }
+
+    /*
+    ====================================================
+    REGISTRAR HISTÓRICO
+    ====================================================
+    */
+
+    if (observacao) {
+
+      await db.query(`
+        INSERT INTO historico_equipamentos (
+          equipamento_id,
+          estado_novo,
+          observacao,
+          usuario_id,
+          tipo_evento
+        )
+
+        VALUES (?, ?, ?, ?, 'edicao')
+      `, [
+        id,
+        estado_actual,
+        observacao,
+        usuarioId
+      ])
+
+    }
+
     res.json({
-      success:true
+      success: true
     })
 
-  } catch(error) {
+  } catch (error) {
 
     console.error(error)
 
     res.status(500).json({
-      error:error.message
+      error: error.message
     })
 
   }
 
 }
-export const getHistoricoEquipamento = async (req,res) => {
+
+
+// =====================================================
+// HISTÓRICO EQUIPAMENTO
+// =====================================================
+
+export const getHistoricoEquipamento = async (
+  req,
+  res
+) => {
 
   try {
 
     const { id } = req.params
 
+    const organizacaoId = getOrganizacaoId(req)
+
+    if (!organizacaoId) {
+      return res.status(403).json({
+        error: 'Usuário não está associado a uma organização.'
+      })
+    }
+
+    /*
+    Primeiro verificar se o equipamento
+    pertence à organização.
+    */
+
+    const [[equipamento]] = await db.query(`
+      SELECT equipamento_id
+
+      FROM equipos
+
+      WHERE equipamento_id = ?
+
+        AND organizacao_id = ?
+
+      LIMIT 1
+    `, [
+      id,
+      organizacaoId
+    ])
+
+    if (!equipamento) {
+
+      return res.status(404).json({
+        error: 'Equipamento não encontrado.'
+      })
+
+    }
+
     const [rows] = await db.query(`
       SELECT
+
         h.*,
+
         u.nome AS usuario
+
       FROM historico_equipamentos h
+
       LEFT JOIN usuarios u
         ON u.id = h.usuario_id
+
       WHERE h.equipamento_id = ?
+
       ORDER BY h.created_at DESC
-    `,[id])
+    `, [
+      id
+    ])
 
     res.json(rows)
 
-  } catch(error) {
+  } catch (error) {
 
     console.error(error)
 
     res.status(500).json({
-      error:error.message
+      error: error.message
     })
 
   }
 
 }
-export const createCategoria = async (req,res) => {
+
+
+// =====================================================
+// CREATE CATEGORIA
+// =====================================================
+
+export const createCategoria = async (
+  req,
+  res
+) => {
 
   try {
 
-    const { categoria } = req.body
+    const {
+      categoria,
+      nome,
+      descricao = ''
+    } = req.body
+
+    const nomeCategoria =
+      categoria || nome
+
+    const organizacaoId = getOrganizacaoId(req)
+
+    if (!organizacaoId) {
+      return res.status(403).json({
+        error: 'Usuário não está associado a uma organização.'
+      })
+    }
+
+    if (!nomeCategoria?.trim()) {
+
+      return res.status(400).json({
+        error: 'Nome da categoria é obrigatório.'
+      })
+
+    }
 
     const [result] = await db.query(`
       INSERT INTO categorias (
+
         nome,
-        descricao
+
+        descricao,
+
+        organizacao_id
+
       )
-      VALUES (?, ?)
+
+      VALUES (?, ?, ?)
     `, [
-      categoria,
-      ''
+      nomeCategoria.trim(),
+
+      descricao,
+
+      organizacaoId
     ])
 
     res.status(201).json({
+
       success: true,
+
       id: result.insertId
+
     })
 
-  } catch(error){
+  } catch (error) {
 
     console.error(error)
 

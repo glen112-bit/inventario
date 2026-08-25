@@ -10,8 +10,10 @@ import ManutencaoPage from './pages/ManutencaoPage'
 import ManutencaoDetalhesPage from './pages/ManutencaoDetalhesPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import QRScannerPage from './pages/QRScannerPage'
+
 import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
+import SetupAdminPage from './pages/SetupAdminPage'
+import AceitarConvitePage from './pages/AceitarConvitePage'
 
 import ConfigPage from './pages/ConfigPage'
 
@@ -23,32 +25,53 @@ import MarcasPage from './pages/configuracoes/MarcasPage'
 import LocalizacoesPage from './pages/configuracoes/LocalizacoesPage'
 import SistemaPage from './pages/configuracoes/SistemaPage'
 
+import NovaSaidaPage from './pages/Operacoes/NovaSaidaPage'
+import NovaDevolucaoPage from './pages/Operacoes/NovaDevolucaoPage'
+import HistoricoOperacoesPage from './pages/Operacoes/Historico/HistoricoOperacoesPage'
+import HistoricoEquipamentosPage from './pages/Operacoes/Historico/HistoricoEquipamentosPage'
+
+
 function App() {
+
   return (
+
     <BrowserRouter>
 
       <Routes>
-        <Route
-          path="/registrar"
-          element={<RegisterPage />}
-        />
-        {/* Login sem Dashboard */}
+
+        {/* ================================= */}
+        {/* ROTAS PÚBLICAS */}
+        {/* ================================= */}
+
         <Route
           path="/login"
           element={<LoginPage />}
         />
+
+        <Route
+          path="/registrar-admin"
+          element={<SetupAdminPage />}
+        />
+
+        <Route
+          path="/convite/:token"
+          element={<AceitarConvitePage />}
+        />
+
+
+        {/* ================================= */}
+        {/* ROTAS PRIVADAS */}
+        {/* ================================= */}
+
         <Route element={<PrivateRoute />}>
 
-          {/* Layout principal */}
           <Route element={<DashboardLayout />}>
 
-            {/* Dashboard */}
             <Route
               path="/"
               element={<DashboardPage />}
             />
 
-            {/* Operação */}
             <Route
               path="/inventario"
               element={<InventarioPage />}
@@ -79,50 +102,76 @@ function App() {
               element={<QRScannerPage />}
             />
 
-            {/* Configurações */}
-            <Route path="/config">
 
-              <Route
-                index
-                element={<ConfigPage />}
-              />
+            {/* ============================= */}
+            {/* OPERAÇÕES */}
+            {/* ============================= */}
 
-              <Route
-                path="clientes"
-                element={<ClientesPage />}
-              />
+            <Route
+              path="/operacoes/saida"
+              element={<NovaSaidaPage />}
+            />
 
-              <Route
-                path="usuarios"
-                element={<UsuariosPage />}
-              />
+            <Route
+              path="/operacoes/devolucao"
+              element={<NovaDevolucaoPage />}
+            />
 
-              <Route
-                path="equipamentos"
-                element={<EquipamentosPage />}
-              />
+            <Route
+              path="/operacoes/historico"
+              element={<HistoricoOperacoesPage />}
+            />
 
-              <Route
-                path="categorias"
-                element={<CategoriasPage />}
-              />
+            <Route
+              path="/equipamentos/historico"
+              element={<HistoricoEquipamentosPage />}
+            />
 
-              <Route
-                path="marcas"
-                element={<MarcasPage />}
-              />
 
-              <Route
-                path="localizacoes"
-                element={<LocalizacoesPage />}
-              />
+            {/* ============================= */}
+            {/* CONFIGURAÇÕES */}
+            {/* ============================= */}
 
-              <Route
-                path="sistema"
-                element={<SistemaPage />}
-              />
+            <Route
+              path="/config"
+              element={<ConfigPage />}
+            />
 
-            </Route>
+            <Route
+              path="/config/clientes"
+              element={<ClientesPage />}
+            />
+
+            <Route
+              path="/config/usuarios"
+              element={<UsuariosPage />}
+            />
+
+            <Route
+              path="/config/equipamentos"
+              element={<EquipamentosPage />}
+            />
+
+            <Route
+              path="/config/categorias"
+              element={<CategoriasPage />}
+            />
+
+            <Route
+              path="/config/marcas"
+              element={<MarcasPage />}
+            />
+
+            <Route
+              path="/config/localizacoes"
+              element={<LocalizacoesPage />}
+            />
+
+            <Route
+              path="/config/sistema"
+              element={<SistemaPage />}
+            />
+
           </Route>
 
         </Route>

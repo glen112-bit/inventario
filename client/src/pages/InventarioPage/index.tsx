@@ -1,63 +1,130 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import api from '../../services/api'
+
 import useEquipamentoForm from '../../hooks/useEquipamentoForm'
 import useCategorias from '../../hooks/useCategorias'
 import useMarcas from '../../hooks/useMarcas'
 import useLocalizacoes from '../../hooks/useLocalizacoes'
 import useEquipamentos from '../../hooks/useEquipamentos'
 import useEdicaoEstado from '../../hooks/useEdicaoEstado'
-import useGrupos from '../../hooks/useGrupos'
 import useInventarioStats from '../../hooks/useInventarioStats'
 import useInventarioAgrupado from '../../hooks/useInventarioAgrupado'
 import useEquipamentosFilter from '../../hooks/useEquipamentosFilter'
 
-import NovoEquipamentoForm from '../../components/equipamentos/NovoEquipamentoForm'
 import EquipamentosTable from '../../components/equipamentos/EquipamentosTable'
 import EquipamentosKpis from '../../components/equipamentos/EquipamentosKpis'
 import EstadoDialog from '../../components/equipamentos/EstadoDialog'
 import GruposTable from '../../components/equipamentos/GruposTable'
+import EquipamentoProfileDialog from '../../components/equipamentos/Profile/EquipamentoProfileDialog'
 
 import {
   Box,
   Paper,
   Typography,
   Button,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions
+  TextField
 } from '@mui/material'
-
-import AddIcon from '@mui/icons-material/Add'
 
 export default function InventarioPage() {
 
   const [searchParams] = useSearchParams()
 
+  /*
+  ==========================================================
+  PROFILE
+  ==========================================================
+  */
+
+  const [profileOpen, setProfileOpen] = useState(false)
+
+  const [equipamento, setEquipamento] =
+    useState<any>(null)
+
+  const [historico, setHistorico] =
+    useState<any[]>([])
+
+  const [analytics, setAnalytics] =
+    useState<any>(null)
+
+  const [operacoes, setOperacoes] =
+    useState<any[]>([])
+
+
+  /*
+  ==========================================================
+  FILTROS
+  ==========================================================
+  */
+
   const [search, setSearch] = useState('')
-  const [filtroStatus, setFiltroStatus] = useState(
-    () => searchParams.get('estado') ?? ''
-  )
+
+  const [filtroStatus, setFiltroStatus] =
+    useState(
+      () => searchParams.get('estado') ?? ''
+    )
+
+
+  /*
+  ==========================================================
+  MODO DE VISUALIZAÇÃO
+  ==========================================================
+  */
 
   const [modoVisualizacao, setModoVisualizacao] =
-    useState<'grupos' | 'equipamentos'>('grupos')
-const {
-  grupos,
-  carregarGrupos
-} = useInventarioAgrupado()
+    useState<'grupos' | 'equipamentos'>(
+      'equipamentos'
+    )
 
-const {
-  equipos,
-  carregarEquipamentos,
-  criarEquipamento,
-  alterarEstadoEquipamento
-} = useEquipamentos()
 
-  const { categorias } = useCategorias()
-  const { marcas } = useMarcas()
-  const { localizacoes } = useLocalizacoes()
+  /*
+  ==========================================================
+  INVENTÁRIO AGRUPADO
+  ==========================================================
+  */
+
+  const {
+    grupos,
+    carregarGrupos
+  } = useInventarioAgrupado()
+
+
+  /*
+  ==========================================================
+  EQUIPAMENTOS
+  ==========================================================
+  */
+
+  const {
+    equipos,
+    carregarEquipamentos,
+    criarEquipamento,
+    alterarEstadoEquipamento
+  } = useEquipamentos()
+
+
+  /*
+  ==========================================================
+  CONFIGURAÇÕES
+  ==========================================================
+  */
+
+  const { categorias } =
+    useCategorias()
+
+  const { marcas } =
+    useMarcas()
+
+  const { localizacoes } =
+    useLocalizacoes()
+
+
+  /*
+  ==========================================================
+  FORMULÁRIO
+  ==========================================================
+  */
 
   const {
     form,
@@ -67,23 +134,44 @@ const {
     buildPayload
   } = useEquipamentoForm()
 
-const {
-  filtrados: gruposFiltrados
-} = useEquipamentosFilter(
-  grupos,
-  search,
-  filtroStatus
-)
 
-const {
-  filtrados: equipamentosFiltrados
-} = useEquipamentosFilter(
-  equipos,
-  search,
-  filtroStatus
-)
+  /*
+  ==========================================================
+  FILTRO DE GRUPOS
+  ==========================================================
+  */
 
-const {
+  const {
+    filtrados: gruposFiltrados
+  } = useEquipamentosFilter(
+    grupos,
+    search,
+    filtroStatus
+  )
+
+
+  /*
+  ==========================================================
+  FILTRO DE EQUIPAMENTOS
+  ==========================================================
+  */
+
+  const {
+    filtrados: equipamentosFiltrados
+  } = useEquipamentosFilter(
+    equipos,
+    search,
+    filtroStatus
+  )
+
+
+  /*
+  ==========================================================
+  ESTATÍSTICAS
+  ==========================================================
+  */
+
+  const {
     total,
     disponiveis,
     alugados,
@@ -91,55 +179,126 @@ const {
     danificados
   } = useInventarioStats(grupos)
 
+
+  /*
+  ==========================================================
+  ESTADO DO EQUIPAMENTO
+  ==========================================================
+  */
+
   const {
     open: estadoDialogOpen,
     estadoAtual,
     observacao,
+
     setEstadoAtual,
     setObservacao,
+
     abrirEdicaoEstado,
     fecharEdicaoEstado,
     salvarEstado
+
   } = useEdicaoEstado()
 
 
+  /*
+  ==========================================================
+  ABRIR PERFIL DO EQUIPAMENTO
+  ==========================================================
+  */
+
+const abrirProfile = async (id: number) => {
+  // console.log('========== PROFILE ==========')
+  // console.log('EQUIPAMENTO ID:', id)
+
+  try {
+
+    const { data } = await api.get(
+      `/equipamentos/${id}/profile`
+    )
+
+    // console.log('PROFILE DATA:', data)
+
+    setEquipamento(data.equipamento)
+    setHistorico(data.historico)
+    setAnalytics(data.analytics)
+    setOperacoes(data.operacoes)
+
+    setProfileOpen(true)
+
+  } catch (error) {
+
+    console.error(error)
+
+  }
+}
+
+
+  /*
+  ==========================================================
+  RENDER
+  ==========================================================
+  */
 
   return (
+
     <Box>
-      {/* Header */}
+
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
+
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
         mb={4}
       >
+
         <Box>
+
           <Typography
             variant="h4"
             fontWeight={700}
           >
             Equipamentos
           </Typography>
-          <Typography color="text.secondary">
+
+          <Typography
+            color="text.secondary"
+          >
             Gestão de equipamentos
           </Typography>
-        </Box>
 
+        </Box>
 
       </Box>
 
-      {/* KPIs */}
+
+      {/* =====================================================
+          KPIs
+      ===================================================== */}
 
       <EquipamentosKpis
+
         total={total}
+
         disponiveis={disponiveis}
+
         alugados={alugados}
+
         manutencao={manutencao}
+
         danificados={danificados}
+
         onFiltro={setFiltroStatus}
+
       />
 
-      {/* Conteúdo */}
+
+      {/* =====================================================
+          CONTEÚDO
+      ===================================================== */}
 
       <Paper
         sx={{
@@ -147,6 +306,10 @@ const {
           borderRadius: 2
         }}
       >
+
+        {/* ===================================================
+            MODO DE VISUALIZAÇÃO
+        =================================================== */}
 
         <Box
           display="flex"
@@ -161,11 +324,14 @@ const {
                 : 'outlined'
             }
             onClick={() =>
-              setModoVisualizacao('grupos')
+              setModoVisualizacao(
+                'grupos'
+              )
             }
           >
             Resumo
           </Button>
+
 
           <Button
             variant={
@@ -174,7 +340,9 @@ const {
                 : 'outlined'
             }
             onClick={() =>
-              setModoVisualizacao('equipamentos')
+              setModoVisualizacao(
+                'equipamentos'
+              )
             }
           >
             Detalhado
@@ -182,50 +350,124 @@ const {
 
         </Box>
 
+
+        {/* ===================================================
+            BUSCA
+        =================================================== */}
+
         <TextField
           fullWidth
           label="Buscar equipamento..."
           value={search}
           onChange={(e) =>
-            setSearch(e.target.value)
+            setSearch(
+              e.target.value
+            )
           }
-          sx={{ mb: 3 }}
+          sx={{
+            mb: 3
+          }}
         />
+
+
+        {/* ===================================================
+            TABELA
+        =================================================== */}
 
         {
           modoVisualizacao === 'grupos'
+
             ? (
+
               <GruposTable
-                grupos={gruposFiltrados}
-                categorias={categorias}
+                grupos={
+                  gruposFiltrados
+                }
+                categorias={
+                  categorias
+                }
               />
+
             )
+
             : (
+
               <EquipamentosTable
-                equipamentos={equipamentosFiltrados}
-                categorias={categorias}
-                localizacoes={localizacoes}
-                onEditar={abrirEdicaoEstado}
+
+                equipamentos={
+                  equipamentosFiltrados
+                }
+
+                categorias={
+                  categorias
+                }
+
+                localizacoes={
+                  localizacoes
+                }
+
+                onEditar={
+                  abrirEdicaoEstado
+                }
+
+                abrirProfile={
+                  abrirProfile
+                }
+
               />
+
             )
         }
 
       </Paper>
 
-      {/* Dialog Estado */}
+
+      {/* =====================================================
+          DIALOG ESTADO
+      ===================================================== */}
 
       <EstadoDialog
-        open={estadoDialogOpen}
-        estadoAtual={estadoAtual}
-        observacao={observacao}
-        setEstadoAtual={setEstadoAtual}
-        setObservacao={setObservacao}
-        onClose={fecharEdicaoEstado}
-        onSalvar={() =>
-          salvarEstado(alterarEstadoEquipamento)
-        }
-      />
 
+        open={
+          estadoDialogOpen
+        }
+
+        estadoAtual={
+          estadoAtual
+        }
+
+        observacao={
+          observacao
+        }
+
+        setEstadoAtual={
+          setEstadoAtual
+        }
+
+        setObservacao={
+          setObservacao
+        }
+
+        onClose={
+          fecharEdicaoEstado
+        }
+
+        onSalvar={() =>
+          salvarEstado(
+            alterarEstadoEquipamento
+          )
+        }
+
+      />
+      <EquipamentoProfileDialog
+        open={profileOpen}
+        equipamento={equipamento}
+        historico={historico}
+        analytics={analytics}
+        operacoes={operacoes}
+        onClose={() => setProfileOpen(false)}
+      />
     </Box>
+
   )
 }

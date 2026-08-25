@@ -4,7 +4,7 @@ import PeopleIcon from '@mui/icons-material/People'
 import HandshakeIcon from '@mui/icons-material/Handshake'
 import BlockIcon from '@mui/icons-material/Block'
 
-import KpiCard from '../../kpiCard'
+import KpiCard from '../../../kpiCard'
 
 type Props = {
   totalClientes: number

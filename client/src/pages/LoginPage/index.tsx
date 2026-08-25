@@ -15,7 +15,7 @@ export default function LoginPage() {
 
   const navigate = useNavigate()
 
-  const [telefone, setTelefone] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -28,7 +28,7 @@ export default function LoginPage() {
       const response = await api.post(
         `/auth/login`,
         {
-          telefone,
+          email,
           password 
         }
       )
@@ -91,11 +91,11 @@ export default function LoginPage() {
 
         <TextField
           fullWidth
-          label="Telefone"
+          label="Email"
           margin="normal"
-          value={telefone}
+          value={email}
           onChange={(e)=>
-          setTelefone(e.target.value)
+          setEmail(e.target.value)
           }
           />
 

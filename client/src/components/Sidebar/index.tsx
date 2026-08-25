@@ -1,59 +1,123 @@
 import {
-  LayoutDashboard,
-  Boxes,
-  ClipboardList,
-  Users,
-  Wrench,
-  BarChart3,
-  Settings,
-} from 'lucide-react'
-import {
-  Button
+  Button,
+  Typography
 } from '@mui/material'
+
+import DashboardIcon from '@mui/icons-material/Dashboard'
+import Inventory2Icon from '@mui/icons-material/Inventory2'
+import BuildIcon from '@mui/icons-material/Build'
+import AssignmentIcon from '@mui/icons-material/Assignment'
+import PeopleIcon from '@mui/icons-material/People'
+import SettingsIcon from '@mui/icons-material/Settings'
+import AnalyticsIcon from '@mui/icons-material/Analytics'
+import LocalShippingIcon from '@mui/icons-material/LocalShipping'
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn'
+import HistoryIcon from '@mui/icons-material/History'
+import CategoryIcon from '@mui/icons-material/Category'
+import QrCodeIcon from '@mui/icons-material/QrCode'
+import BrandingWatermarkIcon from '@mui/icons-material/BrandingWatermark'
+import PlaceIcon from '@mui/icons-material/Place'
 
 import { NavLink } from 'react-router-dom'
 
-const items = [
+const sections = [
+
   {
-    label: 'Home',
-    icon: LayoutDashboard,
-    path: '/',
+    title: 'PAINEL',
+    items: [
+      {
+        label: 'Dashboard',
+        icon: DashboardIcon,
+        path: '/'
+      }
+    ]
   },
+
   {
-    label: 'Inventario',
-    icon: Boxes,
-    path: '/inventario',
+    title: 'INVENTÁRIO',
+    items: [
+      {
+        label: 'Inventário',
+        icon: Inventory2Icon,
+        path: '/inventario'
+      },
+      {
+        label: 'Manutenção',
+        icon: BuildIcon,
+        path: '/manutencao'
+      },
+      {
+        label: 'Aluguéis',
+        icon: AssignmentIcon,
+        path: '/alugueis'
+      }
+    ]
   },
+
   {
-    label: 'Alugueis',
-    icon: ClipboardList,
-    path: '/alugueis',
+    title: 'OPERAÇÕES',
+    items: [
+      {
+        label: 'Nova Saída',
+        icon: LocalShippingIcon,
+        path: '/operacoes/saida'
+      },
+{
+        label: 'Nova Devolução',
+        icon: KeyboardReturnIcon,
+        path: '/operacoes/devolucao'
+      },
+      {
+        label: 'Scan QrCode',
+        icon: QrCodeIcon,
+        path: '/qr-scanner'
+      },
+      {
+        label: 'Histórico',
+        icon: HistoryIcon,
+        path: '/equipamentos/historico'
+      }
+    ]
   },
+
   {
-    label: 'Clientes',
-    icon: Users,
-    path: '/config/clientes',
+    title: 'RELATÓRIOS',
+    items: [
+      {
+        label: 'Analytics',
+        icon: AnalyticsIcon,
+        path: '/analytics'
+      }
+    ]
   },
+
   {
-    label: 'Usuarios',
-    icon: Users,
-    path: '/config/usuarios',
-  },
-  {
-    label: 'Manutencao',
-    icon: Wrench,
-    path: '/manutencao',
-  },
-  {
-    label: 'Analytics',
-    icon: BarChart3,
-    path: '/analytics',
-  },
-  {
-    label: 'Config',
-    icon: Settings,
-    path: '/config',
-  },
+    title: 'CONFIGURAÇÕES',
+    items: [
+      {
+        label: 'Equipamentos',
+        icon: Inventory2Icon,
+        path: '/config/equipamentos'
+      },
+      {
+        label: 'Clientes',
+        icon: PeopleIcon,
+        path: '/config/clientes'
+      },
+      {
+        label: 'Usuários',
+        icon: PeopleIcon,
+        path: '/config/usuarios'
+      },
+
+      {
+        label: 'Sistema',
+        icon: SettingsIcon,
+        path: '/config'
+      }
+    ]
+  }
+
 ]
 
 export default function Sidebar() {
@@ -68,9 +132,7 @@ export default function Sidebar() {
         bg-[#111827]
       "
     >
-
       {/* LOGO */}
-
       <div
         className="
           flex h-20 items-center
@@ -78,9 +140,7 @@ export default function Sidebar() {
           px-8
         "
       >
-
         <div>
-
           <h1
             className="
               text-xl font-bold
@@ -90,7 +150,6 @@ export default function Sidebar() {
           >
             AudioERP
           </h1>
-
           <p
             className="
               text-xs text-slate-400
@@ -98,72 +157,74 @@ export default function Sidebar() {
           >
             Rental Management
           </p>
-
         </div>
-
       </div>
-
       {/* NAV */}
+<nav className="flex-1 overflow-y-auto p-4">
 
-      <nav
-        className="
-          flex-1 space-y-1
-          p-4
-        "
+  {sections.map(section => (
+
+    <div
+      key={section.title}
+      className="mb-6"
+    >
+
+      <Typography
+        variant="caption"
+        sx={{
+          color: '#64748b',
+          px: 2,
+          mb: 1,
+          display: 'block',
+          fontWeight: 700,
+          letterSpacing: 1
+        }}
       >
+        {section.title}
+      </Typography>
 
-        {items.map((item) => {
+      {section.items.map(item => {
 
-          const Icon = item.icon
+        const Icon = item.icon
 
-          return (
+        return (
 
-            <NavLink
-              key={item.label}
-              to={item.path}
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) => `
+              flex
+              items-center
+              gap-3
+              rounded-xl
+              px-4
+              py-3
+              mb-1
+              transition-all
 
-              className={({ isActive }) => `
+              ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-lg'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+              }
+            `}
+          >
 
-                flex items-center gap-3
+            <Icon fontSize="small" />
 
-                rounded-xl
+            {item.label}
 
-                px-4 py-3
+          </NavLink>
 
-                text-sm font-medium
+        )
 
-                transition-all duration-200
+      })}
 
-                ${
-                  isActive
-                    ? `
-                      bg-blue-500/10
-                      text-blue-400
-                    `
-                    : `
-                      text-slate-400
+    </div>
 
-                      hover:bg-white/5
-                      hover:text-white
-                    `
-                }
+  ))}
 
-              `}
-            >
-
-              <Icon size={18} />
-
-              {item.label}
-
-            </NavLink>
-
-          )
-
-        })}
-
-      </nav>
-
-      {/* FOOTER */}
+</nav>      {/* FOOTER */}
 
       <div
         className="
