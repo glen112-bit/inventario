@@ -3,6 +3,7 @@ import express from 'express'
 import {
   createEquipamento,
   editarEquipamento,
+  getEquipamentoProfile,
   getHistoricoEquipamento,
   registrarHistoricoEquipamento,
   getEquipamentoById,
@@ -11,58 +12,158 @@ import {
   getEquipamentosModelo,
   adicionarUnidade,
   atualizarEstadoEquipamento,
-  removerUnidade
-
+  removerUnidade,
+  getEquipamentoByQR,
+  listarHistoricoEquipamentos
 } from '../controllers/equipos.controller.js'
 
 import { authMiddleware } from '../middleware/auth.middleware.js'
-
 import { authorize } from '../middleware/role.middleware.js'
 
 const router = express.Router()
 
-router.get('/inventario', getEquipamentos);
+// ==========================================================
+// INVENTARIO
+// ==========================================================
 
-router.get('/inventario/agrupado', getInventarioAgrupado);
+router.get(
+  '/inventario',
+  authMiddleware,
+  getEquipamentos
+)
 
-router.get('/inventario/equipamento/:id', getEquipamentoById);
+router.get(
+  '/inventario/agrupado',
+  authMiddleware,
+  getInventarioAgrupado
+)
 
-router.get('/inventario/:marca/:modelo', getEquipamentosModelo);
+router.get(
+  '/inventario/equipamento/:id',
+  authMiddleware,
+  getEquipamentoById
+)
 
-router.get('/inventario/:id/historico', getHistoricoEquipamento);
+router.get(
+  '/inventario/:marca/:modelo',
+  authMiddleware,
+  getEquipamentosModelo
+)
 
-router.get('/inventario/:id', getEquipamentoById);
+router.get(
+  '/inventario/:id/historico',
+  authMiddleware,
+  getHistoricoEquipamento
+)
+
+router.get(
+  '/inventario/:id',
+  authMiddleware,
+  getEquipamentoById
+)
+
+
+// ==========================================================
+// PERFIL DO EQUIPAMENTO
+// ==========================================================
+
+router.get(
+  '/equipamentos/:id/profile',
+  authMiddleware,
+  getEquipamentoProfile
+)
+
+
+// ==========================================================
+// HISTÓRICO DE EQUIPAMENTOS
+// ==========================================================
+
+router.get(
+  '/equipamentos/historico',
+  authMiddleware,
+  listarHistoricoEquipamentos
+)
+
+router.get(
+  '/equipamentos/:id/historico',
+  authMiddleware,
+  getHistoricoEquipamento
+)
+
+
+// ==========================================================
+// QR CODE
+// ==========================================================
+
+router.get(
+  '/equipamentos/qr/:codigo',
+  authMiddleware,
+  getEquipamentoByQR
+)
+
+
+// ==========================================================
+// CRIAR EQUIPAMENTO
+// ==========================================================
 
 router.post(
-'/inventario', 
-  authMiddleware, 
-  authorize('admin'), 
+  '/inventario',
+  authMiddleware,
+  authorize('admin'),
   createEquipamento
 )
 
+
+// ==========================================================
+// ADICIONAR UNIDADE
+// ==========================================================
+
 router.post(
-'/inventario/unidade', 
-  authMiddleware, 
-  authorize('admin'), 
+  '/inventario/unidade',
+  authMiddleware,
+  authorize('admin'),
   adicionarUnidade
 )
 
+
+// ==========================================================
+// HISTÓRICO
+// ==========================================================
+
 router.post(
-'/inventario/:id/historico',
+  '/inventario/:id/historico',
+  authMiddleware,
   registrarHistoricoEquipamento
 )
 
 
+// ==========================================================
+// REMOVER UNIDADE
+// ==========================================================
+
 router.delete(
-'/inventario/unidade/:id', 
-  authMiddleware, 
-  authorize('admin'), 
+  '/inventario/unidade/:id',
+  authMiddleware,
+  authorize('admin'),
   removerUnidade
 )
+
+
+// ==========================================================
+// ALTERAR ESTADO
+// ==========================================================
+
 router.put(
-'/equipamentos/:id/estado', 
+  '/equipamentos/:id/estado',
+  authMiddleware,
   atualizarEstadoEquipamento
 )
+
+
+// ==========================================================
+// EDITAR EQUIPAMENTO
+// ==========================================================
+
 router.put(
   '/inventario/:id',
   authMiddleware,
@@ -70,9 +171,9 @@ router.put(
   editarEquipamento
 )
 
-router.get(
-  '/equipamentos/:id/historico',
-  getHistoricoEquipamento
-)
+
+// ==========================================================
+// EXPORT
+// ==========================================================
 
 export default router

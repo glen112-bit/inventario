@@ -1,66 +1,162 @@
 import db from '../config/db.js'
 
 
+// ======================================================
+// GET EQUIPAMENTOS EM MANUTENÇÃO
+// ======================================================
 
-export const getManutencao = async (req,res) => {
-
-  try {
-
-    const { id } = req.params
-
-    const [[row]] = await db.query(`
-      SELECT *
-      FROM equipos
-      WHERE estado_actual = 'manutencao'
-    `,[id])
-
-    res.json(row)
-
-  } catch(error) {
-
-    console.error(error)
-
-    res.status(500).json({
-      error:error.message
-    })
-
-  }
-
-}
-
-export const getManutencoes = async (req,res) => {
+export const getManutencoes = async (req, res) => {
 
   try {
+
+    const organizacaoId = req.user?.organizacao_id
+
+    console.log('========== GET MANUTENÇÕES ==========')
+    console.log('USER:', req.user)
+    console.log('ORGANIZAÇÃO:', organizacaoId)
+
+    if (!organizacaoId) {
+
+      return res.status(403).json({
+        error: 'Usuário não está associado a uma organização.'
+      })
+
+    }
 
     const [rows] = await db.query(`
       SELECT
         equipamento_id,
         codigo_interno,
+        numero_serie,
         marca,
         modelo,
+        descripcion,
         estado_actual,
-        valor
+        valor,
+        fecha_compra,
+        localizacao,
+        organizacao_id
       FROM equipos
-      WHERE estado_actual = 'manutencao'
-      ORDER BY codigo_interno
-    `)
+      WHERE organizacao_id = ?
+        AND (
+          estado_actual = 'manutencao'
+          OR estado_actual = 'mantenimiento'
+        )
+      ORDER BY codigo_interno ASC
+    `, [
+      organizacaoId
+    ])
+
+    console.log(
+      'EQUIPAMENTOS ENCONTRADOS:',
+      rows.length
+    )
+
+    console.log(
+      'DADOS:',
+      rows
+    )
 
     res.json(rows)
 
-  } catch(error) {
+  } catch (error) {
 
-    console.error(error)
+    console.error(
+      'GET MANUTENÇÕES ERROR:',
+      error
+    )
 
     res.status(500).json({
-      error:error.message
+      error: error.message
     })
 
   }
 
 }
-export const createManutencao = async (req,res) => {
+
+
+// ======================================================
+// GET UMA MANUTENÇÃO
+// ======================================================
+
+export const getManutencao = async (req, res) => {
 
   try {
+
+    const { id } = req.params
+
+    const organizacaoId =
+      req.user?.organizacao_id
+
+    if (!organizacaoId) {
+
+      return res.status(403).json({
+        error: 'Usuário não está associado a uma organização.'
+      })
+
+    }
+
+    const [[row]] = await db.query(`
+      SELECT
+        equipamento_id,
+        codigo_interno,
+        numero_serie,
+        marca,
+        modelo,
+        descripcion,
+        estado_actual,
+        valor,
+        fecha_compra,
+        localizacao,
+        organizacao_id
+      FROM equipos
+      WHERE equipamento_id = ?
+        AND organizacao_id = ?
+        AND (
+          estado_actual = 'manutencao'
+          OR estado_actual = 'mantenimiento'
+        )
+    `, [
+      id,
+      organizacaoId
+    ])
+
+    if (!row) {
+
+      return res.status(404).json({
+        error: 'Equipamento não encontrado em manutenção.'
+      })
+
+    }
+
+    res.json(row)
+
+  } catch (error) {
+
+    console.error(
+      'GET MANUTENÇÃO ERROR:',
+      error
+    )
+
+    res.status(500).json({
+      error: error.message
+    })
+
+  }
+
+}
+
+
+// ======================================================
+// CREATE MANUTENÇÃO
+// ======================================================
+
+export const createManutencao = async (req, res) => {
+
+  try {
+
+    const organizacaoId =
+      req.user?.organizacao_id
 
     const {
       equipamento_id,
@@ -68,116 +164,177 @@ export const createManutencao = async (req,res) => {
       problema
     } = req.body
 
-    const [result] = await db.query(`
-      INSERT INTO equipos (
-        equipamento_id,
-        prioridade,
-        problema
-      )
-      VALUES (?,?,?)
-    `,[
+    if (!organizacaoId) {
+
+      return res.status(403).json({
+        error: 'Usuário não está associado a uma organização.'
+      })
+
+    }
+
+    if (!equipamento_id) {
+
+      return res.status(400).json({
+        error: 'Equipamento não informado.'
+      })
+
+    }
+
+    const [[equipamento]] = await db.query(`
+      SELECT equipamento_id
+      FROM equipos
+      WHERE equipamento_id = ?
+        AND organizacao_id = ?
+    `, [
       equipamento_id,
-      prioridade,
-      problema
+      organizacaoId
     ])
+
+    if (!equipamento) {
+
+      return res.status(404).json({
+        error: 'Equipamento não encontrado.'
+      })
+
+    }
+
+    /*
+     * IMPORTANTE:
+     * Não fazemos INSERT em equipos.
+     * O equipamento já existe.
+     */
 
     await db.query(`
       UPDATE equipos
       SET estado_actual = 'manutencao'
       WHERE equipamento_id = ?
-    `,[equipamento_id])
+        AND organizacao_id = ?
+    `, [
+      equipamento_id,
+      organizacaoId
+    ])
 
-    res.json({
-      id:result.insertId
+    res.status(201).json({
+      success: true,
+      equipamento_id
     })
 
-  } catch(error) {
+  } catch (error) {
 
-    console.error(error)
+    console.error(
+      'CREATE MANUTENÇÃO ERROR:',
+      error
+    )
 
     res.status(500).json({
-      error:error.message
+      error: error.message
     })
 
   }
 
 }
 
-export const updateManutencao = async (req,res) => {
+
+// ======================================================
+// UPDATE MANUTENÇÃO
+// ======================================================
+
+export const updateManutencao = async (req, res) => {
 
   try {
 
     const { id } = req.params
 
+    const organizacaoId =
+      req.user?.organizacao_id
+
     const {
-      prioridade,
-      status,
-      problema,
-      diagnostico,
-      solucao,
-      custo,
-      data_saida
+      estado_actual
     } = req.body
 
+    if (!organizacaoId) {
+
+      return res.status(403).json({
+        error: 'Usuário não está associado a uma organização.'
+      })
+
+    }
+
     await db.query(`
-      UPDATE equipos 
-      SET
-        prioridade = ?,
-        status = ?,
-        problema = ?,
-        diagnostico = ?,
-        solucao = ?,
-        custo = ?,
-        data_saida = ?
-      WHERE id = ?
-    `,[
-      prioridade,
-      status,
-      problema,
-      diagnostico,
-      solucao,
-      custo,
-      data_saida,
-      id
+      UPDATE equipos
+      SET estado_actual = ?
+      WHERE equipamento_id = ?
+        AND organizacao_id = ?
+    `, [
+      estado_actual || 'manutencao',
+      id,
+      organizacaoId
     ])
 
     res.json({
-      success:true
+      success: true
     })
 
-  } catch(error) {
+  } catch (error) {
 
-    console.error(error)
+    console.error(
+      'UPDATE MANUTENÇÃO ERROR:',
+      error
+    )
 
     res.status(500).json({
-      error:error.message
+      error: error.message
     })
 
   }
 
 }
 
-export const deleteManutencao = async (req,res) => {
+
+// ======================================================
+// DELETE / FINALIZAR MANUTENÇÃO
+// ======================================================
+
+export const deleteManutencao = async (req, res) => {
 
   try {
 
     const { id } = req.params
 
+    const organizacaoId =
+      req.user?.organizacao_id
+
+    if (!organizacaoId) {
+
+      return res.status(403).json({
+        error: 'Usuário não está associado a uma organização.'
+      })
+
+    }
+
     await db.query(`
-      DELETE FROM equipos 
-      WHERE id = ?
-    `,[id])
+      UPDATE equipos
+      SET estado_actual = 'disponivel'
+      WHERE equipamento_id = ?
+        AND organizacao_id = ?
+    `, [
+      id,
+      organizacaoId
+    ])
 
     res.json({
-      success:true
+      success: true
     })
 
-  } catch(error){
+  } catch (error) {
 
-    console.error(error)
+    console.error(
+      'DELETE MANUTENÇÃO ERROR:',
+      error
+    )
 
     res.status(500).json({
-      error:error.message
+      error: error.message
     })
 
   }

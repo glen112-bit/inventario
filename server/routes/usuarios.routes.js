@@ -1,49 +1,62 @@
 import express from 'express'
-import { 
+
+import {
   getUsuarios,
   registerUser,
-  getUsuarioById,
   createUsuario,
   updateUsuario,
-  alterarSenha,
   alterarStatus,
-  deleteUsuario 
+  alterarSenha,
+  deleteUsuario,
+  getUsuarioById
 } from '../controllers/usuarios.controller.js'
+
 import { authMiddleware } from '../middleware/auth.middleware.js'
-import { authorize } from '../middleware/role.middleware.js'
 
-const Router = express.Router()
+const router = express.Router()
 
-Router.get('/usuarios', getUsuarios)
+router.post('/registrar', registerUser)
 
-Router.post('/usuarios', createUsuario)
+router.get(
+  '/usuarios',
+  authMiddleware,
+  getUsuarios
+)
 
-Router.put(
+router.get(
   '/usuarios/:id',
   authMiddleware,
-  authorize('admin', 'operador'),
-  updateUsuario
-)
-Router.put(
-  '/usuarios/:id/senha',
-  alterarSenha
-)
-Router.put(
-  '/usuarios/:id/status',
-  alterarStatus
-)
-Router.get(
-  '/usuarios/:id',
   getUsuarioById
 )
-Router.delete(
+
+router.post(
+  '/usuarios',
+  authMiddleware,
+  createUsuario
+)
+
+router.put(
   '/usuarios/:id',
   authMiddleware,
-  authorize('admin', 'operador'),
+  updateUsuario
+)
+
+router.put(
+  '/usuarios/:id/status',
+  authMiddleware,
+  alterarStatus
+)
+
+router.put(
+  '/usuarios/:id/senha',
+  authMiddleware,
+  alterarSenha
+)
+
+router.delete(
+  '/usuarios/:id',
+  authMiddleware,
   deleteUsuario
 )
-Router.post(
-  '/registrar',
-  registerUser
-)
-export default Router
+
+export default router

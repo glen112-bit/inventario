@@ -4,67 +4,82 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip,
   Typography,
-  Box
+  Box,
+  Chip,
+  Divider
 } from '@mui/material'
+
+import {
+  Timeline,
+  TimelineItem,
+  TimelineSeparator,
+  TimelineConnector,
+  TimelineContent,
+  TimelineDot
+} from '@mui/lab'
+
+import LocalShippingIcon from '@mui/icons-material/LocalShipping'
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn'
+import BuildIcon from '@mui/icons-material/Build'
+import WarningAmberIcon from '@mui/icons-material/WarningAmber'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
 type Props = {
   open: boolean
-  equipamento?: any
   historico: any[]
+  equipamento: any
   onClose: () => void
 }
 
 export default function EquipamentoHistoricoDialog({
   open,
-  equipamento,
   historico,
+  equipamento,
   onClose
 }: Props) {
 
-  const formatarData = (data?: string) => {
-
-    if (!data) return '-'
-
-    return new Date(data).toLocaleString(
-      'pt-BR',
-      {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }
-    )
-
-  }
-
-  const getCorEstado = (estado: string) => {
+  const getIcon = (estado: string) => {
 
     switch (estado) {
 
+      case 'alugado':
+        return <LocalShippingIcon />
+
       case 'disponivel':
-        return 'success'
+        return <KeyboardReturnIcon />
+
+      case 'manutencao':
+        return <BuildIcon />
+
+      case 'danificado':
+        return <WarningAmberIcon />
+
+      default:
+        return <CheckCircleIcon />
+
+    }
+
+  }
+
+  const getColor = (estado: string) => {
+
+    switch (estado) {
 
       case 'alugado':
         return 'primary'
 
-      case 'reservado':
-        return 'warning'
+      case 'disponivel':
+        return 'success'
 
       case 'manutencao':
+        return 'warning'
+
+      case 'danificado':
         return 'error'
 
       default:
-        return 'default'
+        return 'grey'
 
     }
 
@@ -75,168 +90,138 @@ export default function EquipamentoHistoricoDialog({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="lg"
+      maxWidth="md"
       fullWidth
     >
 
       <DialogTitle>
-
         Histórico do Equipamento
-
       </DialogTitle>
 
       <DialogContent>
 
-        <Box mb={3}>
+        {equipamento && (
 
-          <Typography
-            variant="h6"
-            fontWeight={700}
-          >
-            {equipamento?.codigo_interno}
-          </Typography>
+          <Box mb={3}>
 
-          <Typography color="text.secondary">
+            <Typography variant="h6">
 
-            {equipamento?.marca} {equipamento?.modelo}
+              {equipamento.codigo_interno}
 
-          </Typography>
+            </Typography>
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-          >
+            <Typography color="text.secondary">
 
-            Série: {equipamento?.numero_serie || '-'}
+              {equipamento.marca} {equipamento.modelo}
 
-          </Typography>
+            </Typography>
 
-        </Box>
+            <Typography variant="body2">
 
-        <Paper
-          elevation={0}
-          sx={{
-            borderRadius:3,
-            border:'1px solid',
-            borderColor:'divider'
-          }}
-        >
+              Série: {equipamento.numero_serie}
 
-          <TableContainer>
+            </Typography>
 
-            <Table>
+            <Typography variant="body2">
 
-              <TableHead>
+              QR: {equipamento.qr_code}
 
-                <TableRow>
+            </Typography>
 
-                  <TableCell>
-                    Data
-                  </TableCell>
+          </Box>
 
-                  <TableCell>
-                    Estado
-                  </TableCell>
+        )}
 
-                  <TableCell>
-                    Usuário
-                  </TableCell>
+        <Divider sx={{ mb:3 }} />
 
-                  <TableCell>
-                    Observação
-                  </TableCell>
+        <Timeline position="right">
 
-                </TableRow>
+          {
 
-              </TableHead>
+            historico.map((item:any,index:number)=>(
 
-              <TableBody>
+              <TimelineItem key={item.id}>
 
-                {
+                <TimelineSeparator>
 
-                  historico.length === 0
+                  <TimelineDot
+                    color={getColor(item.estado_novo) as any}
+                  >
 
-                  ?
+                    {getIcon(item.estado_novo)}
 
-                  (
+                  </TimelineDot>
 
-                    <TableRow>
+                  {
 
-                      <TableCell
-                        colSpan={4}
-                        align="center"
-                      >
+                    index !== historico.length-1 &&
 
-                        Nenhum histórico encontrado.
+                    <TimelineConnector />
 
-                      </TableCell>
+                  }
 
-                    </TableRow>
+                </TimelineSeparator>
 
-                  )
+                <TimelineContent>
 
-                  :
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight={700}
+                  >
 
-                  historico.map((item:any) => (
+                    {item.estado_anterior}
 
-                    <TableRow
-                      hover
-                      key={item.id}
-                    >
+                    {' → '}
 
-                      <TableCell>
+                    {item.estado_novo}
 
-                        {formatarData(
-                          item.created_at
-                        )}
+                  </Typography>
 
-                      </TableCell>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                  >
 
-                      <TableCell>
+                    {new Date(item.created_at).toLocaleString()}
 
-                        <Chip
-                          size="small"
-                          label={item.estado}
-                          color={getCorEstado(
-                            item.estado
-                          )}
-                        />
+                  </Typography>
 
-                      </TableCell>
+                  <Box mt={1} mb={1}>
 
-                      <TableCell>
+                    <Chip
+                      size="small"
+                      label={item.usuario ?? 'Sistema'}
+                    />
 
-                        {item.usuario || '-'}
+                  </Box>
 
-                      </TableCell>
+                  {
 
-                      <TableCell>
+                    item.observacao &&
 
-                        {item.observacao || '-'}
+                    <Typography>
 
-                      </TableCell>
+                      {item.observacao}
 
-                    </TableRow>
+                    </Typography>
 
-                  ))
+                  }
 
-                }
+                </TimelineContent>
 
-              </TableBody>
+              </TimelineItem>
 
-            </Table>
+            ))
 
-          </TableContainer>
+          }
 
-        </Paper>
+        </Timeline>
 
       </DialogContent>
 
       <DialogActions>
 
-        <Button
-          onClick={onClose}
-        >
+        <Button onClick={onClose}>
           Fechar
         </Button>
 

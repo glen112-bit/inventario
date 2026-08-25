@@ -9,7 +9,7 @@ export default function useAlugueis(){
       const response = await api.get(
         `/alugueis` 
       )
-      console.log(JSON.stringify(response.data, null, 2))
+      // console.log(JSON.stringify(response.data, null, 2))
       setAlugueis(
         Array.isArray(response.data)
           ? response.data

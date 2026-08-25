@@ -20,22 +20,74 @@ import HandshakeIcon from '@mui/icons-material/Handshake'
 import BuildIcon from '@mui/icons-material/Build'
 
 import {
-  PieChart,
-  Pie,
-  Tooltip,
   ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid
+  CartesianGrid,
+  Tooltip
 } from 'recharts'
 
 import KpiCard from '../../components/KpiCard'
 
+
+// ======================================================
+// TIPOS
+// ======================================================
+
+interface EstadoData {
+  estado_actual: string
+  total: number
+}
+
+interface MarcaData {
+  marca: string
+  total: number
+}
+
+interface AluguelEstadoData {
+  estado: string
+  total: number
+}
+
+interface LocalizacaoData {
+  localizacao: string | null
+  total: number
+}
+
+interface AnalyticsData {
+  totalEquipamentos: number
+  totalClientes: number
+  totalAlugueis: number
+  totalManutencao: number
+
+  porEstado: EstadoData[]
+  porMarca: MarcaData[]
+  alugueisPorEstado: AluguelEstadoData[]
+  porLocalizacao: LocalizacaoData[]
+}
+
+
+// ======================================================
+// COMPONENTE
+// ======================================================
+
 export default function AnalyticsPage() {
 
-  const [stats, setStats] = useState<any>(null)
+  const [stats, setStats] =
+    useState<AnalyticsData | null>(null)
+
+  const [erro, setErro] =
+    useState<string | null>(null)
+
+  const [loading, setLoading] =
+    useState(true)
+
+
+  // ======================================================
+  // CARREGAR ANALYTICS
+  // ======================================================
 
   useEffect(() => {
 
@@ -43,42 +95,200 @@ export default function AnalyticsPage() {
 
   }, [])
 
+
   const carregar = async () => {
 
     try {
 
-      const response = await api.get(
-        '/analytics'
-      )
+      setLoading(true)
+      setErro(null)
+
+      const response =
+        await api.get<AnalyticsData>('/analytics')
+
+      // console.log(
+        // 'ANALYTICS DATA:',
+        // response.data
+      // )
 
       setStats(response.data)
 
-    } catch (error) {
+    } catch (error: any) {
 
-      console.error(error)
+      console.error(
+        'ANALYTICS ERROR:',
+        error
+      )
+
+      console.error(
+        'STATUS:',
+        error.response?.status
+      )
+
+      console.error(
+        'DATA:',
+        error.response?.data
+      )
+
+      setErro(
+        error.response?.data?.error ||
+        'Erro ao carregar analytics'
+      )
+
+    } finally {
+
+      setLoading(false)
 
     }
 
   }
 
-  if (!stats) {
+
+  // ======================================================
+  // LOADING
+  // ======================================================
+
+  if (loading) {
 
     return (
-      <Typography>
-        Carregando...
-      </Typography>
+      <Box
+        sx={{
+          width: '100%',
+          p: 3
+        }}
+      >
+
+        <Typography
+          variant="h4"
+          fontWeight={700}
+        >
+          Analytics
+        </Typography>
+
+        <Typography
+          sx={{ mt: 2 }}
+        >
+          Carregando dados...
+        </Typography>
+
+      </Box>
     )
 
   }
 
+
+  // ======================================================
+  // ERRO
+  // ======================================================
+
+  if (erro) {
+
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          p: 3
+        }}
+      >
+
+        <Typography
+          variant="h4"
+          fontWeight={700}
+          mb={3}
+        >
+          Analytics
+        </Typography>
+
+        <Paper
+          sx={{
+            p: 3,
+            borderRadius: 3
+          }}
+        >
+
+          <Typography
+            color="error"
+            fontWeight={600}
+          >
+            {erro}
+          </Typography>
+
+        </Paper>
+
+      </Box>
+    )
+
+  }
+
+
+  // ======================================================
+  // SEM DADOS
+  // ======================================================
+
+  if (!stats) {
+
+    return (
+      <Box p={3}>
+
+        <Typography>
+          Nenhum dado disponível.
+        </Typography>
+
+      </Box>
+    )
+
+  }
+
+
+  // ======================================================
+  // VALORES POR ESTADO
+  // ======================================================
+
+  const equipamentosDisponiveis =
+    stats.porEstado?.find(
+      item =>
+        item.estado_actual === 'disponivel'
+    )?.total || 0
+
+
+  const equipamentosAlugados =
+    stats.porEstado?.find(
+      item =>
+        item.estado_actual === 'alugado'
+    )?.total || 0
+
+
+  const equipamentosManutencao =
+    stats.porEstado?.find(
+      item =>
+        item.estado_actual === 'manutencao'
+    )?.total || 0
+
+
+  const equipamentosDanificados =
+    stats.porEstado?.find(
+      item =>
+        item.estado_actual === 'danificado'
+    )?.total || 0
+
+
+  // ======================================================
+  // RENDER
+  // ======================================================
+
   return (
 
     <Box
-  sx={{
-    width: '100%',
-    height: 350
-  }}
+      sx={{
+        width: '100%',
+        minHeight: '100%',
+        pb: 5
+      }}
     >
+
+      {/* ==================================================
+          TÍTULO
+      ================================================== */}
 
       <Typography
         variant="h4"
@@ -88,136 +298,208 @@ export default function AnalyticsPage() {
         Analytics
       </Typography>
 
+
+      {/* ==================================================
+          KPIs PRINCIPAIS
+      ================================================== */}
+
       <Grid
         container
         spacing={3}
         mb={4}
-
       >
 
-        <Grid size={{ xs: 12, md: 3 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+
           <KpiCard
             title="Equipamentos"
             value={stats.totalEquipamentos}
             icon={<InventoryIcon />}
             color="#3b82f6"
           />
+
         </Grid>
 
-        <Grid size={{ xs: 12, md: 3 }}>
+
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+
           <KpiCard
             title="Clientes"
             value={stats.totalClientes}
             icon={<PeopleIcon />}
             color="#10b981"
           />
+
         </Grid>
 
-        <Grid size={{ xs: 12, md: 3 }}>
+
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+
           <KpiCard
             title="Aluguéis"
             value={stats.totalAlugueis}
             icon={<HandshakeIcon />}
             color="#f59e0b"
           />
+
         </Grid>
 
-        <Grid size={{ xs: 12, md: 3 }}>
+
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+
           <KpiCard
             title="Manutenção"
             value={stats.totalManutencao}
             icon={<BuildIcon />}
             color="#ef4444"
           />
+
         </Grid>
 
       </Grid>
-      <Grid container spacing={3} mb={4}>
 
-        <Grid size={{ xs: 12, md: 4 }}>
+
+      {/* ==================================================
+          KPIs POR ESTADO
+      ================================================== */}
+
+      <Grid
+        container
+        spacing={3}
+        mb={4}
+      >
+
+        <Grid size={{ xs: 12, md: 3 }}>
+
           <KpiCard
             title="Disponíveis"
-            value={
-              stats.porEstado.find(
-                x => x.estado_actual === 'disponible'
-            )?.total || 0
-            }
+            value={equipamentosDisponiveis}
             icon={<InventoryIcon />}
             color="#22c55e"
           />
+
         </Grid>
 
-        <Grid size={{ xs: 12, md: 4 }}>
+
+        <Grid size={{ xs: 12, md: 3 }}>
+
           <KpiCard
             title="Alugados"
-            value={
-              stats.porEstado.find(
-                x => x.estado_actual === 'alquilado'
-            )?.total || 0
-            }
+            value={equipamentosAlugados}
             icon={<HandshakeIcon />}
             color="#f59e0b"
           />
+
         </Grid>
 
-        <Grid size={{ xs: 12, md: 4 }}>
+
+        <Grid size={{ xs: 12, md: 3 }}>
+
           <KpiCard
             title="Em Manutenção"
-            value={stats.totalManutencao}
+            value={equipamentosManutencao}
             icon={<BuildIcon />}
             color="#ef4444"
           />
+
+        </Grid>
+
+
+        <Grid size={{ xs: 12, md: 3 }}>
+
+          <KpiCard
+            title="Danificados"
+            value={equipamentosDanificados}
+            icon={<BuildIcon />}
+            color="#dc2626"
+          />
+
         </Grid>
 
       </Grid>
 
-      <Divider sx={{ mb: 2 }} />
+
+      <Divider sx={{ mb: 3 }} />
+
+
+      {/* ==================================================
+          TOP MARCAS
+      ================================================== */}
 
       <Paper
         sx={{
           p: 3,
           borderRadius: 3,
-          mt: 3
+          mb: 4
         }}
       >
 
         <Typography
           variant="h6"
+          fontWeight={700}
           mb={2}
         >
           Top Marcas
         </Typography>
+
 
         <Table>
 
           <TableHead>
 
             <TableRow>
-              <TableCell>Marca</TableCell>
+
+              <TableCell>
+                Marca
+              </TableCell>
+
               <TableCell align="right">
                 Equipamentos
               </TableCell>
+
             </TableRow>
 
           </TableHead>
 
+
           <TableBody>
 
-            {stats.porMarca.map(item => (
+            {stats.porMarca?.length > 0 ? (
 
-              <TableRow key={item.marca}>
+              stats.porMarca.map(
+                (item, index) => (
 
-                <TableCell>
-                  {item.marca}
-                </TableCell>
+                  <TableRow
+                    key={`${item.marca}-${index}`}
+                  >
 
-                <TableCell align="right">
-                  {item.total}
+                    <TableCell>
+                      {item.marca || 'Sem marca'}
+                    </TableCell>
+
+                    <TableCell align="right">
+                      {item.total}
+                    </TableCell>
+
+                  </TableRow>
+
+                )
+              )
+
+            ) : (
+
+              <TableRow>
+
+                <TableCell
+                  colSpan={2}
+                  align="center"
+                >
+                  Nenhuma marca encontrada.
                 </TableCell>
 
               </TableRow>
 
-            ))}
+            )}
 
           </TableBody>
 
@@ -225,68 +507,24 @@ export default function AnalyticsPage() {
 
       </Paper>
 
-      <Divider sx={{ mb: 2, mt:2 }} />
+
+      {/* ==================================================
+          GRÁFICOS
+      ================================================== */}
+
       <Grid
         container
         spacing={3}
       >
 
-        <Grid size={{ xs: 12, md: 6 }}>
 
-          <Paper
-            sx={{
-              p: 3,
-              height: 400
-            }}
-          >
-            <Box
-              sx={{
-                width:'100%',
-                height:300
-              }}
+        {/* ================================================
+            EQUIPAMENTOS POR ESTADO
+        ================================================= */}
 
-            >
-
-            <Typography
-              variant="h6"
-              mb={2}
-            >
-              Equipamentos por Estado
-            </Typography>
-
-            <ResponsiveContainer
-              width={600}
-              height={300}
-            >
-
-              <BarChart
-                layout="vertical"
-                data={stats.porEstado}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-
-                <XAxis type="number" />
-
-                <YAxis
-                  type="category"
-                  dataKey="estado_actual"
-                />
-
-                <Tooltip />
-
-                <Bar
-                  dataKey="total"
-                  radius={[0, 6, 6, 0]}
-                />
-              </BarChart>
-
-            </ResponsiveContainer>
-            </Box>
-          </Paper>
-
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid
+          size={{ xs: 12, md: 6 }}
+        >
 
           <Paper
             sx={{
@@ -298,35 +536,302 @@ export default function AnalyticsPage() {
 
             <Typography
               variant="h6"
+              fontWeight={700}
+              mb={2}
+            >
+              Equipamentos por Estado
+            </Typography>
+
+
+            <Box
+              sx={{
+                width: '100%',
+                height: 320
+              }}
+            >
+
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+              >
+
+                <BarChart
+                  layout="vertical"
+                  data={stats.porEstado || []}
+                  margin={{
+                    top: 5,
+                    right: 20,
+                    left: 20,
+                    bottom: 5
+                  }}
+                >
+
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                  />
+
+                  <XAxis
+                    type="number"
+                  />
+
+                  <YAxis
+                    type="category"
+                    dataKey="estado_actual"
+                    width={100}
+                  />
+
+                  <Tooltip />
+
+                  <Bar
+                    dataKey="total"
+                    radius={[
+                      0,
+                      6,
+                      6,
+                      0
+                    ]}
+                  />
+
+                </BarChart>
+
+              </ResponsiveContainer>
+
+            </Box>
+
+          </Paper>
+
+        </Grid>
+
+
+        {/* ================================================
+            EQUIPAMENTOS POR MARCA
+        ================================================= */}
+
+        <Grid
+          size={{ xs: 12, md: 6 }}
+        >
+
+          <Paper
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              height: 400
+            }}
+          >
+
+            <Typography
+              variant="h6"
+              fontWeight={700}
               mb={2}
             >
               Equipamentos por Marca
             </Typography>
 
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
+
+            <Box
+              sx={{
+                width: '100%',
+                height: 320
+              }}
             >
 
-              <BarChart
-                data={stats.porMarca}
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
               >
 
-                <CartesianGrid strokeDasharray="3 3" />
+                <BarChart
+                  data={stats.porMarca || []}
+                  margin={{
+                    top: 5,
+                    right: 20,
+                    left: 10,
+                    bottom: 40
+                  }}
+                >
 
-                <XAxis dataKey="marca" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                  />
 
-                <YAxis />
+                  <XAxis
+                    dataKey="marca"
+                    angle={-35}
+                    textAnchor="end"
+                    interval={0}
+                  />
 
-                <Tooltip />
+                  <YAxis />
 
-                <Bar
-                  dataKey="total"
-                />
+                  <Tooltip />
 
-              </BarChart>
+                  <Bar
+                    dataKey="total"
+                    radius={[
+                      6,
+                      6,
+                      0,
+                      0
+                    ]}
+                  />
 
-            </ResponsiveContainer>
+                </BarChart>
+
+              </ResponsiveContainer>
+
+            </Box>
+
+          </Paper>
+
+        </Grid>
+
+
+        {/* ================================================
+            ALUGUÉIS POR ESTADO
+        ================================================= */}
+
+        <Grid
+          size={{ xs: 12, md: 6 }}
+        >
+
+          <Paper
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              height: 400
+            }}
+          >
+
+            <Typography
+              variant="h6"
+              fontWeight={700}
+              mb={2}
+            >
+              Aluguéis por Estado
+            </Typography>
+
+
+            <Box
+              sx={{
+                width: '100%',
+                height: 320
+              }}
+            >
+
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+              >
+
+                <BarChart
+                  data={
+                    stats.alugueisPorEstado || []
+                  }
+                >
+
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                  />
+
+                  <XAxis
+                    dataKey="estado"
+                  />
+
+                  <YAxis />
+
+                  <Tooltip />
+
+                  <Bar
+                    dataKey="total"
+                    radius={[
+                      6,
+                      6,
+                      0,
+                      0
+                    ]}
+                  />
+
+                </BarChart>
+
+              </ResponsiveContainer>
+
+            </Box>
+
+          </Paper>
+
+        </Grid>
+
+
+        {/* ================================================
+            EQUIPAMENTOS POR LOCALIZAÇÃO
+        ================================================= */}
+
+        <Grid
+          size={{ xs: 12, md: 6 }}
+        >
+
+          <Paper
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              height: 400
+            }}
+          >
+
+            <Typography
+              variant="h6"
+              fontWeight={700}
+              mb={2}
+            >
+              Equipamentos por Localização
+            </Typography>
+
+
+            <Box
+              sx={{
+                width: '100%',
+                height: 320
+              }}
+            >
+
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+              >
+
+                <BarChart
+                  data={
+                    stats.porLocalizacao || []
+                  }
+                >
+
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                  />
+
+                  <XAxis
+                    dataKey="localizacao"
+                  />
+
+                  <YAxis />
+
+                  <Tooltip />
+
+                  <Bar
+                    dataKey="total"
+                    radius={[
+                      6,
+                      6,
+                      0,
+                      0
+                    ]}
+                  />
+
+                </BarChart>
+
+              </ResponsiveContainer>
+
+            </Box>
 
           </Paper>
 
@@ -337,5 +842,4 @@ export default function AnalyticsPage() {
     </Box>
 
   )
-
 }

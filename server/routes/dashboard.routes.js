@@ -1,10 +1,15 @@
 // routes/dashboard.routes.js
-import express from 'express';
 
-import {getStats} from '../controllers/dashboard.controller.js'
-const router = express.Router();
+import express from 'express'
+import { getStats } from '../controllers/dashboard.controller.js'
+import { authMiddleware } from '../middleware/auth.middleware.js'
 
-// Associa a rota de estatísticas à função correta
-router.get('/stats', getStats);
+const router = express.Router()
 
-export default router;
+router.get(
+  '/stats',
+  authMiddleware,
+  getStats
+)
+
+export default router

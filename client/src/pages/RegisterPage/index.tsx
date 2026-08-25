@@ -26,6 +26,24 @@ export default function RegisterPage() {
   })
 
   const register = async () => {
+
+    if(!user.nome.trim()){
+      alert('Infome o nome.')
+      return
+    }
+
+
+    if(!user.email.trim()){
+      alert('Infome o email.')
+      return
+    }
+
+
+    if(!user.password.trim()){
+      alert('Infome a senha.')
+      return
+    }
+
     if(user.password !== user.confirmPassword){
       alert('As senhas não coincidem')
       return
@@ -35,7 +53,9 @@ export default function RegisterPage() {
 
       setLoading(true)
 
-      await api.post(
+      console.log('Registrando usuário...')
+
+      const response = await api.post(
         `/registrar`, {
           nome: user.nome,
           email: user.email,
@@ -44,16 +64,19 @@ export default function RegisterPage() {
         }
       )
       alert('Usuario Registrado com Sucesso')
-
-      navigate('/login')
+      localStorage.removeItem('token')
+      localStorage.removeItem('usuario')
+      navigate('/login', {
+        replace: true
+      })
 
 
     } catch(error:any) {
       console.error(error)
       alert(
         error.response?.data?.message ||
-        error.response?.data?.error ||
-        'Erro ao Regisrtar Usuario'
+          error.response?.data?.error ||
+          'Erro ao Regisrtar Usuario'
       )
 
     } finally {
@@ -98,10 +121,10 @@ export default function RegisterPage() {
           margin="normal"
           value={user.nome}
           onChange={(e)=>
-              setUser({
-                ...user,
-                nome: e.target.value
-              })
+            setUser({
+            ...user,
+            nome: e.target.value
+          })
           }
         />
 
@@ -112,10 +135,10 @@ export default function RegisterPage() {
           margin="normal"
           value={user.email}
           onChange={(e)=>
-              setUser({
-                ...user,
-                email: e.target.value
-              })
+            setUser({
+            ...user,
+            email: e.target.value
+          })
           }
         />
 
@@ -126,10 +149,10 @@ export default function RegisterPage() {
           margin="normal"
           value={user.telefone}
           onChange={(e)=>
-              setUser({
-                ...user,
-                telefone: e.target.value
-              })
+            setUser({
+            ...user,
+            telefone: e.target.value
+          })
           }
         />
 
@@ -140,10 +163,10 @@ export default function RegisterPage() {
           margin="normal"
           value={user.password}
           onChange={(e)=>
-              setUser({
-                ...user,
-                password: e.target.value
-              })
+            setUser({
+            ...user,
+            password: e.target.value
+          })
           }
         />
 
@@ -160,15 +183,15 @@ export default function RegisterPage() {
           }
           helperText={
             user.confirmPassword.length > 0 &&
-              user.password !== user.confirmPassword
-                ? 'AS Senhas não coincidem'
-                : ''
+            user.password !== user.confirmPassword
+              ? 'AS Senhas não coincidem'
+              : ''
           }
           onChange={(e)=>
-              setUser({
-                ...user,
-                confirmPassword: e.target.value
-              })
+            setUser({
+            ...user,
+            confirmPassword: e.target.value
+          })
           }
         />
 
@@ -182,14 +205,14 @@ export default function RegisterPage() {
           {loading ? 'Registrando...' : 'Registrar'}
         </Button>
 
-       <Button
+        <Button
           fullWidth
           variant="contained"
           sx={{ mt:3 }}
           disabled={loading}
-         onClick={(e) => navigate('/login')}
+          onClick={(e) => navigate('/login')}
         >
-         Login
+          Login
         </Button>
 
       </Paper>
